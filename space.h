@@ -12,6 +12,19 @@
 #define PAWN	0x5
 #define EMPTY	0xF
 
+#define WHITE_KING	 8
+#define WHITE_QUEEN	 9
+#define WHITE_ROOK	 10
+#define WHITE_BISHOP 11
+#define WHITE_KNIGHT 12
+#define WHITE_PAWN   13
+
+#define BLACK_KING   KING
+#define BLACK_QUEEN	 QUEEN
+#define BLACK_ROOK	 ROOK
+#define BLACK_BISHOP BISHOP
+#define BLACK_KNIGHT KNIGHT
+#define BLACK_PAWN   PAWN
 
 typedef struct{
 	//type includes: color, and the type of piece: 1 = white 0 = black
