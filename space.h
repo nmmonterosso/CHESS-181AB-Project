@@ -20,8 +20,8 @@
 #define WHITE_PAWN   13
 
 #define BLACK_KING   KING
-#define BLACK_QUEEN	 QUEEN
-#define BLACK_ROOK	 ROOK
+#define BLACK_QUEEN  QUEEN
+#define BLACK_ROOK   ROOK
 #define BLACK_BISHOP BISHOP
 #define BLACK_KNIGHT KNIGHT
 #define BLACK_PAWN   PAWN
