@@ -9,7 +9,7 @@
 #include "board.h"
 
 //void makeBoard(space *board[8][8]);
-//MACROS //
+//MACROS IN SPACE.H
 
 
 

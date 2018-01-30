@@ -4,13 +4,13 @@
 #define WHITE 0xF
 #define BLACK 0x7
 
-#define KING	0
-#define QUEEN	1	
-#define ROOK	2
-#define BISHOP	3
-#define KNIGHT	4
-#define PAWN	5
-#define EMPTY 0xF
+#define KING	0x0
+#define QUEEN	0x1
+#define ROOK	0x2
+#define BISHOP	0x3
+#define KNIGHT	0x4
+#define PAWN	0x5
+#define EMPTY	0xF
 
 
 typedef struct{
