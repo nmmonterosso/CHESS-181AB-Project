@@ -12,9 +12,9 @@
 #define PAWN	0x5
 #define EMPTY	0xF
 
-#define WHITE_KING	 8
-#define WHITE_QUEEN	 9
-#define WHITE_ROOK	 10
+#define WHITE_KING   8
+#define WHITE_QUEEN  9
+#define WHITE_ROOK   10
 #define WHITE_BISHOP 11
 #define WHITE_KNIGHT 12
 #define WHITE_PAWN   13
