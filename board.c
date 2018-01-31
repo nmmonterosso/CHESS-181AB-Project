@@ -1,47 +1,12 @@
 #include "stdafx.h"
 #include "board.h"
 #include "space.h"
-
+#include "move.h"
 //SEE MACROS IN SPACE.H
 
-//Summary: Calculates each possible movement a rook can move given a starting space.
-//Stores the 
-//Assumes the Board is empty so this result must be compared to 
-/*void setRookMoves(Board *board, int i, int j, space *startSpace)
-{
-	
-	//Calculating horizontal +X direction RIGHT
-	int x, y;
-	for (x = j; x < 8; x++) {
 
 
-	}//end FOR +X
-
-	 //Calculating horizontal -X direction LEFT
-
-	for (x = j; x > 0; x--) {
-
-
-	}//end FOR -X
-
-
-	//Calculating vertical +y direction: UP
-	int x, y;
-	for (int y = i; y < 8; y++) {
-
-
-	}//end FOR +Y
-
-	//Calculating vertical -y direction: Down
-	for (y = i; i > 0 y--) {
-
-
-	}//end FOR -Y
-
-
-}//verticalHorizontal_move*/
-
-void makeBoard(Board *board)
+void makeBoard(Board *board, Move *move)
 {
 	// Initializes boardstate for a new game:
 	// i represents vertical spaces  [0-7] -> (1-8)
@@ -52,11 +17,11 @@ void makeBoard(Board *board)
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			//printf("boardInt = [%d]", boardInt);
-			//->boardSpaces = malloc(sizeof(space));
-			setSpace(board, i, j);
+			//printf("boardInt = [%d]", boardInt);			
+			setSpace(board, i, j);			
 		}//end for j
 	}//end for i
+	setMoves(board, move); //set moves
 }// makeBoard
 
 void setSpace(Board *board, unsigned int i, unsigned int j)

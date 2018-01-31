@@ -7,6 +7,7 @@
 #include "piece.h"
 #include "space.h"
 #include "board.h"
+#include "move.h"
 
 //void makeBoard(space *board[8][8]);
 //MACROS IN SPACE.H
@@ -18,7 +19,9 @@ int main()
 	//Initialize board
 	char *castlingRights = 0xF;  //castling rights: = ({Wkingside, Wqueenside}, {Bkingside, BQueenside}, {4-bit unused so far}) 
 	Board *board = malloc(sizeof(Board));
-	makeBoard(board);	// Initializes board state and pieces:
+	Move  *move = malloc(sizeof(Move));
+
+	makeBoard(board, move);	// Initializes board state and pieces:
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
 	while (1) {		
