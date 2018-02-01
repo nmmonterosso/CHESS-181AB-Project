@@ -11,6 +11,8 @@ typedef struct {
 
 }Move;
 
+void setBishopMoves(Board *board, int i, int j, Move *move);
+void setKnightMoves(Board *board, int i, int j, Move *move);
 void setRookMoves(Board *board, int i, int j, Move *move);//TODO Precomputes vertical and horizontal movement for each space on the board
 void setMoves(Board *board, Move *move);
 #endif // !MOVE_H_
