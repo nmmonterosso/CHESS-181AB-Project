@@ -4,14 +4,27 @@
 #define WHITE 0xF
 #define BLACK 0x7
 
-#define KING	0
-#define QUEEN	1	
-#define ROOK	2
-#define BISHOP	3
-#define KNIGHT	4
-#define PAWN	5
-#define EMPTY 0xF
+#define KING	0x0
+#define QUEEN	0x1
+#define ROOK	0x2
+#define BISHOP	0x3
+#define KNIGHT	0x4
+#define PAWN	0x5
+#define EMPTY	0xF
 
+#define WHITE_KING   8
+#define WHITE_QUEEN  9
+#define WHITE_ROOK   10
+#define WHITE_BISHOP 11
+#define WHITE_KNIGHT 12
+#define WHITE_PAWN   13
+
+#define BLACK_KING   KING
+#define BLACK_QUEEN  QUEEN
+#define BLACK_ROOK   ROOK
+#define BLACK_BISHOP BISHOP
+#define BLACK_KNIGHT KNIGHT
+#define BLACK_PAWN   PAWN
 
 typedef struct{
 	//type includes: color, and the type of piece: 1 = white 0 = black

@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "board.h"
 #include "space.h"
+#include "move.h"
+//SEE MACROS IN SPACE.H
 
-//MACROS
 
-void makeBoard(Board *board)
+
+void makeBoard(Board *board, Move *move)
 {
 	// Initializes boardstate for a new game:
 	// i represents vertical spaces  [0-7] -> (1-8)
@@ -15,11 +17,11 @@ void makeBoard(Board *board)
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			//printf("boardInt = [%d]", boardInt);
-			//->boardSpaces = malloc(sizeof(space));
-			setSpace(board, i, j);
+			//printf("boardInt = [%d]", boardInt);			
+			setSpace(board, i, j);			
 		}//end for j
 	}//end for i
+	setMoves(board, move); //set moves
 }// makeBoard
 
 void setSpace(Board *board, unsigned int i, unsigned int j)
@@ -43,14 +45,14 @@ void setSpace(Board *board, unsigned int i, unsigned int j)
 	}//if backline	
 	else {
 		switch (j) {
-		case(0):board->boardSpaces[i][j].pieceType = ROOK	& (i == 0) ? WHITE : BLACK;	break;	//White/Black Rook	 (0b1010 : 0b0010)
-		case(1):board->boardSpaces[i][j].pieceType = KNIGHT	& (i == 0) ? WHITE : BLACK;	break;	//White/Black kNight (0b1100 : 0b0100)
-		case(2):board->boardSpaces[i][j].pieceType = BISHOP	& (i == 0) ? WHITE : BLACK;	break;	//White/Black Bishop (0b1011 : 0b0011)
-		case(3):board->boardSpaces[i][j].pieceType = QUEEN	& (i == 0) ? WHITE : BLACK;	break;	//White/Black Queen	 (0b1001 : 0b0001)	
-		case(4):board->boardSpaces[i][j].pieceType = KING	& (i == 0) ? WHITE : BLACK;	break;	//White/Black King	 (0b1000 : 0b0000)
-		case(5):board->boardSpaces[i][j].pieceType = BISHOP	& (i == 0) ? WHITE : BLACK;	break;	//White/Black Bishop (0b1011 : 0b0011)	
-		case(6):board->boardSpaces[i][j].pieceType = KNIGHT	& (i == 0) ? WHITE : BLACK;	break;	//White/Black kNight (0b1100 : 0b0100)	
-		case(7):board->boardSpaces[i][j].pieceType = ROOK	& (i == 0) ? WHITE : BLACK;	break;	//White/Black Rook	 (0b1010 : 0b0010)
+		case(0):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_ROOK	  : BLACK_ROOK);	break;	//White/Black Rook	 (0b1010 : 0b0010)
+		case(1):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_KNIGHT : BLACK_KNIGHT);	break;	//White/Black kNight (0b1100 : 0b0100)
+		case(2):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_BISHOP : BLACK_BISHOP);	break;	//White/Black Bishop (0b1011 : 0b0011)
+		case(3):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_QUEEN  : BLACK_QUEEN);	break;	//White/Black Queen	 (0b1001 : 0b0001)	
+		case(4):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_KING   : BLACK_KING);	break;	//White/Black King	 (0b1000 : 0b0000)
+		case(5):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_BISHOP : BLACK_BISHOP);	break;	//White/Black Bishop (0b1011 : 0b0011)	
+		case(6):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_KNIGHT : BLACK_KNIGHT);	break;	//White/Black kNight (0b1100 : 0b0100)	
+		case(7):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_ROOK   : BLACK_ROOK);	break;	//White/Black Rook	 (0b1010 : 0b0010)
 		default:board->boardSpaces[i][j].pieceType = EMPTY;  break; //empty piece default
 		}//switch
 	}//endElse

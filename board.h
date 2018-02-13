@@ -16,6 +16,8 @@ typedef struct {
 
 #endif // !
 #
+
 void makeBoard(Board *board);
+
 void printBoard(Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
