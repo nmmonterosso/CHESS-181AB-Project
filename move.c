@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "board.h"
 #include "move.h"
+#include "movegen.h"
+
+
+
 
 //Summary: Calculates each possible move a bishop can move to when given a starting space
 //Assumes Board is empty so this result must check to see if spaces in the path are occupied
@@ -152,15 +156,44 @@ void setRookMoves(Board *board, int i, int j, Move *move)
 //Summary: Passes the board and arguments to preconfigure the board movement.
 //All movement in this board is assumed to be on an empty board and must be compared
 //to the present board state to determine obstacle collisions.
-void setMoves(Board *board, Move *move) {
+void setMoves(Board *board, Move *move, MoveGen *movegen) {
+	int x = 0;
+	int y = 0;
+
+	for (int i = 0; i <= 100; i++) {		
+		//Initialize MoveGen List to -1:
+		movegen->Moves[i].piece = -1;
+		movegen->Moves[i].startLocation = -1;
+		movegen->Moves[i].endLocation = -1;
+		movegen->Moves[i].capturedPiece = -1;
+	}//endfor	
+	movegen->count = 0;
+
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			//printf("boardInt = [%d]", boardInt);			
 			setRookMoves(board, i, j, move);
 			setKnightMoves(board, i, j, move);
 			setBishopMoves(board, i, j, move);
+			if (board->boardSpaces[i][j].isOccupied && 
+			   ((board->boardSpaces[i][j].pieceType & WHITE) >= 8)) {
+				//move->whiteMoves[x] = board->boardSpaces[i][j].boardposition;
+				x++;
+			}// end if
+			else
+			{
+				//move->blackMoves[y] = board->boardSpaces[i][j].boardposition;
+				y++;
+			}//end else
+
+
 			//TODO SET PAWN MOVES?
 			//SET QUEEN MOVES
 		}//end for j
-	}//end for i
-}//setMoves
+	}//end for i	
+}
+
+//setMoves
+
+
+

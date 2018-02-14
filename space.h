@@ -1,6 +1,7 @@
 #ifndef SPACE_H_
 #define SPACE_H_
 
+
 #define WHITE 0xF
 #define BLACK 0x7
 
@@ -25,6 +26,19 @@
 #define BLACK_BISHOP BISHOP
 #define BLACK_KNIGHT KNIGHT
 #define BLACK_PAWN   PAWN
+
+#define WHITE_TURN 1
+#define BLACK_TURN 0
+
+#define PIECE_TYPE 1
+#define BOARD_POSITION 0
+#define IS_OCCUPIED 1
+#define NO_CAPTURE -1
+
+#define WHITE_PIECE 0x8 
+#define BLACK_PIECE 0x7
+#define GET_PIECE_TYPE 0xF
+
 
 typedef struct{
 	//type includes: color, and the type of piece: 1 = white 0 = black
