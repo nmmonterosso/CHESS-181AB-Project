@@ -3,6 +3,8 @@
 
 
 
+
+void AddToMoveList  (MoveGen *movegen, char Start_Location, char End_Location, char Piece, char Captured_Piece);
 void Addr_Conversion(char boardposition, int Board_Coordinates[2]);
 void MoveGenFunction(Board *board, Move *move, MoveGen *movegen);
 void MoveGenPawn	(Board *board, Move *move, MoveGen *movegen, int count);

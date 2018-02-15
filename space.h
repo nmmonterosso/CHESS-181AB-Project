@@ -33,6 +33,7 @@
 #define PIECE_TYPE 1
 #define BOARD_POSITION 0
 #define IS_OCCUPIED 1
+#define NOT_OCCUPIED 0
 #define NO_CAPTURE -1
 
 #define WHITE_PIECE 0x8 

@@ -14,12 +14,14 @@ typedef struct {
 
 
 typedef struct {
-
+	//PRECOMPILED MOVES BY TYPE
 	char rookMoves[8][8][14]; //8x8 array of 14 long array. (3D array). Exactly 14 destinations exist for each rook.
 	char knightMoves[8][8][8]; //Knights can move at max 8 different locations
 	char bishopMoves[8][8][13]; //Bishops can move at maximum 8 locations
-	char blackSpaces[16][2];	//Stores the type and locations for each Move white can make
-	char whiteSpaces[16][2];	//Stores the type and locations for each Move Black can make (IE NE4 = Knight E4):
+
+	//Actual List of active controlled spaces/pieces:
+	char blackSpaces[16][2];	//Stores the type and locations for each Move black can make
+	char whiteSpaces[16][2];	//Stores the type and locations for each Move white can make (IE NE4 = Knight E4):
 								//TODO Put Pawn Moves as well:
 
 }Move;
