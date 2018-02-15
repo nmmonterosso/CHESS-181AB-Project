@@ -7,7 +7,8 @@
 typedef struct {
 
 	space boardSpaces[8][8];
-	char  turn; //1 if white turn, 0 if black;
+	char  turn;				//1 if white turn, 0 if black;
+	char  castlingRights;	//KQkq
 
 }Board;
 
@@ -45,7 +46,7 @@ typedef struct {
 
 
 void initializePositions(Move *move);
-void makeBoard(Board *board, Move *move, MoveGen *movegen);
+void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory);
 void printBoard(Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
 

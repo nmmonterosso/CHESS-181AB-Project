@@ -5,6 +5,61 @@
 
 
 
+//SUMMARY: Makes Move given the Movelist parameter and stores the MoveList
+//into an array of Moves already done:
+void makeMove(Board *board, MoveList move, MoveGen *moveHistory)
+{
+	int StartCoordinates[2], EndCoordinates[2];
+	int i, j, k, l;
+	Addr_Conversion(move.startLocation, StartCoordinates);
+	Addr_Conversion(move.endLocation,   EndCoordinates);
+
+	i = StartCoordinates[0];
+	j = StartCoordinates[1];
+	k = EndCoordinates[0];
+	l = EndCoordinates[1];
+
+	board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED; //set Start Unoccupied
+	board->boardSpaces[i][j].pieceType  = EMPTY;		//set Start Piece EMPTY
+
+	board->boardSpaces[k][l].isOccupied = IS_OCCUPIED; //Set endLocation OCCUPIED
+	board->boardSpaces[k][l].pieceType = move.piece;	  //Set EndLocation's Piecetype
+	
+	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
+	moveHistory->count++;							//Appends move history	
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
+}//MakeMove
+
+void unMakeMove(Board *board, MoveGen *moveHistory)
+{
+	int StartCoordinates[2], EndCoordinates[2];
+	int i, j, k, l;
+	Addr_Conversion(moveHistory->Moves[moveHistory->count].endLocation, StartCoordinates);
+	Addr_Conversion(moveHistory->Moves[moveHistory->count].startLocation, EndCoordinates);
+
+	i = StartCoordinates[0];
+	j = StartCoordinates[1];
+	k = EndCoordinates[0];
+	l = EndCoordinates[1];
+
+
+	if (moveHistory->Moves[moveHistory->count].capturedPiece != NO_CAPTURE) {
+		board->boardSpaces[i][j].isOccupied = IS_OCCUPIED;
+		board->boardSpaces[i][j].pieceType = moveHistory->Moves[moveHistory->count].capturedPiece;
+	}//end if Captured piece
+
+	board->boardSpaces[k][l].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[k][l].pieceType = moveHistory->Moves[moveHistory->count].piece;
+
+	//TODO: Free memory for history HERE:
+	moveHistory->Moves[moveHistory->count].capturedPiece	= -1;
+	moveHistory->Moves[moveHistory->count].startLocation	= -1;
+	moveHistory->Moves[moveHistory->count].endLocation		= -1;
+	moveHistory->Moves[moveHistory->count].piece			= -1;
+	moveHistory->count--;
+	//TODO, RESTORE CASTLING RIGHTS/ EN PASSANT:
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
+}//UnMakeMove
 
 //Summary: Calculates each possible move a bishop can move to when given a starting space
 //Assumes Board is empty so this result must check to see if spaces in the path are occupied
@@ -156,7 +211,7 @@ void setRookMoves(Board *board, int i, int j, Move *move)
 //Summary: Passes the board and arguments to preconfigure the board movement.
 //All movement in this board is assumed to be on an empty board and must be compared
 //to the present board state to determine obstacle collisions.
-void setMoves(Board *board, Move *move, MoveGen *movegen) {
+void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) {
 	int x = 0;
 	int y = 0;
 
@@ -166,9 +221,15 @@ void setMoves(Board *board, Move *move, MoveGen *movegen) {
 		movegen->Moves[i].startLocation = -1;
 		movegen->Moves[i].endLocation = -1;
 		movegen->Moves[i].capturedPiece = -1;
+		//Initialize MoveHistory list to -1:
+		movehistory->Moves[i].piece = -1;
+		movehistory->Moves[i].startLocation = -1;
+		movehistory->Moves[i].endLocation = -1;
+		movehistory->Moves[i].capturedPiece = -1;
 	}//endfor	
 	movegen->count = 0;
-
+	movehistory->count = 0;
+	
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			//printf("boardInt = [%d]", boardInt);			

@@ -67,7 +67,7 @@ void initializePositions(Move *move) {
 
 
 
-void makeBoard(Board *board, Move *move, MoveGen *movegen)
+void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 {
 	// Initializes boardstate for a new game:
 	// i represents vertical spaces  [0-7] -> (1-8)
@@ -76,7 +76,8 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen)
 	// int boardInt;	
 	//board = (board) malloc(sizeof(board));
 
-	board->turn = WHITE_TURN;	//Initialize WHITE TURN
+	board->turn = WHITE_TURN;	 //Initialize WHITE TURN
+	board->castlingRights = 0xF; //KQkq
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -84,7 +85,7 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen)
 			setSpace(board, i, j);			
 		}//end for j
 	}//end for i
-	setMoves(board, move, movegen); //sets moves
+	setMoves(board, move, movegen, movehistory); //sets moves
 	initializePositions(move);		//sets spaces for the black and white pieces:
 	//checkMoves(board, move); UNRESOLVED SYMBOL ERROR
 }// makeBoard
@@ -106,9 +107,9 @@ void setSpace(Board *board, unsigned int i, unsigned int j)
 	 //Set Piece types on occupied board depending on which i and j value the board is on.
 
 	if ((i == 1) || (i == 6)) {
-		(i == 1) ? board->boardSpaces[i][j].pieceType = 0x0D : 0x05;			//Set White/Black Pawns: (0x1101/0x101)
+		(board->boardSpaces[i][j].pieceType = ((i == 1) ? WHITE_PAWN : BLACK_PAWN));			//Set White/Black Pawns: (0x1101/0x101)
 	}//if backline	
-	else {
+	else if ((i == 0) || (i == 7)){
 		switch (j) {
 		case(0):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_ROOK	  : BLACK_ROOK);	break;	//White/Black Rook	 (0b1010 : 0b0010)
 		case(1):board->boardSpaces[i][j].pieceType = ((i == 0) ? WHITE_KNIGHT : BLACK_KNIGHT);	break;	//White/Black kNight (0b1100 : 0b0100)

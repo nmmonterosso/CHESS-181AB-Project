@@ -16,17 +16,25 @@
 
 int main()
 {
-	//Initialize board
-	char *castlingRights = 0xF;  //castling rights: = ({Wkingside, Wqueenside}, {Bkingside, BQueenside}, {4-bit unused so far}) 	
+	//Initialize board		
 	Board *board = malloc(sizeof(Board));
 	Move  *move = malloc(sizeof(Move));
 	MoveGen *movegen = malloc(sizeof(MoveGen));
-	
-	makeBoard(board, move, movegen);	// Initializes board state and pieces. Precompiles all moves:
+	MoveGen *movehistory = malloc(sizeof(MoveGen));
+
+	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
 	MoveGenFunction(board, move, movegen);
 	printBoard(board);  //Prints Board into Console:
-	
 	printf("Hello World!\n");
+	makeMove(board, movegen->Moves[5], movehistory);
+	printBoard(board); //Prints Second board:
+	//REALLOCATE
+	//MoveGen *movegen = realloc(movegen, sizeof(MoveGen));
+	movegen->count = 0;// pseudo reset
+	//Calculate Black Moves:
+	MoveGenFunction(board, move, movegen);	
+	printBoard(board);
+	
 	while (1) {		
 		//MoveGeneration Function:
 		//BoardEvaluation Function:

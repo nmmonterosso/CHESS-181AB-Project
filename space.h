@@ -35,6 +35,7 @@
 #define IS_OCCUPIED 1
 #define NOT_OCCUPIED 0
 #define NO_CAPTURE -1
+#define NO_MOVE -1
 
 #define WHITE_PIECE 0x8 
 #define BLACK_PIECE 0x7

@@ -12,6 +12,7 @@ void MoveGenKnight	(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenRook	(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenBishop	(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenKing	(Board *board, Move *move, MoveGen *movegen, int count);
+void MoveGenQueen	(Board *board, Move *move, MoveGen *movegen, int count);
 
 #endif // !MOVEGEN_H_
 #pragma once
