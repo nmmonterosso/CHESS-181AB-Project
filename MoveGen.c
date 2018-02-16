@@ -104,7 +104,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 
 		if (board->boardSpaces[a - 1][b].isOccupied == NOT_OCCUPIED) {
 			AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b].boardposition, BLACK_PAWN, NO_CAPTURE);		
-			if (board->boardSpaces[a - 2][b].isOccupied == NOT_OCCUPIED && (a == 7)) 
+			if (board->boardSpaces[a - 2][b].isOccupied == NOT_OCCUPIED && (a == 6)) 
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 2][b].boardposition, BLACK_PAWN, NO_CAPTURE);			
 		}//end if // move forward 1
 
@@ -224,7 +224,7 @@ void MoveGenRook(Board *board, Move *move, MoveGen *movegen, int count)
 			a = Board_Coordinates[0];
 			b = Board_Coordinates[1];
 			if (board->boardSpaces[a][b].isOccupied == IS_OCCUPIED) {
-				if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE >= WHITE_PIECE)) //ERROR HERE?
+				if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE) //ERROR HERE?
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, BLACK_ROOK, board->boardSpaces[a][b].pieceType);
 				if (a > i)			 //When moving right
 					x = x + (7 - a); //Skip to next index of precompiled move
@@ -329,7 +329,7 @@ void MoveGenQueen(Board * board, Move * move, MoveGen * movegen, int count)
 			a = Board_Coordinates[0];
 			b = Board_Coordinates[1];
 			if (board->boardSpaces[a][b].isOccupied == IS_OCCUPIED) {
-				if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE <= BLACK))
+				if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE) <= BLACK)
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, WHITE_ROOK, board->boardSpaces[a][b].pieceType);
 				if (a > i)			 //When moving UP
 					x = x + (7 - a); //Skip to next index of precompiled move
@@ -380,7 +380,7 @@ void MoveGenQueen(Board * board, Move * move, MoveGen * movegen, int count)
 			a = Board_Coordinates[0];
 			b = Board_Coordinates[1];
 			if (board->boardSpaces[a][b].isOccupied == IS_OCCUPIED) {
-				if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE >= WHITE_PIECE))
+				if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, BLACK_ROOK, board->boardSpaces[a][b].pieceType);
 				if (a > i)			 //When moving right
 					x = x + (7 - a); //Skip to next index of precompiled move
