@@ -13,7 +13,6 @@ void Addr_Conversion(char boardposition, int Board_Coordinates[2])
 	Board_Coordinates[1] = boardposition % 8;
 } //Addr_Conversion
 
-
 //Summary: Appends the movelist with the current legal move:
 void AddToMoveList(MoveGen *movegen, char Start_Location, char End_Location, char Piece, char Captured_Piece){
 	movegen->Moves[movegen->count].startLocation = Start_Location;
@@ -22,6 +21,42 @@ void AddToMoveList(MoveGen *movegen, char Start_Location, char End_Location, cha
 	movegen->Moves[movegen->count].capturedPiece = Captured_Piece;
 	movegen->count++;
 }//addToMoveList
+
+void initializeMoveGen(MoveGen *movegen) {
+	for (int i = 0; i <= 100; i++) {
+		//Initialize MoveGen List to -1:
+		movegen->Moves[i].piece = -1;
+		movegen->Moves[i].startLocation = -1;
+		movegen->Moves[i].endLocation = -1;
+		movegen->Moves[i].capturedPiece = -1;		
+	}//endfor	
+	movegen->count = 0;
+}
+
+void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth)
+{
+	//TODO: Create move tree to desired depth and 	
+	if (depth == MAXDEPTH) {
+		//BOARD EVALUATE RETURN BOARD EVALUATION:
+		return;
+	}//end if 
+	
+	else{
+		for (int i = 0; i < movegen->count; i++) {
+			//Make Move, Evaluate possible moves, repeat until at max depth.
+			makeMove(board, movegen->Moves[i], movehistory, move);				
+			printBoard(board);			
+			movetree->MoveTreeNode[depth + 1].count = 0;
+			MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
+			makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1); //Go one more depth lower:
+			printBoard(board);
+			unMakeMove(board, movehistory, move);
+			printBoard(board);
+		}//end for 
+	}
+}//makeMoveTree
+
+
 
 
 

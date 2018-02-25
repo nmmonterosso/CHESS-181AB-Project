@@ -7,7 +7,7 @@
 
 //SUMMARY: Makes Move given the Movelist parameter and stores the MoveList
 //into an array of Moves already done:
-void makeMove(Board *board, MoveList move, MoveGen *moveHistory)
+void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace)
 {
 	int StartCoordinates[2], EndCoordinates[2];
 	int i, j, k, l;
@@ -18,7 +18,7 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory)
 	j = StartCoordinates[1];
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
-
+		
 	board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED; //set Start Unoccupied
 	board->boardSpaces[i][j].pieceType  = EMPTY;		//set Start Piece EMPTY
 
@@ -27,39 +27,96 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory)
 	
 	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
 	moveHistory->count++;							//Appends move history	
-	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
-}//MakeMove
 
-void unMakeMove(Board *board, MoveGen *moveHistory)
+	updateColorSpaces(board, move, moveSpace);
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);	
+}
+
+
+void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 {
 	int StartCoordinates[2], EndCoordinates[2];
 	int i, j, k, l;
-	Addr_Conversion(moveHistory->Moves[moveHistory->count].endLocation, StartCoordinates);
-	Addr_Conversion(moveHistory->Moves[moveHistory->count].startLocation, EndCoordinates);
+	Addr_Conversion(moveHistory->Moves[moveHistory->count - 1].endLocation, StartCoordinates);
+	Addr_Conversion(moveHistory->Moves[moveHistory->count - 1].startLocation, EndCoordinates);
 
 	i = StartCoordinates[0];
 	j = StartCoordinates[1];
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
+	
 
-
-	if (moveHistory->Moves[moveHistory->count].capturedPiece != NO_CAPTURE) {
+	if (moveHistory->Moves[moveHistory->count - 1].capturedPiece != NO_CAPTURE) {
 		board->boardSpaces[i][j].isOccupied = IS_OCCUPIED;
-		board->boardSpaces[i][j].pieceType = moveHistory->Moves[moveHistory->count].capturedPiece;
+		board->boardSpaces[i][j].pieceType = moveHistory->Moves[moveHistory->count - 1].capturedPiece;
 	}//end if Captured piece
 
-	board->boardSpaces[k][l].isOccupied = IS_OCCUPIED;
-	board->boardSpaces[k][l].pieceType = moveHistory->Moves[moveHistory->count].piece;
+	else {
+		board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED;
+		board->boardSpaces[i][j].pieceType = EMPTY;
+	}//end else no captured
 
+	board->boardSpaces[k][l].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[k][l].pieceType = moveHistory->Moves[moveHistory->count - 1].piece;
+
+
+	updateColorSpaces(board, moveHistory->Moves[moveHistory->count], moveSpace); 
 	//TODO: Free memory for history HERE:
 	moveHistory->Moves[moveHistory->count].capturedPiece	= -1;
 	moveHistory->Moves[moveHistory->count].startLocation	= -1;
 	moveHistory->Moves[moveHistory->count].endLocation		= -1;
 	moveHistory->Moves[moveHistory->count].piece			= -1;
 	moveHistory->count--;
-	//TODO, RESTORE CASTLING RIGHTS/ EN PASSANT:
+	//TODO, RESTORE CASTLING RIGHTS/ EN PASSANT:	
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
 }//UnMakeMove
+
+
+
+
+
+
+//Summary: updates colorspaces for movegeneration for the next set. Allows for easier calculations of which piece belongs to both sides:
+void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace)
+{
+	if (move.capturedPiece == NO_CAPTURE) {
+		for (int i = 0; i < 16; i++) {
+			if (board->turn == WHITE_TURN) {
+				if (move.startLocation == moveSpace->whiteSpaces[i][BOARD_POSITION])
+					moveSpace->whiteSpaces[i][BOARD_POSITION] = move.endLocation;
+			}//white turn
+			else {
+				if (move.startLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) 
+					moveSpace->blackSpaces[i][BOARD_POSITION] = move.endLocation;				
+			}//black turn			
+		}//end for 		
+	}//end if 
+
+	else {
+		for (int i = 0; i < 16; i++) {
+			if (board->turn == WHITE_TURN) {
+				if (move.startLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) {
+					moveSpace->blackSpaces[i][PIECE_TYPE] = -1;
+					moveSpace->blackSpaces[i][BOARD_POSITION] = -1;					
+				}
+					
+			}//end if 
+			else {
+				if (move.startLocation == moveSpace->whiteSpaces[i][BOARD_POSITION]) {
+					moveSpace->whiteSpaces[i][PIECE_TYPE] = -1;
+					moveSpace->whiteSpaces[i][BOARD_POSITION] = -1;
+				}
+					
+			}//endelse
+		}//end for 
+	}//end else
+	
+}//updateColorSpaces
+//MakeMove
+
+
+
+
 
 //Summary: Calculates each possible move a bishop can move to when given a starting space
 //Assumes Board is empty so this result must check to see if spaces in the path are occupied
@@ -255,6 +312,7 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 }
 
 //setMoves
+
 
 
 

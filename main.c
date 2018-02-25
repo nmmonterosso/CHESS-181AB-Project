@@ -14,31 +14,38 @@
 
 
 
+
 int main()
 {
 	//Initialize board		
-	Board *board = malloc(sizeof(Board));
-	Move  *move = malloc(sizeof(Move));
-	MoveGen *movegen = malloc(sizeof(MoveGen));
-	MoveGen *movehistory = malloc(sizeof(MoveGen));
-
+	Board *board =		(Board*)malloc(sizeof(Board));
+	Move  *move =		(Move*)malloc(sizeof(Move));
+	MoveGen *movegen =	(MoveGen*)malloc(sizeof(MoveGen));
+	MoveGen *movehistory =	(MoveGen*)malloc(sizeof(MoveGen));
+	MoveTree *movetree =	(MoveTree*)malloc(sizeof(MoveTree));
+	
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
-	MoveGenFunction(board, move, movegen);
+	MoveGenFunction(board, move, movegen);			//Initial Movegen:
+	movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
-	makeMove(board, movegen->Moves[5], movehistory);
+	//makeMove(board, movegen->Moves[5], movehistory);
 	printBoard(board); //Prints Second board:
 	//REALLOCATE
 	//MoveGen *movegen = realloc(movegen, sizeof(MoveGen));
-	movegen->count = 0;// pseudo reset
+	//movegen->count = 0;// pseudo reset
 	//Calculate Black Moves:
-	MoveGenFunction(board, move, movegen);	
-	printBoard(board);
+	//MoveGenFunction(board, move, movegen);	
+	//printBoard(board);
 	
-	while (1) {		
-		//MoveGeneration Function:
-		//BoardEvaluation Function:
-	}
+	while (1) {	
+
+		makeMoveTree(board, move, movetree, movegen, movehistory, 0); //creates move tree based on all possible moves, calls board evaluation function, and makes move
+		//MAKE bEST MOVE HERE if it is BOT's TURN:
+		//else wait for opponent input:
+		//Make Tree:
+		//MoveGeneration Function:		
+	}//end while
 	return 0;
 }
 

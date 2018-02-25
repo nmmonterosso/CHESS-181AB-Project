@@ -4,9 +4,9 @@
 
 
 
-void makeMove(Board *board, MoveList move, MoveGen *moveHistory);
-void unMakeMove(Board *board, MoveGen *moveHistory);
-
+void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace);
+void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace);
+void updateColorSpaces(Board *board, MoveList move, Move *movespace);
 
 void setBishopMoves(Board *board, int i, int j, Move *move);
 void setKnightMoves(Board *board, int i, int j, Move *move);
