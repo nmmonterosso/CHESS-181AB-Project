@@ -55,6 +55,7 @@ void initializePositions(Move *move);
 void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory);
 void printBoard(Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
+void setBoard(Board *board, char command); //Sets current boardstate based on the command:
 
 #endif // !
 #pragma once

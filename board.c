@@ -126,6 +126,16 @@ void setSpace(Board *board, unsigned int i, unsigned int j)
 
 
 
+//Summary: Sets current boardstate based on string Forsythe notation:
+//		   Used to create custom boards for debugging purposes.	
+void setBoard(Board * board, char command)
+{
+
+
+}//setBoard
+
+
+
 void printBoard(Board *board) {
 	// Prints Current Board State to Console:
 	printf("**************************\n");
