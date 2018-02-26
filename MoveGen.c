@@ -33,7 +33,7 @@ void initializeMoveGen(MoveGen *movegen) {
 	movegen->count = 0;
 }
 
-void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth)
+void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth, int *MoveCounter)
 {
 	//TODO: Create move tree to desired depth and 	
 	if (depth == MAXDEPTH) {
@@ -44,11 +44,12 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 	else{
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
-			makeMove(board, movegen->Moves[i], movehistory, move);				
+			makeMove(board, movegen->Moves[i], movehistory, move);
+			*MoveCounter = *MoveCounter + 1; //Increment # of legal moves counter for debugging purposes.
 			printBoard(board);			
 			movetree->MoveTreeNode[depth + 1].count = 0;
 			MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
-			makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1); //Go one more depth lower:
+			makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, MoveCounter); //Go one more depth lower:
 			printBoard(board);
 			unMakeMove(board, movehistory, move);
 			printBoard(board);
@@ -152,7 +153,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 
 		 //Check Left Diagonal:
 		if (b > 0) {
-			if ((board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE))
+			if ((board->boardSpaces[a - 1][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE))
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_PAWN, board->boardSpaces[a - 1][b - 1].pieceType);				
 			 // TO DO: EN PASSANT HERE
 			 // TO DO: PROMOTE!:

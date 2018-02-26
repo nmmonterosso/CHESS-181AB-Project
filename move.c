@@ -59,16 +59,17 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	board->boardSpaces[k][l].isOccupied = IS_OCCUPIED;
 	board->boardSpaces[k][l].pieceType = moveHistory->Moves[moveHistory->count - 1].piece;
 
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
+	updateColorSpaces(board, moveHistory->Moves[moveHistory->count - 1], moveSpace); 
 
-	updateColorSpaces(board, moveHistory->Moves[moveHistory->count], moveSpace); 
 	//TODO: Free memory for history HERE:
+
 	moveHistory->Moves[moveHistory->count].capturedPiece	= -1;
 	moveHistory->Moves[moveHistory->count].startLocation	= -1;
 	moveHistory->Moves[moveHistory->count].endLocation		= -1;
 	moveHistory->Moves[moveHistory->count].piece			= -1;
 	moveHistory->count--;
-	//TODO, RESTORE CASTLING RIGHTS/ EN PASSANT:	
-	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
+	//TODO, RESTORE CASTLING RIGHTS/ EN PASSANT:		
 }//UnMakeMove
 
 
@@ -79,38 +80,35 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 //Summary: updates colorspaces for movegeneration for the next set. Allows for easier calculations of which piece belongs to both sides:
 void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace)
 {
-	if (move.capturedPiece == NO_CAPTURE) {
-		for (int i = 0; i < 16; i++) {
+	
+	for (int i = 0; i < 16; i++) {
+		if (board->turn == WHITE_TURN) {
+			if (move.startLocation == moveSpace->whiteSpaces[i][BOARD_POSITION])
+				moveSpace->whiteSpaces[i][BOARD_POSITION] = move.endLocation;	//updates on makemove()
+			else if (move.endLocation == moveSpace->whiteSpaces[i][BOARD_POSITION])
+				moveSpace->whiteSpaces[i][BOARD_POSITION] = move.startLocation; //updates on unmakemove()
+		}//white turn
+		else {
+			if (move.startLocation == moveSpace->blackSpaces[i][BOARD_POSITION])
+				moveSpace->blackSpaces[i][BOARD_POSITION] = move.endLocation;
+			else if (move.endLocation == moveSpace->blackSpaces[i][BOARD_POSITION])
+				moveSpace->blackSpaces[i][BOARD_POSITION] = move.startLocation; //used for undoing moves
+		}//black turn
+		if (move.capturedPiece != NO_CAPTURE) {
 			if (board->turn == WHITE_TURN) {
-				if (move.startLocation == moveSpace->whiteSpaces[i][BOARD_POSITION])
-					moveSpace->whiteSpaces[i][BOARD_POSITION] = move.endLocation;
-			}//white turn
-			else {
-				if (move.startLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) 
-					moveSpace->blackSpaces[i][BOARD_POSITION] = move.endLocation;				
-			}//black turn			
-		}//end for 		
-	}//end if 
-
-	else {
-		for (int i = 0; i < 16; i++) {
-			if (board->turn == WHITE_TURN) {
-				if (move.startLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) {
+				if (move.endLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) {
 					moveSpace->blackSpaces[i][PIECE_TYPE] = -1;
-					moveSpace->blackSpaces[i][BOARD_POSITION] = -1;					
-				}
-					
-			}//end if 
-			else {
-				if (move.startLocation == moveSpace->whiteSpaces[i][BOARD_POSITION]) {
+					moveSpace->blackSpaces[i][BOARD_POSITION] = -1;
+				}//endif				
+			}//endif 
+			else { //Black Turn capturing white piece
+				if (move.endLocation == moveSpace->whiteSpaces[i][BOARD_POSITION]) {
 					moveSpace->whiteSpaces[i][PIECE_TYPE] = -1;
 					moveSpace->whiteSpaces[i][BOARD_POSITION] = -1;
-				}
-					
-			}//endelse
-		}//end for 
-	}//end else
-	
+				}//end if
+			}//end else
+		}//end if no capture
+	}//end for 			
 }//updateColorSpaces
 //MakeMove
 

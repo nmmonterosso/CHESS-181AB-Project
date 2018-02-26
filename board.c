@@ -128,16 +128,23 @@ void setSpace(Board *board, unsigned int i, unsigned int j)
 
 void printBoard(Board *board) {
 	// Prints Current Board State to Console:
+	printf("**************************\n");
 	for (int i = 7; i >= 0; i--) {
 		for (int j = 0; j < 8; j++) {
 			if (board->boardSpaces[i][j].isOccupied == 0x01) {
-				switch (board->boardSpaces[i][j].pieceType & 0x07) {
-				case(KING):printf("|K "); break;
-				case(QUEEN):printf("|Q "); break;
-				case(ROOK):printf("|R "); break;
-				case(BISHOP):printf("|B "); break;
-				case(KNIGHT):printf("|N "); break;
-				case(PAWN):printf("|P "); break;
+				switch (board->boardSpaces[i][j].pieceType & GET_PIECE_TYPE) {
+				case(WHITE_KING):	printf("|K "); break;
+				case(BLACK_KING):	printf("|K*"); break;
+				case(WHITE_QUEEN):	printf("|Q "); break;
+				case(BLACK_QUEEN):	printf("|Q*"); break;
+				case(WHITE_ROOK):	printf("|R "); break;
+				case(BLACK_ROOK):	printf("|R*"); break;
+				case(WHITE_BISHOP):	printf("|B "); break;
+				case(BLACK_BISHOP):	printf("|B*"); break;
+				case(WHITE_KNIGHT):	printf("|N "); break;
+				case(BLACK_KNIGHT):	printf("|N*"); break;
+				case(WHITE_PAWN):	printf("|P "); break;
+				case(BLACK_PAWN):	printf("|P*"); break;
 				default:printf("|E "); break; //E = Error, you should not reach this case
 				}// endSwitch				
 			}//if space is occupied
@@ -147,4 +154,6 @@ void printBoard(Board *board) {
 		}//endForJ
 		printf("|\n");
 	}//endFor I
+	printf("**************************\n\n\n");	
+	
 }//printBoard();
