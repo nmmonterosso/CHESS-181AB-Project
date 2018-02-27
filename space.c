@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "board.h"
+//#include "board.h"
 #include "space.h"
 
 
