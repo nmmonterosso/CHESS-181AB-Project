@@ -125,15 +125,75 @@ void setSpace(Board *board, unsigned int i, unsigned int j)
 }//setPiece
 
 
+void setPiece(Board *board, char piece, int row, int col) {
+	if ((piece == 'P') || (piece == 'p') ||
+		(piece == 'R') || (piece == 'r') ||
+		(piece == 'N') || (piece == 'n') ||
+		(piece == 'B') || (piece == 'b') ||
+		(piece == 'Q') || (piece == 'q') ||
+		(piece == 'K') || (piece == 'k')) {
+		board->boardSpaces[row][col].isOccupied == IS_OCCUPIED;
+		
+		switch (piece) {
+		case 'P': board->boardSpaces[row][col].pieceType = WHITE_PAWN; break;
+		case 'p': board->boardSpaces[row][col].pieceType = BLACK_PAWN; break;
+		case 'R': board->boardSpaces[row][col].pieceType = WHITE_ROOK; break;
+		case 'r': board->boardSpaces[row][col].pieceType = BLACK_ROOK; break;
+		case 'N': board->boardSpaces[row][col].pieceType = WHITE_KNIGHT; break;
+		case 'n': board->boardSpaces[row][col].pieceType = BLACK_KNIGHT; break;
+		case 'B': board->boardSpaces[row][col].pieceType = WHITE_BISHOP; break;
+		case 'b': board->boardSpaces[row][col].pieceType = BLACK_BISHOP; break;
+		case 'Q': board->boardSpaces[row][col].pieceType = WHITE_QUEEN; break;
+		case 'q': board->boardSpaces[row][col].pieceType = BLACK_QUEEN; break;
+		case 'K': board->boardSpaces[row][col].pieceType = WHITE_KING; break;
+		case 'k': board->boardSpaces[row][col].pieceType = BLACK_KING; break;
+		default:  break;
+		}//endswitch
+	}//end if 
+}//setPiece
+
+void setWhiteSpaces(Board *board, int number, int row, int col) {
+	for (int i = 0; i < number; i++) {
+		board->boardSpaces[row][col].isOccupied = EMPTY;
+		board->boardSpaces[row][col].pieceType  = EMPTY;
+		col++;
+	}//end for
+}//setWhiteSpaces
 
 //Summary: Sets current boardstate based on string Forsythe notation:
 //		   Used to create custom boards for debugging purposes.	
 void setBoard(Board * board, char command)
 {
+	char *token;
+	for (int i = 7; i >=0; i--) {
+		//for each row, strtok the command every '/' then implement that for the space:
+		if (i > 0)
+			*token = strtok(command, '/');
+		else
+			*token = strtok(command, ' ');
+
+		for (int j = 0; j < strlen(*token); j++) {
+			if ((token[j] >= '1') && (token[j] <= 8)) {
+				int whiteSpace = token[j] - '0';
+				setWhiteSpaces(board, whiteSpace, i, j);//set # of white spaces:
+			}//end if 
+			else {
+				setPiece(board, token[j], i, j);				
+			}//end else
+		}//endfor k		
+	}//end for i
 
 
+	//TURN ORDER next token
+	*token = strtok(command, ' ');
+	board->turn = ((*token == 'w') ? WHITE_TURN : BLACK_TURN);
+	//Castling Rights next token:
+	*token = strtok(command, ' ');
+	//board->
+	//En passant Square in Algebraic notation ('-')if no target
+	//Half Move Clock  (50 Move Counter for draws:)
+	//Full Move Number (Turn #)
 }//setBoard
-
 
 
 void printBoard(Board *board) {
