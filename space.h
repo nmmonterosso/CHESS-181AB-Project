@@ -1,7 +1,7 @@
 #ifndef SPACE_H_
 #define SPACE_H_
 
-#define MAXDEPTH 3
+#define MAXDEPTH 1
 
 #define WHITE 0xF
 #define BLACK 0x7
@@ -12,7 +12,7 @@
 #define BISHOP	0x3
 #define KNIGHT	0x4
 #define PAWN	0x5
-#define EMPTY	0xF
+#define EMPTY	-51;
 
 #define WHITE_KING   8
 #define WHITE_QUEEN  9

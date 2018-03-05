@@ -9,7 +9,9 @@ typedef struct {
 	space boardSpaces[8][8];
 	char  turn;				//1 if white turn, 0 if black;
 	char  castlingRights;	//KQkq
-
+	char  epSquare;			//en passant square:
+	char  halfMoveClock;	// 50 move counter for draws
+	char  moveNumber;		//Full number of moves in the game
 }Board;
 
 
@@ -51,12 +53,18 @@ typedef struct {
 
 
 
+
+
+
+
 void initializePositions(Move *move);
 void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory);
 void printBoard(Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
-void setBoard(Board *board, char command); //Sets current boardstate based on the command:
-
+void setBoard(Board *board, Move *move, char command[]); //Sets current boardstate based on the command:
+void setPiece(Board *board, char piece, int row, int col);
+void setWhiteSpaces(Board *board, int number, int row, int col);
+void setColorSpaces(Board *board, Move *move);
 #endif // !
 #pragma once
 
