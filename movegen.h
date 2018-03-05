@@ -7,7 +7,7 @@
 void AddToMoveList  (MoveGen *movegen, char Start_Location, char End_Location, char Piece, char Captured_Piece);
 void Addr_Conversion(char boardposition, int Board_Coordinates[2]);
 
-int checkKingSafety(Board *board);
+int checkKingSafety(Board *board, int i, int j);
 void makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth, int *MoveCounter);//Makes tree for moves
 void initializeMoveGen(MoveGen *movegen);
 
