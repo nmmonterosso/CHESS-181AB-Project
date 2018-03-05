@@ -33,6 +33,11 @@ void initializeMoveGen(MoveGen *movegen) {
 	movegen->count = 0;
 }
 
+int checkKingSafety(Board * board)
+{
+	return 0;
+}
+
 void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth, int *MoveCounter)
 {
 	//TODO: Create move tree to desired depth and 	
@@ -468,7 +473,7 @@ void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 	int Board_Coordinates[2];
 	char Start_Location;
 	int i, j, a, b, x;
-		
+	//TODO NEED TO FIX SO KING CANNOT MOVE ITSELF INTO CHECK.	
 
 	if (board->turn == WHITE_TURN) {
 		Start_Location = move->whiteSpaces[count][BOARD_POSITION];
@@ -483,8 +488,21 @@ void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 				if ((board->boardSpaces[a + 1][b].pieceType & GET_PIECE_TYPE) <= BLACK)
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, WHITE_KING, board->boardSpaces[a + 1][b].pieceType);
 			}//end if 
-			else
+			/*else if (((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) == BLACK_PAWN) ||
+					  (board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) == BLACK_PAWN){
+			}//end else if (illegal move, Pawn in diagonal to put king into check)*/
+
+			else if(checkKingSafety(board))
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_KING, NO_CAPTURE);
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			if (b < 7) {
 				//MOVE UP RIGHT DIAGONAL
 				if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {

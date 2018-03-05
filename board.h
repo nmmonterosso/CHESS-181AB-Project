@@ -56,7 +56,6 @@ typedef struct {
 
 
 
-
 void initializePositions(Move *move);
 void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory);
 void printBoard(Board *board);
