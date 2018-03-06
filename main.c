@@ -4,6 +4,7 @@
 
 #include "stdafx.h" //comment out this line or add your own #include stdio, etc.
 #include <stdio.h>
+#include <string.h>
 #include "piece.h"
 #include "space.h"
 #include "board.h"
@@ -25,13 +26,16 @@ int main()
 	MoveTree *movetree =	(MoveTree*)malloc(sizeof(MoveTree));
 	int *MoveCounter = (int *)malloc(sizeof(int));
 	*MoveCounter = 0;
+	//Debugging Board Postions:
+	char position2[100] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"; //KiwiPete
+
 
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
 	MoveGenFunction(board, move, movegen);			//Initial Movegen:
 	movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
-	//makeMove(board, movegen->Moves[5], movehistory);
+	setBoard(board, position2);
 	printBoard(board); //Prints Second board:
 	//REALLOCATE
 	//MoveGen *movegen = realloc(movegen, sizeof(MoveGen));

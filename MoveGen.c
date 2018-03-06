@@ -45,15 +45,14 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 	else{
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
-			makeMove(board, movegen->Moves[i], movehistory, move);
-			
-			//printBoard(board);			
+			makeMove(board, movegen->Moves[i], movehistory, move);			
+			printBoard(board);			
 			movetree->MoveTreeNode[depth + 1].count = 0;
 			MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
 			makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, MoveCounter); //Go one more depth lower:
-			//printBoard(board);
+			printBoard(board);
 			unMakeMove(board, movehistory, move);
-			//printBoard(board);
+			printBoard(board);
 		}//end for 
 	}
 }//makeMoveTree

@@ -162,34 +162,36 @@ void setWhiteSpaces(Board *board, int number, int row, int col) {
 
 //Summary: Sets current boardstate based on string Forsythe notation:
 //		   Used to create custom boards for debugging purposes.	
-void setBoard(Board * board, char command)
+void setBoard(Board * board, char command[100])
 {
 	char *token;
-	for (int i = 7; i >=0; i--) {
+	token = strtok(command, '/'); //seg fault here
+	for (int i = 7; i >= 0; i--) {
 		//for each row, strtok the command every '/' then implement that for the space:
-		if (i > 0)
-			*token = strtok(command, '/');
-		else
-			*token = strtok(command, ' ');
+		while (token != NULL) {
+			if (i > 0)
+				token = strtok(NULL, '/');
+			else
+				token = strtok(NULL, ' ');
 
-		for (int j = 0; j < strlen(*token); j++) {
-			if ((token[j] >= '1') && (token[j] <= 8)) {
-				int whiteSpace = token[j] - '0';
-				setWhiteSpaces(board, whiteSpace, i, j);//set # of white spaces:
-			}//end if 
-			else {
-				setPiece(board, token[j], i, j);				
-			}//end else
-		}//endfor k		
-	}//end for i
-
+			for (int j = 0; j < strlen(token); j++) {
+				if ((token[j] >= '1') && (token[j] <= 8)) {
+					int whiteSpace = token[j] - '0';
+					setWhiteSpaces(board, whiteSpace, i, j);//set # of white spaces:
+				}//end if 
+				else {
+					//setPiece(board, token[j], i, j);
+				}//end else
+			}//endfor k		
+		}//end while token != null
+	}// end for i
 
 	//TURN ORDER next token
-	*token = strtok(command, ' ');
-	board->turn = ((*token == 'w') ? WHITE_TURN : BLACK_TURN);
+	//*token = strtok(command, ' ');
+	//board->turn = ((*token == 'w') ? WHITE_TURN : BLACK_TURN);
 	//Castling Rights next token:
-	*token = strtok(command, ' ');
-	//board->
+	//*token = strtok(command, ' ');
+	//board->castlingRights = 
 	//En passant Square in Algebraic notation ('-')if no target
 	//Half Move Clock  (50 Move Counter for draws:)
 	//Full Move Number (Turn #)
