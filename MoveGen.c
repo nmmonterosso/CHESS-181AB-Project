@@ -415,12 +415,12 @@ int checkKingSafety(Board * board, int i, int j)
 	return 1;
 }//checkKingSafety
 
-void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth, int *MoveCounter)
+void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth)
 {
 	//TODO: Create move tree to desired depth and 	
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
-		*MoveCounter = *MoveCounter + 1; //Increment # of legal moves counter for debugging purposes.
+		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.
 		return;
 	}//end if 
 	
@@ -431,7 +431,7 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 			printBoard(board);			
 			movetree->MoveTreeNode[depth + 1].count = 0;
 			MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
-			makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, MoveCounter); //Go one more depth lower:
+			makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1); //Go one more depth lower:
 			printBoard(board);
 			unMakeMove(board, movehistory, move);
 			printBoard(board);
@@ -866,21 +866,21 @@ void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, WHITE_KING, board->boardSpaces[a + 1][b].pieceType);
 				}//end if 
 				else
-					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_KING, NO_CAPTURE);
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, WHITE_KING, NO_CAPTURE);
 			}//end Move UP:
 
 			//MOVE UP RIGHT DIAGONAL:
 			
-				if (b < 7) {					
-					if (checkKingSafety(board, a + 1, b + 1)) {
-						if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {
-							if ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK)
-								AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_KING, board->boardSpaces[a + 1][b + 1].pieceType);
-						}//end if 
-						else 
-							AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_KING, NO_CAPTURE);
-					}//end UPRIGHT clear:
-				}//end if B < 7:
+			if (b < 7) {					
+				if (checkKingSafety(board, a + 1, b + 1)) {
+					if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {
+						if ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK)
+							AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_KING, board->boardSpaces[a + 1][b + 1].pieceType);
+					}//end if 
+					else 
+						AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_KING, NO_CAPTURE);
+				}//end UPRIGHT clear:
+			}//end if B < 7:
 
 			 //MOVE UP LEFT DIAGONAL
 			

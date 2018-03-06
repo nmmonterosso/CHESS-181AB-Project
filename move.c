@@ -29,7 +29,9 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	moveHistory->count++;							//Appends move history	
 
 	updateColorSpaces(board, move, moveSpace);
-	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);	
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
+	if (move.capturedPiece != NO_CAPTURE)
+		board->PerftCaptureCounter++;
 }
 
 

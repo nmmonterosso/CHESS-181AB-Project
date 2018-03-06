@@ -12,6 +12,8 @@ typedef struct {
 	char  epSquare;			//en passant square:
 	char  halfMoveClock;	// 50 move counter for draws
 	char  moveNumber;		//Full number of moves in the game
+	int   PerftNodeCounter; // used for debugging nodes
+	int   PerftCaptureCounter; //used for perft debugging
 }Board;
 
 
