@@ -11,6 +11,12 @@ int checkKingSafety(Board *board, int i, int j);
 void makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth, int *MoveCounter);//Makes tree for moves
 void initializeMoveGen(MoveGen *movegen);
 
+int PawnBodyBlock(Board *board,  char attacker, int kingI, int kingJ, int attackI, int attackJ);
+int KnightBodyBlock();
+int BishopBodyBlock();
+int RookBodyBlock();
+int QueenBodyBlock();
+
 void MoveGenFunction(Board *board, Move *move, MoveGen *movegen);
 void MoveGenPawn	(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenKnight	(Board *board, Move *move, MoveGen *movegen, int count);

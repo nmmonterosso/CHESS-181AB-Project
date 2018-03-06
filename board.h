@@ -60,15 +60,13 @@ void initializePositions(Move *move);
 void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory);
 void printBoard(Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
-<<<<<<< HEAD
-void setBoard(Board *board, char command[100]); //Sets current boardstate based on the command:
 
-=======
+
 void setBoard(Board *board, Move *move, char command[]); //Sets current boardstate based on the command:
 void setPiece(Board *board, char piece, int row, int col);
 void setWhiteSpaces(Board *board, int number, int row, int col);
 void setColorSpaces(Board *board, Move *move);
->>>>>>> 9c34b4c23b18afce1ea7f81dcbf2677eb0d19a31
+
 #endif // !
 #pragma once
 
