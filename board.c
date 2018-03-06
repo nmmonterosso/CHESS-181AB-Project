@@ -90,6 +90,48 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 	//checkMoves(board, move); UNRESOLVED SYMBOL ERROR
 }// makeBoard
 
+
+void setColorSpaces(Board *board, Move *move) {
+	int x = 0;
+	int y = 0;
+
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if	((board->boardSpaces[i][j].isOccupied == IS_OCCUPIED) && 
+				((board->boardSpaces[i][j].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)) {
+				move->blackSpaces[x][BOARD_POSITION] = board->boardSpaces[i][j].boardposition;
+				move->blackSpaces[x][PIECE_TYPE] = board->boardSpaces[i][j].pieceType;
+				x++;
+			}//end if 
+			else if ((board->boardSpaces[i][j].isOccupied == IS_OCCUPIED) &&
+				((board->boardSpaces[i][j].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)) {
+				move->whiteSpaces[y][BOARD_POSITION] = board->boardSpaces[i][j].boardposition;
+				move->whiteSpaces[y][PIECE_TYPE] = board->boardSpaces[i][j].pieceType;
+				y++;
+			}//end else			
+		}//end for j
+	}//end for
+
+	if (x < 16) {
+		for (x; x < 16; x++) {
+			move->blackSpaces[x][BOARD_POSITION] = EMPTY;
+			move->blackSpaces[x][PIECE_TYPE] = EMPTY;
+		}//endfor
+	}//end if x
+
+	if (y < 16) {
+		for (y; y < 16; y++) {
+			move->whiteSpaces[y][BOARD_POSITION] = EMPTY;
+			move->whiteSpaces[y][PIECE_TYPE]	 = EMPTY;
+		}//endfor
+	}//end if x
+
+}//setColorSpaces
+
+
+
+
+
 void setSpace(Board *board, unsigned int i, unsigned int j)
 {	
 	//Set Index Value for space's position relative to the board:
@@ -132,7 +174,7 @@ void setPiece(Board *board, char piece, int row, int col) {
 		(piece == 'B') || (piece == 'b') ||
 		(piece == 'Q') || (piece == 'q') ||
 		(piece == 'K') || (piece == 'k')) {
-		board->boardSpaces[row][col].isOccupied == IS_OCCUPIED;
+		board->boardSpaces[row][col].isOccupied = IS_OCCUPIED;
 		
 		switch (piece) {
 		case 'P': board->boardSpaces[row][col].pieceType = WHITE_PAWN; break;
@@ -154,14 +196,16 @@ void setPiece(Board *board, char piece, int row, int col) {
 
 void setWhiteSpaces(Board *board, int number, int row, int col) {
 	for (int i = 0; i < number; i++) {
-		board->boardSpaces[row][col].isOccupied = EMPTY;
+		board->boardSpaces[row][col].isOccupied = NOT_OCCUPIED;
 		board->boardSpaces[row][col].pieceType  = EMPTY;
 		col++;
 	}//end for
 }//setWhiteSpaces
 
+
 //Summary: Sets current boardstate based on string Forsythe notation:
 //		   Used to create custom boards for debugging purposes.	
+<<<<<<< HEAD
 void setBoard(Board * board, char command[100])
 {
 	char *token;
@@ -192,9 +236,101 @@ void setBoard(Board * board, char command[100])
 	//Castling Rights next token:
 	//*token = strtok(command, ' ');
 	//board->castlingRights = 
+=======
+void setBoard(Board * board, Move *move, char command[])
+{
+	//TODO: FIX STRTOK REFERENCES
+	char  * token = (char *)malloc(sizeof(char *));
+	int i = 0;	
+	printf("Splitting %s into tokens\n", command);
+	token = strtok(command, "/");
+	while (token != NULL) {
+		printf("Token [%d] = [%s]\n", i, token);
+		if (i > 7) //BOARD RIGHTS
+			token = strtok(NULL, " ");
+		else {			
+			int j = 0;
+			for (int k = 0; j < 8; k++) {
+				if ((token[k] >= '1') && (token[k] <= '8')) {
+					int whiteSpace = token[k] - '0';
+					setWhiteSpaces(board, whiteSpace, (7 - i), j);
+					j += whiteSpace;
+				}//end if, checking for number of whiteSpaces
+				else {
+					setPiece(board, token[k], (7 - i), j);
+					j++;
+				}//end else, setting piece since no whitespace				
+			}//end for
+			if (i >= 6 )
+				token = strtok(NULL, " ");
+			else
+				token = strtok(NULL, "/");
+		}//end else
+
+		i++;
+	}//endwhile	
+	setColorSpaces(board, move);
+
+	/*for (int i = 7; i >=0; i--) {
+		//for each row, strtok the command every '/' then implement that for the space:
+		if (i > 0)
+			*token = strtok(command, "/");
+		else
+			*token = strtok(command, " ");
+		printf("Token [%d] =  [%s]\n", i, *token);
+		/*for (int j = 0; j < strlen(token); j++) {
+			if ((token[j] >= "1") && (token[j] <= "8")) {
+				int whiteSpace = token[j] - '0';
+				setWhiteSpaces(board, whiteSpace, i, j);//set # of white spaces:
+			}//end if 
+			else {
+				setPiece(board, token[j], i, j);				
+			}//end else
+		}//endfor k		
+	}//end for i*/
+
+
+	//TURN ORDER next token
+	//*token = strtok(command, ' ');
+	//->turn = ((token == 'w') ? WHITE_TURN : BLACK_TURN);
+	//Castling Rights next token:
+	//*token = strtok(command, ' ');
+	/*for (int j = 0; j < 4; j++) {
+		switch (j) {
+		case 0: //if(token[j] == 'K')
+				board->castlingRights = (board->castlingRights | 0x8);
+				break;
+		case 1: //if(token[j] == 'Q')
+				board->castlingRights = (board->castlingRights | 0x4);
+				break;
+		case 2:// if(token[j] == 'k')
+				board->castlingRights = (board->castlingRights | 0x2);
+				break;
+		case 3:// if(token[j] == 'q')
+				board->castlingRights = (board->castlingRights | 0x1);
+				break;
+		default: break;
+		}//end switch
+	}//end for*/
+
+>>>>>>> 9c34b4c23b18afce1ea7f81dcbf2677eb0d19a31
 	//En passant Square in Algebraic notation ('-')if no target
-	//Half Move Clock  (50 Move Counter for draws:)
+	//*token = strtok(command, ' ');
+	//if (token == '-') 
+	//	board->epSquare = NO_MOVE;
+	//else {
+	//	board->epSquare = *token; //need to decode from algebraic notation;
+	//}//endif 	 
+	 
+	 //Half Move Clock  (50 Move Counter for draws:)
+	//*token = strtok(command, ' ');
+	//board->halfMoveClock = *token;
+	
 	//Full Move Number (Turn #)
+	//*token = strtok(command, ' ');
+	//board->moveNumber = *token;
+	
+	//setColorSpaces(board, move);
 }//setBoard
 
 
