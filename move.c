@@ -18,7 +18,7 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	j = StartCoordinates[1];
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
-		
+	
 	board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED; //set Start Unoccupied
 	board->boardSpaces[i][j].pieceType  = EMPTY;		//set Start Piece EMPTY
 
@@ -26,8 +26,20 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	board->boardSpaces[k][l].pieceType = move.piece;	  //Set EndLocation's Piecetype
 	
 	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
-	moveHistory->count++;							//Appends move history	
+	moveHistory->count++;							//Appends move history
+	//TODO: FIX EP:
+	if (move.capturedPiece == EN_PASSANT) {
+		if (board->turn == WHITE_TURN) {
+			board->boardSpaces[k - 1][l].isOccupied = NOT_OCCUPIED;
+			board->boardSpaces[k - 1][l].pieceType = EMPTY;
+		}//end if WHITE_TURN
 
+		else if (board->turn == BLACK_TURN) {
+			board->boardSpaces[k + 1][l].isOccupied = NOT_OCCUPIED;
+			board->boardSpaces[k + 1][l].pieceType = EMPTY;
+		}//end if BLACK_TURN
+	}//end if
+	//TODO: update for EP:
 	updateColorSpaces(board, move, moveSpace, 0);
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
 	if (move.capturedPiece != NO_CAPTURE)

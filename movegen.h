@@ -8,17 +8,14 @@ void AddToMoveList  (MoveGen *movegen, char Start_Location, char End_Location, c
 void Addr_Conversion(char boardposition, int Board_Coordinates[2]);
 
 int checkKingSafety		(Board *board, int i,   int j);
+int checkKingDiagonal	(Board *board, int row, int col);
+int checkKingKnight		(Board *board, int row, int col);
 int checkKingHorizontal	(Board *board, int row, int col);
 int checkKingVertical	(Board *board, int row, int col);
+int checkKingPawn		(Board *board, int row, int col);
 
 void makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth);//Makes tree for moves
 void initializeMoveGen(MoveGen *movegen);
-
-int PawnBodyBlock(Board *board,  char attacker, int kingI, int kingJ, int attackI, int attackJ);
-int KnightBodyBlock();
-int BishopBodyBlock();
-int RookBodyBlock();
-int QueenBodyBlock();
 
 void MoveGenFunction(Board *board, Move *move, MoveGen *movegen);
 void MoveGenPawn	(Board *board, Move *move, MoveGen *movegen, int count);
