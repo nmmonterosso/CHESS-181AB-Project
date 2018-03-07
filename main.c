@@ -24,8 +24,9 @@ int main()
 	MoveGen *movegen =	(MoveGen*)malloc(sizeof(MoveGen));
 	MoveGen *movehistory =	(MoveGen*)malloc(sizeof(MoveGen));
 	MoveTree *movetree =	(MoveTree*)malloc(sizeof(MoveTree));
-	int *MoveCounter = (int *)malloc(sizeof(int));
-	*MoveCounter = 0;
+	//int *MoveCounter = (int *)malloc(sizeof(int));
+	//*MoveCounter = 0;
+	
 	//DEBUGGING POSITIONS//
 	char position2[] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 0"; //KiwiPete
 	char position3[] = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - 0 0";
@@ -53,12 +54,13 @@ int main()
 	
 	while (1) {	
 
-		makeMoveTree(board, move, movetree, movegen, movehistory, 0, MoveCounter); //creates move tree based on all possible moves, calls board evaluation function, and makes move
-		printf("total # of nodes: = [%d]", *MoveCounter);
+		makeMoveTree(board, move, movetree, movegen, movehistory, 0); //creates move tree based on all possible moves, calls board evaluation function, and makes move
+		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
+		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
 		//PRINTF # of captures:
 		//PrintF # of checks:
 
-		//MAKE bEST MOVE HERE if it is BOT's TURN:
+		//MAKE BEST MOVE HERE if it is BOT's TURN:
 		//else wait for opponent input:
 		//Make Tree:
 		//MoveGeneration Function:		

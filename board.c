@@ -78,7 +78,8 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 
 	board->turn = WHITE_TURN;	 //Initialize WHITE TURN
 	board->castlingRights = 0xF; //KQkq
-
+	board->PerftCaptureCounter = 0;
+	board->PerftNodeCounter	   = 0;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			//printf("boardInt = [%d]", boardInt);			
@@ -187,8 +188,12 @@ void setPiece(Board *board, char piece, int row, int col) {
 		case 'b': board->boardSpaces[row][col].pieceType = BLACK_BISHOP; break;
 		case 'Q': board->boardSpaces[row][col].pieceType = WHITE_QUEEN; break;
 		case 'q': board->boardSpaces[row][col].pieceType = BLACK_QUEEN; break;
-		case 'K': board->boardSpaces[row][col].pieceType = WHITE_KING; break;
-		case 'k': board->boardSpaces[row][col].pieceType = BLACK_KING; break;
+		case 'K': board->boardSpaces[row][col].pieceType = WHITE_KING; 
+				  updateKingCoordinates(board, WHITE_KING, row, col);
+				  break;
+		case 'k': board->boardSpaces[row][col].pieceType = BLACK_KING;
+				  updateKingCoordinates(board, BLACK_KING, row, col);
+				  break;
 		default:  break;
 		}//endswitch
 	}//end if 
@@ -231,9 +236,10 @@ void setBoard(Board * board, Move *move, char command[])
 			else
 				token = strtok(NULL, "/");
 		}//end else
-
+		
 		i++;
 	}//endwhile	
+<<<<<<< HEAD
 	setColorSpaces(board, move);
 
 	/*for (int i = 7; i >=0; i--) {
@@ -296,6 +302,10 @@ void setBoard(Board * board, Move *move, char command[])
 	//board->moveNumber = *token;
 	
 	//setColorSpaces(board, move);
+=======
+	//TODO SET CASTLING RIGHTS, EP RIGHTS, TURNCOUNTER;
+	setColorSpaces(board, move);	
+>>>>>>> 46fe2e3d815e7a6045474d1eb6fcd9f76ab5f466
 }//setBoard
 
 

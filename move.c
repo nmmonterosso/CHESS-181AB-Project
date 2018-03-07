@@ -29,7 +29,11 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	moveHistory->count++;							//Appends move history	
 
 	updateColorSpaces(board, move, moveSpace);
-	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);	
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
+	if (move.capturedPiece != NO_CAPTURE)
+		board->PerftCaptureCounter++;
+	if ((move.piece == WHITE_KING) || (move.piece == BLACK_KING))
+		updateKingCoordinates(board, move.piece, k, l);
 }
 
 
@@ -61,6 +65,9 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
 	updateColorSpaces(board, moveHistory->Moves[moveHistory->count - 1], moveSpace); 
+	if ((moveHistory->Moves[moveHistory->count - 1 ].piece == WHITE_KING)|| 
+		(moveHistory->Moves[moveHistory->count - 1 ].piece == BLACK_KING))
+		updateKingCoordinates(board, moveHistory->Moves[moveHistory->count - 1].piece, k, l);
 
 	//TODO: Free memory for history HERE:
 
@@ -71,11 +78,6 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	moveHistory->count--;
 	//TODO, RESTORE CASTLING RIGHTS/ EN PASSANT:		
 }//UnMakeMove
-
-
-
-
-
 
 //Summary: updates colorspaces for movegeneration for the next set. Allows for easier calculations of which piece belongs to both sides:
 void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace)
@@ -112,6 +114,18 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace)
 }//updateColorSpaces
 //MakeMove
 
+
+
+void updateKingCoordinates(Board *board, char piece, int i, int j) {
+	if (piece == WHITE_KING) {
+		board->whiteKingCoordinates[0] = i;
+		board->whiteKingCoordinates[1] = j;
+	}//end if
+	else if (piece == BLACK_KING) {
+		board->blackKingCoordinates[0] = i;
+		board->blackKingCoordinates[1] = j;
+	}//end else
+}//updateKingCoordiates
 
 
 
