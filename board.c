@@ -278,7 +278,7 @@ void setBoard(Board * board, Move *move, char command[])
 		}//end switch
 	}//end for*/
 
->>>>>>> 9c34b4c23b18afce1ea7f81dcbf2677eb0d19a31
+//>>>>>>> 9c34b4c23b18afce1ea7f81dcbf2677eb0d19a31
 	//En passant Square in Algebraic notation ('-')if no target
 	//*token = strtok(command, ' ');
 	//if (token == '-') 
