@@ -6,7 +6,7 @@
 
 void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace);
 void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace);
-void updateColorSpaces(Board *board, MoveList move, Move *movespace);
+void updateColorSpaces(Board *board, MoveList move, Move *movespace, int undo);
 void updateKingCoordinates(Board *board, char piece, int i, int j);
 void setBishopMoves(Board *board, int i, int j, Move *move);
 void setKnightMoves(Board *board, int i, int j, Move *move);

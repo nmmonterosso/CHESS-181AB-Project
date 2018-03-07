@@ -72,7 +72,7 @@ int PawnBodyBlock(Board *board, char attacker, int kingI, int kingJ, int attackI
 //SUMMARY returns 0 if king square is under attack: (unsafe), returns 1 if safe:
 int checkKingSafety(Board * board, int i, int j)
 {	
-	if (board->turn == WHITE_TURN) {
+	if (board->turn == BLACK_TURN) {
 		//CHECK enemy Pawn Attacks:
 		if ((board->boardSpaces[i + 1][j + 1].pieceType == BLACK_PAWN)||
 			(board->boardSpaces[i + 1][j - 1].pieceType == BLACK_PAWN))
@@ -128,79 +128,17 @@ int checkKingSafety(Board * board, int i, int j)
 		}//end for loop count:
 		//END CHECK KNIGHTS:
 
-		//CHECK ROOKS:
-
-		//CHECK UP
-		for (int x = i; x < 8; x++) {
-			if (board->boardSpaces[x][j].isOccupied == IS_OCCUPIED) {
-				if (board->boardSpaces[x][j].pieceType == BLACK_ROOK)//add queen here
-					//check if friendly units can block for KING:
-					//checkKnights for BodyBlock:
-					//checkRooks for bodyBlock:
-					//checkBishops for bodyBlock:
-					//checkQueens for bodyBlock:
-					return 0;
-				else
-					break;
-			} //end if
-		}//end for	
-
-		//CHECK DOWN:
-		for (int x = i; x >= 0; x--) {
-			if (board->boardSpaces[x][j].isOccupied == IS_OCCUPIED) {
-				if (board->boardSpaces[x][j].pieceType == BLACK_ROOK)//add queen here
-					//check if other rooks/bishops/queens can protect the king
-					//if not then return 0:
-					//checkKnights for BodyBlock:
-					//checkRooks for bodyBlock:
-					//checkBishops for bodyBlock:
-					//checkQueens for bodyBlock:
-					return 0;
-				else
-					break;
-			} //end if
-			
-		}//end for
-
-		//CHECK RIGHT:
-		for (int x = j; x < 8; x++) {
-			if (board->boardSpaces[i][x].isOccupied == IS_OCCUPIED) {
-				if (board->boardSpaces[i][x].pieceType == BLACK_ROOK) {//add queen here
-					//checkPawns for bodyBlock:
-					if (PawnBodyBlock(board, BLACK_ROOK, i, j, i, x)) {
-						//checkKnights for BodyBlock:
-						//checkRooks for bodyBlock:
-						//checkBishops for bodyBlock:
-						//checkQueens for bodyBlock:
-						return 1;
-					}//end if bodyblock successful
-					else
-						return 0;
-				}//end if 
-				else
-					break;
-			} //end if
-		}//end for
-
-		//CHECK LEFT:
-		for (int x = j; x >= 0; x--) {
-			if (board->boardSpaces[i][x].isOccupied == IS_OCCUPIED) {
-				if (board->boardSpaces[i][x].pieceType == BLACK_ROOK)//add queen here
-					return 0;
-				else
-					break;
-			} //end if
-		}//end for
-
-		//END CHECK ROOKS:
-
-
-
-		//CHECK BISHOPS:
-		//CHECK QUEENS:
+		//CHECK ROOKS/QUEENS:
+		
+		if ((checkKingHorizontal(board, i, j) == 0) || (checkKingVertical == 0)) 
+			return 0;
+		
+		
+		//END CHECK ROOKS/QUEENS:	
+		//CHECK BISHOPS/QUEENS:		
 		//CHECK KING:		
-	}//end WHITE TURN
-	else {
+	}//end BLACK TURN
+	else if(board->turn == WHITE_TURN){
 		//CHECK enemy Pawn Attacks:
 		if ((board->boardSpaces[i - 1][j + 1].pieceType == WHITE_PAWN) ||
 			(board->boardSpaces[i - 1][j - 1].pieceType == WHITE_PAWN))
@@ -256,164 +194,123 @@ int checkKingSafety(Board * board, int i, int j)
 		}//end for loop count:
 		 //END CHECK KNIGHTS:
 
-		 //CHECK ROOKS:
+		 //CHECK ROOKS/QUEENS:
+		if (checkKingHorizontal(board, i, j) == 0 || (checkKingVertical == 0))
+			return 0;
+		 //END CHECK ROOKS/QUEENS:
 
-		 //CHECK UP
-		for (int x = i; x < 8; x++) {
-			if (board->boardSpaces[x][j].isOccupied == IS_OCCUPIED) {
-				if (board->boardSpaces[x][j].pieceType == WHITE_ROOK)//add queen here
-					return 0;
-				else
-					break;
-			} //end if
-		}//end for	
-
-		 //CHECK DOWN:
-		for (int x = i; x >= 0; x--) {
-			if (board->boardSpaces[x][j].isOccupied == IS_OCCUPIED) {
-				if (board->boardSpaces[x][j].pieceType == WHITE_ROOK)//add queen here
-					return 0;
-				else
-					break;
-			} //end if
-
-		}//end for
-
-		 //CHECK RIGHT:
-		for (int x = j; x < 8; x++) {
-			if (board->boardSpaces[i][x].isOccupied == IS_OCCUPIED) {
-				if (board->boardSpaces[i][x].pieceType == WHITE_ROOK)//add queen here
-					return 0;
-				else
-					break;
-			} //end if
-		}//end for
-
-		 //CHECK LEFT:
-		for (int x = j; x >= 0; x--) {
-			if (board->boardSpaces[i][x].isOccupied == IS_OCCUPIED) {
-				if (board->boardSpaces[i][x].pieceType == WHITE_ROOK)//add queen here
-					return 0;
-				else
-					break;
-			} //end if
-		}//end for
-
-		 //END CHECK ROOKS:
-
-		{
-			//CHECK enemy Pawn Attacks:
-			if ((board->boardSpaces[i + 1][j + 1].pieceType == BLACK_PAWN) ||
-				(board->boardSpaces[i + 1][j - 1].pieceType == BLACK_PAWN))
-				return 0;
-
-			//Check enemy KNIGHT Attacks:
-			for (int count = 0; count < 8; count++) {
-				switch (count) {
-					//UP RIGHT:
-				case 0: if ((i + 2 < 8) && (j + 1 < 8)) {
-					if (board->boardSpaces[i + 2][j + 1].pieceType == BLACK_KNIGHT)
-						return 0;
-				}break;
-
-					//RIGHT-> UP:
-				case 1: if ((i + 1 < 8) && (j + 2 < 8)) {
-					if (board->boardSpaces[i + 1][j + 2].pieceType == BLACK_KNIGHT)
-						return 0;
-				}break;
-
-					//RIGHT-> DOWN:
-				case 2: if ((i - 1 >= 0) && (j + 2 < 8)) {
-					if (board->boardSpaces[i - 1][j + 2].pieceType == BLACK_KNIGHT)
-						return 0;
-				}break;
-					//DOWN -> RIGHT:
-				case 3: if ((i - 2 >= 0) && (j + 1 < 8)) {
-					if (board->boardSpaces[i - 2][j + 1].pieceType == BLACK_KNIGHT)
-						return 0;
-				}break;
-					//DOWN -> LEFT:
-				case 4: if ((i - 2 >= 0) && (j - 1 >= 0)) {
-					if (board->boardSpaces[i - 2][j - 1].pieceType == BLACK_KNIGHT)
-						return 0;
-				}break;
-					//LEFT -> DOWN:
-				case 5: if ((i - 1 >= 0) && (j - 2 >= 0)) {
-					if (board->boardSpaces[i - 1][j - 2].pieceType == BLACK_KNIGHT)
-						return 0;
-				}break;
-					//LEFT -> UP:
-				case 6: if ((i + 1 < 8) && (j - 2 >= 0)) {
-					if (board->boardSpaces[i + 1][j - 2].pieceType == BLACK_KNIGHT)
-						return 0;
-				}break;
-					//UP -> LEFT
-				case 7: if ((i + 2 < 8) && (j - 1 >= 0)) {
-					if (board->boardSpaces[i + 2][j - 1].pieceType == BLACK_KNIGHT)
-						return 0;
-				}break;
-				default: break;
-				}//end switch
-			}//end for loop count:
-			 //END CHECK KNIGHTS:
-
-			 //CHECK ROOKS:
-
-			 //CHECK UP
-			for (int x = i; x < 8; x++) {
-				if (board->boardSpaces[x][j].isOccupied == IS_OCCUPIED) {
-					if (board->boardSpaces[x][j].pieceType == BLACK_ROOK)//add queen here
-						return 0;
-					else
-						break;
-				} //end if
-			}//end for	
-
-			 //CHECK DOWN:
-			for (int x = i; x >= 0; x--) {
-				if (board->boardSpaces[x][j].isOccupied == IS_OCCUPIED) {
-					if (board->boardSpaces[x][j].pieceType == BLACK_ROOK)//add queen here
-						return 0;
-					else
-						break;
-				} //end if
-
-			}//end for
-
-			 //CHECK RIGHT:
-			for (int x = j; x < 8; x++) {
-				if (board->boardSpaces[i][x].isOccupied == IS_OCCUPIED) {
-					if (board->boardSpaces[i][x].pieceType == BLACK_ROOK)//add queen here
-						return 0;
-					else
-						break;
-				} //end if
-			}//end for
-
-			 //CHECK LEFT:
-			for (int x = j; x >= 0; x--) {
-				if (board->boardSpaces[i][x].isOccupied == IS_OCCUPIED) {
-					if (board->boardSpaces[i][x].pieceType == BLACK_ROOK)//add queen here
-						return 0;
-					else
-						break;
-				} //end if
-			}//end for
-
-			 //END CHECK ROOKS:
-			 //CHECK BISHOPS:
-			 //CHECK QUEENS:
-			 //CHECK KING:		
-		}//end WHITE TURNl
-
-		 //CHECK BISHOPS:
-		 //CHECK QUEENS:
+		 //CHECK BISHOPS / QUEENS:
+		 //CHECK BISHOPS / QUEENS:
 		 //CHECK KING:		
-	}//end WHITE TURN
+	}//end BLACK TURN
 
 
 	return 1;
 }//checkKingSafety
+
+
+//Summary: Returns 0 if enemy queen/rook occupies in the same
+//column and has a clear path to capture KING.
+//Returns 1 if King is safe in this direction:
+int checkKingHorizontal(Board * board, int row, int col)
+{
+	if (board->turn == BLACK_TURN) {
+		for (int j = board->whiteKingCoordinates[1] + 1; j < 8; j++) {
+			if (board->boardSpaces[row][j].isOccupied) {
+				if ((board->boardSpaces[row][j].pieceType == BLACK_ROOK) ||
+					(board->boardSpaces[row][j].pieceType == BLACK_QUEEN))
+					return 0;
+				else
+					break;	
+			}//end if occupied		
+		}//end for right check
+
+		for (int j = board->whiteKingCoordinates[1] - 1; j >= 0; j--) {
+			if (board->boardSpaces[row][j].isOccupied) {
+				if ((board->boardSpaces[row][j].pieceType == BLACK_ROOK)||
+					(board->boardSpaces[row][j].pieceType == BLACK_QUEEN))
+					return 0;
+				else
+					break;
+			}//end if occupied	
+		}//end for leftcheck
+	}//end if BLACK_TURN
+
+	else if (board->turn == WHITE_TURN) {
+		for (int j = board->blackKingCoordinates[1] + 1; j < 8; j++) {
+			if (board->boardSpaces[row][j].isOccupied) {
+				if ((board->boardSpaces[row][j].pieceType == WHITE_ROOK) ||
+					(board->boardSpaces[row][j].pieceType == WHITE_QUEEN))
+					return 0;
+				else
+					break;
+			}//end if occupied		
+		}//end for right check
+
+		for (int j = board->blackKingCoordinates[1] - 1; j >= 0; j--) {
+			if (board->boardSpaces[row][j].isOccupied) {
+				if ((board->boardSpaces[row][j].pieceType == WHITE_ROOK) ||
+					(board->boardSpaces[row][j].pieceType == WHITE_QUEEN))
+					return 0;
+				else
+					break;
+			}//end if occupied	
+		}//end for leftcheck
+	}//end if WHITE_TURN
+	return 1;
+}//checkKingHorizontal
+
+//Summary: Returns 0 if enemy queen/rook occupies in the same
+//column and has a clear path to capture KING.
+//Returns 1 if King is safe in this direction:
+int checkKingVertical(Board * board, int row, int col)
+{
+	if (board->turn == BLACK_TURN) {
+		for (int i = board->whiteKingCoordinates[0] + 1; i < 8; i++) {
+			if (board->boardSpaces[i][col].isOccupied) {
+				if ((board->boardSpaces[i][col].pieceType == BLACK_ROOK) ||
+					(board->boardSpaces[i][col].pieceType == BLACK_QUEEN))
+					return 0;
+				else
+					break;
+			}//end if occupied		
+		}//end for right check
+
+		for (int i = board->whiteKingCoordinates[1] - 1; i >= 0; i--) {
+			if (board->boardSpaces[i][col].isOccupied) {
+				if ((board->boardSpaces[i][col].pieceType == BLACK_ROOK) ||
+					(board->boardSpaces[i][col].pieceType == BLACK_QUEEN))
+					return 0;
+				else
+					break;
+			}//end if occupied	
+		}//end for leftcheck
+	}//end if BLACK_TURN
+
+	else if (board->turn == WHITE_TURN) {
+		for (int i = board->blackKingCoordinates[0] + 1; i < 8; i++) {
+			if (board->boardSpaces[i][col].isOccupied) {
+				if ((board->boardSpaces[i][col].pieceType == WHITE_ROOK) ||
+					(board->boardSpaces[i][col].pieceType == WHITE_QUEEN))
+					return 0;
+				else
+					break;
+			}//end if occupied		
+		}//end for right check
+
+		for (int i = board->blackKingCoordinates[0] - 1; i >= 0; i--) {
+			if (board->boardSpaces[i][col].isOccupied) {
+				if ((board->boardSpaces[i][col].pieceType == WHITE_ROOK) ||
+					(board->boardSpaces[i][col].pieceType == WHITE_QUEEN))
+					return 0;
+				else
+					break;
+			}//end if occupied	
+		}//end for leftcheck
+	}//end if WHITE_TURN
+	return 1;
+}//checkKingVertical
+
 
 void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth)
 {
@@ -428,13 +325,26 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
 			makeMove(board, movegen->Moves[i], movehistory, move);			
-			printBoard(board);			
-			movetree->MoveTreeNode[depth + 1].count = 0;
-			MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
-			makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1); //Go one more depth lower:
-			printBoard(board);
-			unMakeMove(board, movehistory, move);
-			printBoard(board);
+			//printBoard(board);			
+			if (checkKingSafety(board, ((board->turn == WHITE_TURN) ? board->blackKingCoordinates[0] : board->whiteKingCoordinates[0]),
+									   ((board->turn == WHITE_TURN) ? board->blackKingCoordinates[1] : board->whiteKingCoordinates[1]))) {
+
+				movetree->MoveTreeNode[depth + 1].count = 0;
+				MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
+				makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1); //Go one more depth lower:
+				//printBoard(board);
+				unMakeMove(board, movehistory, move);
+				//printBoard(board);
+			}//end if 
+			else {
+				//printf("BAD:\n");
+				//printBoard(board);
+				if (movehistory->Moves[movehistory->count - 1].capturedPiece != NO_CAPTURE)
+					board->PerftCaptureCounter--;
+				unMakeMove(board, movehistory, move);
+				//printf("ENDBAD\n");
+				//printBoard(board);				
+			}
 		}//end for 
 	}
 }//makeMoveTree
@@ -490,17 +400,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 	if (board->turn == WHITE_TURN) {
 		Start_Location = move->whiteSpaces[count][BOARD_POSITION];
 		a = Start_Location / 8;
-		b = Start_Location % 8;
-		//TODO: CHECK IF PAWN IS ON KING's RANK:
-		if (board->whiteKingCoordinates[0] == a) {
-			if (a > board->whiteKingCoordinates[0]) {
-				//check rook right side
-			}// if a
-			else if (a < board->whiteKingCoordinates[0]) {
-				//check rooks left side
-			}// else if 
-
-		}//end if 
+		b = Start_Location % 8;	
 
 		if (board->boardSpaces[a + 1][b].isOccupied == NOT_OCCUPIED) {
 			AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, WHITE_PAWN, NO_CAPTURE);			
@@ -518,8 +418,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 		//Check Left Diagonal:
 		if (b > 0) {
 			if ((board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK)) 
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_PAWN, board->boardSpaces[a + 1][b - 1].pieceType);				
-			 
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_PAWN, board->boardSpaces[a + 1][b - 1].pieceType);							 
 			// TO DO: EN PASSANT HERE
 			// TO DO: PROMOTE PAWN:!
 		}//end if b<0
@@ -551,9 +450,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 			 // TO DO: PROMOTE!:
 		}//end if b<0
 		//BLACK TURN
-
 	}// end else
-
 }//MoveGen Pawn
 
 void MoveGenKnight(Board *board, Move *move, MoveGen *movegen, int count)
@@ -870,101 +767,101 @@ void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 		//UP MOVEMENT and LEFT RIGHT DIAGONALS:		
 		if (a < 7) {
 			//MOVE UP:
-			if (checkKingSafety(board, a + 1, b)) {
+			//if (checkKingSafety(board, a + 1, b)) {
 				if (board->boardSpaces[a + 1][b].isOccupied == IS_OCCUPIED) {
 					if ((board->boardSpaces[a + 1][b].pieceType & GET_PIECE_TYPE) <= BLACK)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, WHITE_KING, board->boardSpaces[a + 1][b].pieceType);
 				}//end if 
 				else
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, WHITE_KING, NO_CAPTURE);
-			}//end Move UP:
+			//}//end Move UP:
 
 			//MOVE UP RIGHT DIAGONAL:
 			
 			if (b < 7) {					
-				if (checkKingSafety(board, a + 1, b + 1)) {
+				//if (checkKingSafety(board, a + 1, b + 1)) {
 					if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {
 						if ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK)
 							AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_KING, board->boardSpaces[a + 1][b + 1].pieceType);
 					}//end if 
 					else 
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_KING, NO_CAPTURE);
-				}//end UPRIGHT clear:
+				//}//end UPRIGHT clear:
 			}//end if B < 7:
 
 			 //MOVE UP LEFT DIAGONAL
 			
 				if (b > 0) {
-					if (checkKingSafety(board, a + 1, b - 1)) {
+					//if (checkKingSafety(board, a + 1, b - 1)) {
 						if (board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) {
 							if ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK)
 								AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_KING, board->boardSpaces[a + 1][b - 1].pieceType);
 						}//end if 
 						else
 							AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_KING, NO_CAPTURE);
-					}//end check up Left
+					//}//end check up Left
 				}//end b > 0
 		}// end if a < 7
 		
 		//CHECK RIGHT MOVEMENT		
 		if (b < 7) {
-			if (checkKingSafety(board, a, b + 1)) {
+			//if (checkKingSafety(board, a, b + 1)) {
 				if (board->boardSpaces[a][b + 1].isOccupied == IS_OCCUPIED) {
 					if ((board->boardSpaces[a][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b + 1].boardposition, WHITE_KING, board->boardSpaces[a][b + 1].pieceType);
 				}//end if 
 				else
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b + 1].boardposition, WHITE_KING, NO_CAPTURE);
-			}//end CHECK RIGHT SAFETY
+			//}//end CHECK RIGHT SAFETY
 		}// end if b < 7
 		
 
 		//CHECK LEFT MOVEMENT
 		if (b > 0) {
-			if (checkKingSafety(board, a, b - 1)) {
+			//if (checkKingSafety(board, a, b - 1)) {
 				if (board->boardSpaces[a][b - 1].isOccupied == IS_OCCUPIED) {
 					if ((board->boardSpaces[a][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b - 1].boardposition, WHITE_KING, board->boardSpaces[a][b - 1].pieceType);
 				}//end if 
 				else
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b - 1].boardposition, WHITE_KING, NO_CAPTURE);
-			}//end CHECK LEFT MOVEMENT
+			//}//end CHECK LEFT MOVEMENT
 		}// end if b > 0
 
 		//CHECK DOWN AND DOWN DIAGONALS:
 		if (a > 0) {
 			//CHECK MOVE DOWN:
-			if (checkKingSafety(board, a - 1, b)) {
+			//if (checkKingSafety(board, a - 1, b)) {
 				if (board->boardSpaces[a - 1][b].isOccupied == IS_OCCUPIED) {
 					if ((board->boardSpaces[a - 1][b].pieceType & GET_PIECE_TYPE) <= BLACK)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b].boardposition, WHITE_KING, board->boardSpaces[a - 1][b].pieceType);
 				}//end if 
 				else
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b].boardposition, WHITE_KING, NO_CAPTURE);
-			}//end CHECK DOWN SAFETY
+			//}//end CHECK DOWN SAFETY
 
 			//MOVE DOWN RIGHT			
 			if (b < 7) {
-				if (checkKingSafety(board, a - 1, b + 1)) {
+				//if (checkKingSafety(board, a - 1, b + 1)) {
 					if (board->boardSpaces[a - 1][b + 1].isOccupied == IS_OCCUPIED) {
 						if ((board->boardSpaces[a - 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK)
 							AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, WHITE_KING, board->boardSpaces[a - 1][b + 1].pieceType);
 					}//end if 
 					else
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, WHITE_KING, NO_CAPTURE);
-				}//end CHECK DOWN RIGHT SAFETY
+				//}//end CHECK DOWN RIGHT SAFETY
 			}// end if b < 7
 
 			//MOVE DOWN LEFT
 			if (b > 0) {
-				if (checkKingSafety(board, a - 1, b - 1)) {
+				//if (checkKingSafety(board, a - 1, b - 1)) {
 					if (board->boardSpaces[a - 1][b - 1].isOccupied == IS_OCCUPIED) {
 						if ((board->boardSpaces[a - 1][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK)
 							AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, WHITE_KING, board->boardSpaces[a - 1][b - 1].pieceType);
 					}//end if 
 					else
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, WHITE_KING, NO_CAPTURE);
-				}//end CHECK MOVE DOWN LEFT SAFETY
+				//}//end CHECK MOVE DOWN LEFT SAFETY
 			}//end if b >0
 		}//end if a > 0
 	}//end if white turn
@@ -978,95 +875,95 @@ void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 		//UP MOVEMENT and LEFT RIGHT DIAGONALS:		
 		if (a < 7) {
 			//MOVE UP:
-			if (checkKingSafety(board, a + 1, b)) {
+			//if (checkKingSafety(board, a + 1, b)) {
 				if (board->boardSpaces[a + 1][b].isOccupied == IS_OCCUPIED) {
 					if ((board->boardSpaces[a + 1][b].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, BLACK_KING, board->boardSpaces[a + 1][b].pieceType);
 				}//end if 
 				else
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, BLACK_KING, NO_CAPTURE);
-			}
+			//}
 			if (b < 7) {
 				//MOVE UP RIGHT DIAGONAL
-				if (checkKingSafety(board, a + 1, b + 1)) {					
+				//if (checkKingSafety(board, a + 1, b + 1)) {					
 					if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {
 						if ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 							AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, BLACK_KING, board->boardSpaces[a + 1][b + 1].pieceType);
 					}//end if 
 					else
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, BLACK_KING, NO_CAPTURE);
-				}
+				//}
 			}//end if b < 7
 			if (b > 0) {
 				//MOVE UP LEFT DIAGONAL
-				if (checkKingSafety(board, a + 1, b - 1)) {
+				//if (checkKingSafety(board, a + 1, b - 1)) {
 					if (board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) {
 						if ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 							AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, BLACK_KING, board->boardSpaces[a + 1][b - 1].pieceType);
 					}//end if 
 					else
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, BLACK_KING, NO_CAPTURE);
-				}
+				//}
 			}//end if B > 0
 		}// end if a < 7
 
 		 //CHECK RIGHT MOVEMENT
 		if (b < 7) {
-			if (checkKingSafety(board, a, b + 1)) {
+			//if (checkKingSafety(board, a, b + 1)) {
 				if (board->boardSpaces[a][b + 1].isOccupied == IS_OCCUPIED) {
 					if ((board->boardSpaces[a][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b + 1].boardposition, BLACK_KING, board->boardSpaces[a][b + 1].pieceType);
 				}//end if 
 				else
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b + 1].boardposition, BLACK_KING, NO_CAPTURE);
-			}//end if check right safety
+			//}//end if check right safety
 		}// end if b < 7
 		
 		 //CHECK LEFT MOVEMENT
 		if (b > 0) {
-			if (checkKingSafety(board, a, b - 1)) {
+			//if (checkKingSafety(board, a, b - 1)) {
 				if (board->boardSpaces[a][b - 1].isOccupied == IS_OCCUPIED) {
 					if ((board->boardSpaces[a][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b - 1].boardposition, BLACK_KING, board->boardSpaces[a][b - 1].pieceType);
 				}//end if 
 				else
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b - 1].boardposition, BLACK_KING, NO_CAPTURE);
-			}//end check left safety
+			//}//end check left safety
 		}// end if b > 0
 
 		 //CHECK DOWN AND DOWN DIAGONALS:
 		if (a > 0) {
 			//MOVE DOWN:
-			if (checkKingSafety(board, a - 1, b)) {
+			//if (checkKingSafety(board, a - 1, b)) {
 				if (board->boardSpaces[a - 1][b].isOccupied == IS_OCCUPIED) {
 					if ((board->boardSpaces[a - 1][b].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b].boardposition, BLACK_KING, board->boardSpaces[a - 1][b].pieceType);
 				}//end if 
 				else
 					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b].boardposition, BLACK_KING, NO_CAPTURE);
-			}//end check DOWN safety
+			//}//end check DOWN safety
 			//MOVE DOWN RIGHT
 			if (b < 7) {
-				if (checkKingSafety(board, a - 1, b + 1)) {
+				//if (checkKingSafety(board, a - 1, b + 1)) {
 					if (board->boardSpaces[a - 1][b + 1].isOccupied == IS_OCCUPIED) {
 						if ((board->boardSpaces[a - 1][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 							AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_KING, board->boardSpaces[a - 1][b + 1].pieceType);
 					}//end if 
 					else
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_KING, NO_CAPTURE);
-				}//end check down right safety
+				//}//end check down right safety
 			}// end if b < 7
 
 			 //MOVE DOWN LEFT
 			if (b > 0) {
-				if (checkKingSafety(board, a - 1, b - 1)) {
+				//if (checkKingSafety(board, a - 1, b - 1)) {
 					if (board->boardSpaces[a - 1][b - 1].isOccupied == IS_OCCUPIED) {
 						if ((board->boardSpaces[a - 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
 							AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_KING, board->boardSpaces[a - 1][b - 1].pieceType);
 					}//end if 
 					else
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_KING, NO_CAPTURE);
-				}//end check down left safety
+				//}//end check down left safety
 			}//end if b >0
 		}//end if a > 0
 	}//end else black turn
