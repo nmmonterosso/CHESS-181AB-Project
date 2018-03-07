@@ -17,7 +17,7 @@ void Addr_Conversion(char boardposition, int Board_Coordinates[2])
 void AddToMoveList(MoveGen *movegen, char Start_Location, char End_Location, char Piece, char Captured_Piece){
 	movegen->Moves[movegen->count].startLocation = Start_Location;
 	movegen->Moves[movegen->count].endLocation   = End_Location;
-	movegen->Moves[movegen->count].piece		  = Piece;
+	movegen->Moves[movegen->count].piece		 = Piece;
 	movegen->Moves[movegen->count].capturedPiece = Captured_Piece;
 	movegen->count++;
 }//addToMoveList
@@ -486,11 +486,21 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 {
 	char Start_Location;
 	int i, j, a, b;
-	
+	//TODO: CHECK IF MOVING FOWARD WILL PUT KING IN CHECK. CHECK WHICH DIRECTION KING IS IN:
 	if (board->turn == WHITE_TURN) {
 		Start_Location = move->whiteSpaces[count][BOARD_POSITION];
 		a = Start_Location / 8;
 		b = Start_Location % 8;
+		//TODO: CHECK IF PAWN IS ON KING's RANK:
+		if (board->whiteKingCoordinates[0] == a) {
+			if (a > board->whiteKingCoordinates[0]) {
+				//check rook right side
+			}// if a
+			else if (a < board->whiteKingCoordinates[0]) {
+				//check rooks left side
+			}// else if 
+
+		}//end if 
 
 		if (board->boardSpaces[a + 1][b].isOccupied == NOT_OCCUPIED) {
 			AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, WHITE_PAWN, NO_CAPTURE);			

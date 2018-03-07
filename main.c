@@ -60,7 +60,7 @@ int main()
 		//PRINTF # of captures:
 		//PrintF # of checks:
 
-		//MAKE bEST MOVE HERE if it is BOT's TURN:
+		//MAKE BEST MOVE HERE if it is BOT's TURN:
 		//else wait for opponent input:
 		//Make Tree:
 		//MoveGeneration Function:		

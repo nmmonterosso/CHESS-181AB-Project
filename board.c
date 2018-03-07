@@ -188,8 +188,12 @@ void setPiece(Board *board, char piece, int row, int col) {
 		case 'b': board->boardSpaces[row][col].pieceType = BLACK_BISHOP; break;
 		case 'Q': board->boardSpaces[row][col].pieceType = WHITE_QUEEN; break;
 		case 'q': board->boardSpaces[row][col].pieceType = BLACK_QUEEN; break;
-		case 'K': board->boardSpaces[row][col].pieceType = WHITE_KING; break;
-		case 'k': board->boardSpaces[row][col].pieceType = BLACK_KING; break;
+		case 'K': board->boardSpaces[row][col].pieceType = WHITE_KING; 
+				  updateKingCoordinates(board, WHITE_KING, row, col);
+				  break;
+		case 'k': board->boardSpaces[row][col].pieceType = BLACK_KING;
+				  updateKingCoordinates(board, BLACK_KING, row, col);
+				  break;
 		default:  break;
 		}//endswitch
 	}//end if 
