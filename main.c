@@ -35,7 +35,7 @@ int main()
 	char position6[] = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
 	//END DEBUGGING POSITIONS//
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
-	MoveGenFunction(board, move, movegen);			//Initial Movegen:
+	//MoveGenFunction(board, move, movegen);			//Initial Movegen:
 	//movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");

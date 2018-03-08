@@ -80,6 +80,10 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 	board->castlingRights = 0xF; //KQkq
 	board->PerftCaptureCounter = 0;
 	board->PerftNodeCounter	   = 0;
+	board->whiteKingCoordinates[0] = 0;
+	board->whiteKingCoordinates[1] = 4;
+	board->blackKingCoordinates[0] = 7;
+	board->blackKingCoordinates[1] = 4;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			//printf("boardInt = [%d]", boardInt);			
@@ -239,7 +243,7 @@ void setBoard(Board * board, Move *move, char command[])
 		
 		i++;
 	}//endwhile	
-<<<<<<< HEAD
+
 	setColorSpaces(board, move);
 
 	/*for (int i = 7; i >=0; i--) {
@@ -302,10 +306,10 @@ void setBoard(Board * board, Move *move, char command[])
 	//board->moveNumber = *token;
 	
 	//setColorSpaces(board, move);
-=======
+//=======
 	//TODO SET CASTLING RIGHTS, EP RIGHTS, TURNCOUNTER;
 	setColorSpaces(board, move);	
->>>>>>> 46fe2e3d815e7a6045474d1eb6fcd9f76ab5f466
+//>>>>>>> 46fe2e3d815e7a6045474d1eb6fcd9f76ab5f466
 }//setBoard
 
 

@@ -4,7 +4,7 @@
 
 
 
-void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace);
+int  makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace);
 void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace);
 void updateColorSpaces(Board *board, MoveList move, Move *movespace);
 void updateKingCoordinates(Board *board, char piece, int i, int j);

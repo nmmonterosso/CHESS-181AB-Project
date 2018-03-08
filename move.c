@@ -7,7 +7,7 @@
 
 //SUMMARY: Makes Move given the Movelist parameter and stores the MoveList
 //into an array of Moves already done:
-void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace)
+int makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace)
 {
 	int StartCoordinates[2], EndCoordinates[2];
 	int i, j, k, l;
@@ -29,11 +29,34 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	moveHistory->count++;							//Appends move history	
 
 	updateColorSpaces(board, move, moveSpace);
-	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
-	if (move.capturedPiece != NO_CAPTURE)
-		board->PerftCaptureCounter++;
 	if ((move.piece == WHITE_KING) || (move.piece == BLACK_KING))
 		updateKingCoordinates(board, move.piece, k, l);
+
+	//Check if King is not in check:
+	if (board->turn == WHITE_TURN) {
+		if (checkKingSafety(board, board->whiteKingCoordinates[0], board->whiteKingCoordinates[1]) == 0) {
+			board->turn == BLACK_TURN;
+			printBoard(board);
+			unMakeMove(board, moveHistory, moveSpace);			
+			printBoard(board);
+			return 0;
+		}//end if
+	}//end if 
+	else if (board->turn == BLACK_TURN) {
+		if (checkKingSafety(board, board->blackKingCoordinates[0], board->blackKingCoordinates[1]) == 0) {
+			board->turn == WHITE_TURN;
+			printBoard(board);
+			unMakeMove(board, moveHistory, moveSpace);			
+			printBoard(board);
+			return 0;
+		}//end if
+	}//end else
+	//End Check if King is Safe:
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);	
+	if (move.capturedPiece != NO_CAPTURE)
+		board->PerftCaptureCounter++;
+
+	return 1;
 }
 
 
