@@ -24,12 +24,9 @@ int main()
 	MoveGen *movegen =	(MoveGen*)malloc(sizeof(MoveGen));
 	MoveGen *movehistory =	(MoveGen*)malloc(sizeof(MoveGen));
 	MoveTree *movetree =	(MoveTree*)malloc(sizeof(MoveTree));
-	int *MoveCounter = (int *)malloc(sizeof(int));
-	*MoveCounter = 0;
-	//Debugging Board Postions:
-	char position2[100] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"; //KiwiPete
-
-
+	//int *MoveCounter = (int *)malloc(sizeof(int));
+	//*MoveCounter = 0;
+	
 	//DEBUGGING POSITIONS//
 	char position2[] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 0"; //KiwiPete
 	char position3[] = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - 0 0";
@@ -39,17 +36,14 @@ int main()
 	//END DEBUGGING POSITIONS//
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
 	MoveGenFunction(board, move, movegen);			//Initial Movegen:
-	movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
+	//movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
-<<<<<<< HEAD
-	setBoard(board, position2);
-=======
-	
+		
 	setBoard(board, move, position3);
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);			
->>>>>>> 9c34b4c23b18afce1ea7f81dcbf2677eb0d19a31
+	movetree->MoveTreeNode[0] = *movegen;
 	printBoard(board); //Prints Second board:
 	//REALLOCATE
 	//MoveGen *movegen = realloc(movegen, sizeof(MoveGen));
@@ -60,12 +54,13 @@ int main()
 	
 	while (1) {	
 
-		makeMoveTree(board, move, movetree, movegen, movehistory, 0, MoveCounter); //creates move tree based on all possible moves, calls board evaluation function, and makes move
-		printf("total # of nodes: = [%d]", *MoveCounter);
+		makeMoveTree(board, move, movetree, movegen, movehistory, 0); //creates move tree based on all possible moves, calls board evaluation function, and makes move
+		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
+		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
 		//PRINTF # of captures:
 		//PrintF # of checks:
 
-		//MAKE bEST MOVE HERE if it is BOT's TURN:
+		//MAKE BEST MOVE HERE if it is BOT's TURN:
 		//else wait for opponent input:
 		//Make Tree:
 		//MoveGeneration Function:		

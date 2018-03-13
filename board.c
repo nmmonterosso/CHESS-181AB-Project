@@ -78,7 +78,8 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 
 	board->turn = WHITE_TURN;	 //Initialize WHITE TURN
 	board->castlingRights = 0xF; //KQkq
-
+	board->PerftCaptureCounter = 0;
+	board->PerftNodeCounter	   = 0;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			//printf("boardInt = [%d]", boardInt);			
@@ -187,8 +188,12 @@ void setPiece(Board *board, char piece, int row, int col) {
 		case 'b': board->boardSpaces[row][col].pieceType = BLACK_BISHOP; break;
 		case 'Q': board->boardSpaces[row][col].pieceType = WHITE_QUEEN; break;
 		case 'q': board->boardSpaces[row][col].pieceType = BLACK_QUEEN; break;
-		case 'K': board->boardSpaces[row][col].pieceType = WHITE_KING; break;
-		case 'k': board->boardSpaces[row][col].pieceType = BLACK_KING; break;
+		case 'K': board->boardSpaces[row][col].pieceType = WHITE_KING; 
+				  updateKingCoordinates(board, WHITE_KING, row, col);
+				  break;
+		case 'k': board->boardSpaces[row][col].pieceType = BLACK_KING;
+				  updateKingCoordinates(board, BLACK_KING, row, col);
+				  break;
 		default:  break;
 		}//endswitch
 	}//end if 
@@ -202,44 +207,9 @@ void setWhiteSpaces(Board *board, int number, int row, int col) {
 	}//end for
 }//setWhiteSpaces
 
-
-//Summary: Sets current boardstate based on string Forsythe notation:
-//		   Used to create custom boards for debugging purposes.	
-<<<<<<< HEAD
-void setBoard(Board * board, char command[100])
-{
-	char *token;
-	token = strtok(command, '/'); //seg fault here
-	for (int i = 7; i >= 0; i--) {
-		//for each row, strtok the command every '/' then implement that for the space:
-		while (token != NULL) {
-			if (i > 0)
-				token = strtok(NULL, '/');
-			else
-				token = strtok(NULL, ' ');
-
-			for (int j = 0; j < strlen(token); j++) {
-				if ((token[j] >= '1') && (token[j] <= 8)) {
-					int whiteSpace = token[j] - '0';
-					setWhiteSpaces(board, whiteSpace, i, j);//set # of white spaces:
-				}//end if 
-				else {
-					//setPiece(board, token[j], i, j);
-				}//end else
-			}//endfor k		
-		}//end while token != null
-	}// end for i
-
-	//TURN ORDER next token
-	//*token = strtok(command, ' ');
-	//board->turn = ((*token == 'w') ? WHITE_TURN : BLACK_TURN);
-	//Castling Rights next token:
-	//*token = strtok(command, ' ');
-	//board->castlingRights = 
-=======
+//Sets board based on FEN notation string input:
 void setBoard(Board * board, Move *move, char command[])
-{
-	//TODO: FIX STRTOK REFERENCES
+{	
 	char  * token = (char *)malloc(sizeof(char *));
 	int i = 0;	
 	printf("Splitting %s into tokens\n", command);
@@ -266,71 +236,11 @@ void setBoard(Board * board, Move *move, char command[])
 			else
 				token = strtok(NULL, "/");
 		}//end else
-
+		
 		i++;
 	}//endwhile	
-	setColorSpaces(board, move);
-
-	/*for (int i = 7; i >=0; i--) {
-		//for each row, strtok the command every '/' then implement that for the space:
-		if (i > 0)
-			*token = strtok(command, "/");
-		else
-			*token = strtok(command, " ");
-		printf("Token [%d] =  [%s]\n", i, *token);
-		/*for (int j = 0; j < strlen(token); j++) {
-			if ((token[j] >= "1") && (token[j] <= "8")) {
-				int whiteSpace = token[j] - '0';
-				setWhiteSpaces(board, whiteSpace, i, j);//set # of white spaces:
-			}//end if 
-			else {
-				setPiece(board, token[j], i, j);				
-			}//end else
-		}//endfor k		
-	}//end for i*/
-
-
-	//TURN ORDER next token
-	//*token = strtok(command, ' ');
-	//->turn = ((token == 'w') ? WHITE_TURN : BLACK_TURN);
-	//Castling Rights next token:
-	//*token = strtok(command, ' ');
-	/*for (int j = 0; j < 4; j++) {
-		switch (j) {
-		case 0: //if(token[j] == 'K')
-				board->castlingRights = (board->castlingRights | 0x8);
-				break;
-		case 1: //if(token[j] == 'Q')
-				board->castlingRights = (board->castlingRights | 0x4);
-				break;
-		case 2:// if(token[j] == 'k')
-				board->castlingRights = (board->castlingRights | 0x2);
-				break;
-		case 3:// if(token[j] == 'q')
-				board->castlingRights = (board->castlingRights | 0x1);
-				break;
-		default: break;
-		}//end switch
-	}//end for*/
-
->>>>>>> 9c34b4c23b18afce1ea7f81dcbf2677eb0d19a31
-	//En passant Square in Algebraic notation ('-')if no target
-	//*token = strtok(command, ' ');
-	//if (token == '-') 
-	//	board->epSquare = NO_MOVE;
-	//else {
-	//	board->epSquare = *token; //need to decode from algebraic notation;
-	//}//endif 	 
-	 
-	 //Half Move Clock  (50 Move Counter for draws:)
-	//*token = strtok(command, ' ');
-	//board->halfMoveClock = *token;
-	
-	//Full Move Number (Turn #)
-	//*token = strtok(command, ' ');
-	//board->moveNumber = *token;
-	
-	//setColorSpaces(board, move);
+	//TODO SET CASTLING RIGHTS, EP RIGHTS, TURNCOUNTER;
+	setColorSpaces(board, move);	
 }//setBoard
 
 

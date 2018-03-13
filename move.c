@@ -18,7 +18,7 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	j = StartCoordinates[1];
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
-		
+	
 	board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED; //set Start Unoccupied
 	board->boardSpaces[i][j].pieceType  = EMPTY;		//set Start Piece EMPTY
 
@@ -26,10 +26,26 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	board->boardSpaces[k][l].pieceType = move.piece;	  //Set EndLocation's Piecetype
 	
 	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
-	moveHistory->count++;							//Appends move history	
+	moveHistory->count++;							//Appends move history
+	//TODO: FIX EP:
+	if (move.capturedPiece == EN_PASSANT) {
+		if (board->turn == WHITE_TURN) {
+			board->boardSpaces[k - 1][l].isOccupied = NOT_OCCUPIED;
+			board->boardSpaces[k - 1][l].pieceType = EMPTY;
+		}//end if WHITE_TURN
 
-	updateColorSpaces(board, move, moveSpace);
-	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);	
+		else if (board->turn == BLACK_TURN) {
+			board->boardSpaces[k + 1][l].isOccupied = NOT_OCCUPIED;
+			board->boardSpaces[k + 1][l].pieceType = EMPTY;
+		}//end if BLACK_TURN
+	}//end if
+	//TODO: update for EP:
+	updateColorSpaces(board, move, moveSpace, 0);
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
+	if (move.capturedPiece != NO_CAPTURE)
+		board->PerftCaptureCounter++;
+	if ((move.piece == WHITE_KING) || (move.piece == BLACK_KING))
+		updateKingCoordinates(board, move.piece, k, l);
 }
 
 
@@ -58,9 +74,14 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 
 	board->boardSpaces[k][l].isOccupied = IS_OCCUPIED;
 	board->boardSpaces[k][l].pieceType = moveHistory->Moves[moveHistory->count - 1].piece;
-
+	
+	
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
-	updateColorSpaces(board, moveHistory->Moves[moveHistory->count - 1], moveSpace); 
+	updateColorSpaces(board, moveHistory->Moves[moveHistory->count - 1], moveSpace, 1);
+
+	if ((moveHistory->Moves[moveHistory->count - 1 ].piece == WHITE_KING)|| 
+		(moveHistory->Moves[moveHistory->count - 1 ].piece == BLACK_KING))
+		updateKingCoordinates(board, moveHistory->Moves[moveHistory->count - 1].piece, k, l);
 
 	//TODO: Free memory for history HERE:
 
@@ -72,13 +93,8 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	//TODO, RESTORE CASTLING RIGHTS/ EN PASSANT:		
 }//UnMakeMove
 
-
-
-
-
-
 //Summary: updates colorspaces for movegeneration for the next set. Allows for easier calculations of which piece belongs to both sides:
-void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace)
+void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 {
 	
 	for (int i = 0; i < 16; i++) {
@@ -97,21 +113,39 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace)
 		if (move.capturedPiece != NO_CAPTURE) {
 			if (board->turn == WHITE_TURN) {
 				if (move.endLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) {
-					moveSpace->blackSpaces[i][PIECE_TYPE] = -1;
-					moveSpace->blackSpaces[i][BOARD_POSITION] = -1;
+					if (undo == 1)
+						moveSpace->blackSpaces[i][PIECE_TYPE] = move.capturedPiece;
+					else
+						moveSpace->blackSpaces[i][PIECE_TYPE] = -1;					
+					//moveSpace->blackSpaces[i][BOARD_POSITION] = -1;
 				}//endif				
 			}//endif 
 			else { //Black Turn capturing white piece
 				if (move.endLocation == moveSpace->whiteSpaces[i][BOARD_POSITION]) {
-					moveSpace->whiteSpaces[i][PIECE_TYPE] = -1;
-					moveSpace->whiteSpaces[i][BOARD_POSITION] = -1;
+					if (undo == 1)
+						moveSpace->whiteSpaces[i][PIECE_TYPE] = move.capturedPiece;
+					else
+						moveSpace->whiteSpaces[i][PIECE_TYPE] = -1;
+					//moveSpace->whiteSpaces[i][BOARD_POSITION] = -1;
 				}//end if
 			}//end else
-		}//end if no capture
+		}//end if no capture		
 	}//end for 			
 }//updateColorSpaces
 //MakeMove
 
+
+
+void updateKingCoordinates(Board *board, char piece, int i, int j) {
+	if (piece == WHITE_KING) {
+		board->whiteKingCoordinates[0] = i;
+		board->whiteKingCoordinates[1] = j;
+	}//end if
+	else if (piece == BLACK_KING) {
+		board->blackKingCoordinates[0] = i;
+		board->blackKingCoordinates[1] = j;
+	}//end else
+}//updateKingCoordiates
 
 
 

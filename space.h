@@ -1,7 +1,7 @@
 #ifndef SPACE_H_
 #define SPACE_H_
 
-#define MAXDEPTH 2
+#define MAXDEPTH 3
 
 #define WHITE 0xF
 #define BLACK 0x7
@@ -37,6 +37,14 @@
 #define NOT_OCCUPIED 0
 #define NO_CAPTURE -1
 #define NO_MOVE -1
+
+#define EN_PASSANT 16
+
+#define WHITE_CASTLE_KINGSIDE	17
+#define WHITE_CASTLE_QUEENSIDE	18
+
+#define BLACK_CASTLE_KINGSIDE	19
+#define BLACK_CASTLE_QUEENSIDE	20
 
 #define WHITE_PIECE 0x8 
 #define BLACK_PIECE 0x7
