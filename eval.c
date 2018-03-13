@@ -40,7 +40,7 @@ Signed short integer that is the value of the given board in centi-pawns. Negati
 		{
 		// White pieces
 		y = move->whiteSpaces[j][0] / 8; // Get the piece's file index
-		x = move->whiteSaces[j][0] % 8; // Get the piece's rank index
+		x = move->whiteSpaces[j][0] % 8; // Get the piece's rank index
 		
 		// Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->whiteSpaces[j][1]) 
@@ -55,7 +55,7 @@ Signed short integer that is the value of the given board in centi-pawns. Negati
 		}
 		// Black pieces
 		y = move->blackSpaces[j][0] / 8; // Get the piece's file index
-		x = move->blackSaces[j][0] % 8; // Get the piece's rank index
+		x = move->blackSpaces[j][0] % 8; // Get the piece's rank index
 
 		// Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->blackSpaces[j][1])
