@@ -27,19 +27,23 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	
 	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
 	moveHistory->count++;							//Appends move history
-	//TODO: FIX EP:
+		
+	//TODO: verify EP:
 	if (move.capturedPiece == EN_PASSANT) {
 		if (board->turn == WHITE_TURN) {
 			board->boardSpaces[k - 1][l].isOccupied = NOT_OCCUPIED;
 			board->boardSpaces[k - 1][l].pieceType = EMPTY;
+			board->PerftEPCapture++;
 		}//end if WHITE_TURN
 
 		else if (board->turn == BLACK_TURN) {
 			board->boardSpaces[k + 1][l].isOccupied = NOT_OCCUPIED;
 			board->boardSpaces[k + 1][l].pieceType = EMPTY;
+			board->PerftEPCapture++;
 		}//end if BLACK_TURN
-	}//end if
-	//TODO: update for EP:
+	}//end if	
+	
+	updateEPSquare(board, move, moveHistory, i, j, k, 0);
 	updateColorSpaces(board, move, moveSpace, 0);
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
 	if (move.capturedPiece != NO_CAPTURE)
@@ -60,7 +64,7 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	j = StartCoordinates[1];
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
-	
+	//TODO: RESTORE EN PASSANT PIECE WHEN UNDOING
 
 	if (moveHistory->Moves[moveHistory->count - 1].capturedPiece != NO_CAPTURE) {
 		board->boardSpaces[i][j].isOccupied = IS_OCCUPIED;
@@ -77,6 +81,8 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	
 	
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
+	//TODO FIX UPDATE EPSQUARE FOR UNMAKING MOVES:
+	//updateEPSquare(board, moveHistory->Moves[moveHistory->count--], moveHistory, i, j, k, 1);//updated for unmaking the move: 2nd argument is dummy
 	updateColorSpaces(board, moveHistory->Moves[moveHistory->count - 1], moveSpace, 1);
 
 	if ((moveHistory->Moves[moveHistory->count - 1 ].piece == WHITE_KING)|| 
@@ -95,8 +101,7 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 
 //Summary: updates colorspaces for movegeneration for the next set. Allows for easier calculations of which piece belongs to both sides:
 void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
-{
-	
+{	
 	for (int i = 0; i < 16; i++) {
 		if (board->turn == WHITE_TURN) {
 			if (move.startLocation == moveSpace->whiteSpaces[i][BOARD_POSITION])
@@ -132,8 +137,35 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 		}//end if no capture		
 	}//end for 			
 }//updateColorSpaces
-//MakeMove
 
+
+//Summary: Updates En Pasant Square every move:
+void updateEPSquare(Board *board, MoveList move, MoveGen *moveHistory, int i, int j, int k, int unMakeFlag) {
+	if (unMakeFlag == 1) {
+		//If undoing move, check if previous move was a pawn moving two spaces:
+		if ((moveHistory->Moves[moveHistory->count - 1].piece == BLACK_PAWN) &&
+			(moveHistory->Moves[moveHistory->count - 1].startLocation / 8 == 6) &&
+			(moveHistory->Moves[moveHistory->count - 1].endLocation / 8 == 4)) {
+			board->epSquare = 40 + (moveHistory->Moves[moveHistory->count - 1].endLocation % 8);
+		}//end if last move was black pawn moving two spaces:
+		else if (
+			(moveHistory->Moves[moveHistory->count - 1].piece == WHITE_PAWN) &&
+			(moveHistory->Moves[moveHistory->count - 1].startLocation / 8 == 1) &&
+			(moveHistory->Moves[moveHistory->count - 1].endLocation / 8 == 3)) {
+			board->epSquare = 8 + (moveHistory->Moves[moveHistory->count - 1].endLocation % 8);
+		}//end else if
+		else
+			board->epSquare = NO_EN_PASSANT;
+	}//end if undoing move, check if previous EP square is updated:
+	
+	else {		
+		if (((move.piece == BLACK_PAWN) && (i == 6) && (k == 4)) || 
+			((move.piece == WHITE_PAWN) && (i == 1) && (k == 3))) 
+			board->epSquare = ((move.piece == WHITE_PAWN) ? 8 : 40) + j;		
+		else
+			board->epSquare = NO_EN_PASSANT;//no en passant square
+	}//end else
+}//updateEPSquare
 
 
 void updateKingCoordinates(Board *board, char piece, int i, int j) {

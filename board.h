@@ -9,11 +9,13 @@ typedef struct {
 	space boardSpaces[8][8];
 	char  turn;				//1 if white turn, 0 if black;
 	char  castlingRights;	//KQkq
-	char  epSquare;			//en passant square:
+	char  epSquare;			//en passant square:	
 	char  halfMoveClock;	// 50 move counter for draws
 	char  moveNumber;		//Full number of moves in the game
 	int   PerftNodeCounter; // used for debugging nodes
+	int   PerftEPCapture;	// # of en passant captures:
 	int   PerftCaptureCounter; //used for perft debugging
+	int	  PerftCastleCounter; //used for # of castling
 	int   whiteKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly
 	int   blackKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly for illegal moves.
 }Board;

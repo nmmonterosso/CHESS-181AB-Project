@@ -13,8 +13,9 @@
 //void makeBoard(space *board[8][8]);
 //MACROS IN SPACE.H
 
+//GLOBAL VARIABLES HERE:
 
-
+//END GLOBAL VARIABLES
 
 int main()
 {
@@ -35,12 +36,12 @@ int main()
 	char position6[] = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
 	//END DEBUGGING POSITIONS//
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
-	MoveGenFunction(board, move, movegen);			//Initial Movegen:
+	//MoveGenFunction(board, move, movegen);			//Initial Movegen:
 	//movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
 		
-	setBoard(board, move, position4);
+	setBoard(board, move, position3);
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);			
 	movetree->MoveTreeNode[0] = *movegen;
@@ -57,7 +58,11 @@ int main()
 		makeMoveTree(board, move, movetree, movegen, movehistory, 0); //creates move tree based on all possible moves, calls board evaluation function, and makes move
 		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
-		//PRINTF # of captures:
+		printf("total # of EP captures: = [%d]\n", board->PerftEPCapture);
+		printf("total # of castles: = [%d]\n", board->PerftCastleCounter);	
+		printBoard(board);
+
+
 		//PrintF # of checks:
 
 		//MAKE BEST MOVE HERE if it is BOT's TURN:
