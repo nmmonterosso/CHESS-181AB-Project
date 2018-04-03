@@ -14,6 +14,8 @@ typedef struct {
 	char  moveNumber;		//Full number of moves in the game
 	int   PerftNodeCounter; // used for debugging nodes
 	int   PerftCaptureCounter; //used for perft debugging
+	int   PerftCastleCounter; //used to figure out # of castling:
+	int   PerftEPCapture;		// Used for perft Debugging # of En passants
 	int   whiteKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly
 	int   blackKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly for illegal moves.
 }Board;
@@ -64,7 +66,7 @@ void initializePositions(Move *move);
 void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory);
 void printBoard(Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
-
+void resetDebugCounters(Board *board);
 
 void setBoard(Board *board, Move *move, char command[]); //Sets current boardstate based on the command:
 void setPiece(Board *board, char piece, int row, int col);

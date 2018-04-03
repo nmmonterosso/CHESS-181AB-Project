@@ -411,25 +411,29 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
 			makeMove(board, movegen->Moves[i], movehistory, move);			
-			printBoard(board);			
+			//printBoard(board);			
 			if (checkKingSafety(board, ((board->turn == WHITE_TURN) ? board->blackKingCoordinates[0] : board->whiteKingCoordinates[0]),
 									   ((board->turn == WHITE_TURN) ? board->blackKingCoordinates[1] : board->whiteKingCoordinates[1]))) {
 
 				movetree->MoveTreeNode[depth + 1].count = 0;
 				MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
 				makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1); //Go one more depth lower:
-				printBoard(board);
+				//printBoard(board);
 				unMakeMove(board, movehistory, move);
-				printBoard(board);
+				//printBoard(board);
 			}//end if 
 			else {
-				printf("BAD:\n");
-				printBoard(board);
+				//printf("BAD:\n");
+				//printBoard(board);
 				if (movehistory->Moves[movehistory->count - 1].capturedPiece != NO_CAPTURE)
 					board->PerftCaptureCounter--;
+				if (movehistory->Moves[movehistory->count - 1].capturedPiece == EN_PASSANT) {
+					board->PerftEPCapture--;
+					board->PerftCaptureCounter--;
+				}
 				unMakeMove(board, movehistory, move);
-				printf("ENDBAD\n");
-				printBoard(board);				
+				//printf("ENDBAD\n");
+				//printBoard(board);				
 			}
 		}//end for 
 	}
@@ -491,8 +495,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 		if (board->boardSpaces[a + 1][b].isOccupied == NOT_OCCUPIED) {
 			AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b].boardposition, WHITE_PAWN, NO_CAPTURE);			
 			if (board->boardSpaces[a + 2][b].isOccupied == NOT_OCCUPIED && (a == 1)) {
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 2][b].boardposition, WHITE_PAWN, NO_CAPTURE);
-				board->epSquare = board->boardSpaces[a + 1][b].boardposition;
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 2][b].boardposition, WHITE_PAWN, NO_CAPTURE);				
 			}//move forward 2
 		}//end if // move forward 1
 
@@ -500,16 +503,16 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 		if (b < 7) {
 			if ((board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK)) 
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_PAWN, board->boardSpaces[a + 1][b + 1].pieceType);
-			//if ((board->boardSpaces[a + 1][b + 1].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[a + 1][b + 1].boardposition == board->epSquare))
-				//AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_PAWN, EN_PASSANT);
+			if ((board->boardSpaces[a + 1][b + 1].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[a + 1][b + 1].boardposition == board->epSquare))
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_PAWN, EN_PASSANT);
 		}//endif b < 7
 
 		//Check Left Diagonal:
 		if (b > 0) {
 			if ((board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK)) 
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_PAWN, board->boardSpaces[a + 1][b - 1].pieceType);							 
-			//if ((board->boardSpaces[a + 1][b - 1].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[a + 1][b - 1].boardposition == board->epSquare))
-				//AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_PAWN, EN_PASSANT);
+			if ((board->boardSpaces[a + 1][b - 1].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[a + 1][b - 1].boardposition == board->epSquare))
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_PAWN, EN_PASSANT);
 			// TO DO: PROMOTE PAWN:!
 		}//end if b<0
 		
@@ -522,8 +525,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 		if (board->boardSpaces[a - 1][b].isOccupied == NOT_OCCUPIED) {
 			AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b].boardposition, BLACK_PAWN, NO_CAPTURE);		
 			if (board->boardSpaces[a - 2][b].isOccupied == NOT_OCCUPIED && (a == 6)) {
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 2][b].boardposition, BLACK_PAWN, NO_CAPTURE);
-				board->epSquare = board->boardSpaces[a - 1][b].boardposition;
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 2][b].boardposition, BLACK_PAWN, NO_CAPTURE);				
 			}// move forward 2:
 		}//end if // move forward 1
 
@@ -531,16 +533,16 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 		if (b < 7) {
 			if ((board->boardSpaces[a - 1][b + 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[a - 1][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE))
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_PAWN, board->boardSpaces[a - 1][b + 1].pieceType);							 
-			//if ((board->boardSpaces[a - 1][b + 1].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[a - 1][b + 1].boardposition == board->epSquare))
-				//AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_PAWN, EN_PASSANT);
+			if ((board->boardSpaces[a - 1][b + 1].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[a - 1][b + 1].boardposition == board->epSquare))
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_PAWN, EN_PASSANT);
 		}//endif b < 7
 
 		 //Check Left Diagonal:
 		if (b > 0) {
 			if ((board->boardSpaces[a - 1][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE))
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_PAWN, board->boardSpaces[a - 1][b - 1].pieceType);				
-			//if ((board->boardSpaces[a - 1][b - 1].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[a - 1][b - 1].boardposition == board->epSquare))
-				//AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_PAWN, EN_PASSANT);
+			if ((board->boardSpaces[a - 1][b - 1].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[a - 1][b - 1].boardposition == board->epSquare))
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_PAWN, EN_PASSANT);
 			 // TO DO: PROMOTE!:
 		}//end if b<0
 		//BLACK TURN

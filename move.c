@@ -28,10 +28,14 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
 	moveHistory->count++;							//Appends move history
 	//TODO: FIX EP:
-	if (move.capturedPiece == EN_PASSANT) {
+
+	//UPDATE EP SQUARE:
+	if (move.capturedPiece == EN_PASSANT) {		
+		board->PerftEPCapture++;
+		board->PerftCaptureCounter++;
 		if (board->turn == WHITE_TURN) {
 			board->boardSpaces[k - 1][l].isOccupied = NOT_OCCUPIED;
-			board->boardSpaces[k - 1][l].pieceType = EMPTY;
+			board->boardSpaces[k - 1][l].pieceType = EMPTY;			
 		}//end if WHITE_TURN
 
 		else if (board->turn == BLACK_TURN) {
@@ -40,6 +44,7 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 		}//end if BLACK_TURN
 	}//end if
 	//TODO: update for EP:
+	updateEPSquare(board, move);
 	updateColorSpaces(board, move, moveSpace, 0);
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
 	if (move.capturedPiece != NO_CAPTURE)
@@ -61,10 +66,26 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
 	
-
+	//IF CAPTURE OCCURS:
 	if (moveHistory->Moves[moveHistory->count - 1].capturedPiece != NO_CAPTURE) {
-		board->boardSpaces[i][j].isOccupied = IS_OCCUPIED;
-		board->boardSpaces[i][j].pieceType = moveHistory->Moves[moveHistory->count - 1].capturedPiece;
+		if (moveHistory->Moves[moveHistory->count - 1].capturedPiece == EN_PASSANT) {
+			//If EP Capture, Undo EP:
+			if (moveHistory->Moves[moveHistory->count - 1].piece == WHITE_PAWN) {
+				//if white pawn restore black pawn:
+				board->boardSpaces[4][j].isOccupied = IS_OCCUPIED;
+				board->boardSpaces[4][j].pieceType = BLACK_PAWN;
+			}//end if white piece moved
+			else if (moveHistory->Moves[moveHistory->count - 1].piece == BLACK_PAWN) {
+				board->boardSpaces[3][j].isOccupied = IS_OCCUPIED;
+				board->boardSpaces[3][j].pieceType = WHITE_PAWN;
+			}//end else if black pawn moved:
+			board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED;
+			board->boardSpaces[i][j].pieceType = EMPTY;
+		}// end if 
+		else {
+			board->boardSpaces[i][j].isOccupied = IS_OCCUPIED;
+			board->boardSpaces[i][j].pieceType = moveHistory->Moves[moveHistory->count - 1].capturedPiece;
+		}//else normal capture, no EP:
 	}//end if Captured piece
 
 	else {
@@ -77,6 +98,12 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	
 	
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
+	//UPDATE EP
+	if (moveHistory->count > 1)		
+		updatePrevEPSquare(board, moveHistory->Moves[moveHistory->count - 2]);//CHECK TO SEE IF SEG FAULT HERE
+	else
+		board->epSquare = NO_EN_PASSANT;
+	//END UPDATE EP
 	updateColorSpaces(board, moveHistory->Moves[moveHistory->count - 1], moveSpace, 1);
 
 	if ((moveHistory->Moves[moveHistory->count - 1 ].piece == WHITE_KING)|| 
@@ -135,7 +162,6 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 //MakeMove
 
 
-
 void updateKingCoordinates(Board *board, char piece, int i, int j) {
 	if (piece == WHITE_KING) {
 		board->whiteKingCoordinates[0] = i;
@@ -146,6 +172,54 @@ void updateKingCoordinates(Board *board, char piece, int i, int j) {
 		board->blackKingCoordinates[1] = j;
 	}//end else
 }//updateKingCoordiates
+
+//Summary: Checks if current move moved pawn, if it did then check if moved 2 places. then update the EP Square
+//If not, then set EP square to default value
+void updateEPSquare(Board *board, MoveList move) {
+	int start, end, file;
+	start = move.startLocation / 8;
+	end   = move.endLocation / 8;
+	file = move.startLocation % 8;
+	if ((move.piece == WHITE_PAWN || move.piece == BLACK_PAWN) && ( (start == 1 && end == 3) || (start == 6 && end == 4) ) ){
+		//printf("Printboard for debug Purposes:\n");
+		//printBoard(board);
+		//printf("Printboard end\n");
+		if ((start == 1) && (end == 3))
+			board->epSquare = board->boardSpaces[2][file].boardposition;
+		else if ((start == 6) && (end == 4))
+			board->epSquare = board->boardSpaces[5][file].boardposition;
+		else
+			printf("ERROR YOU SHOULDN'T HIT THIS \n");
+	}
+	else
+		board->epSquare = NO_EN_PASSANT;
+}//updateEPSquare:
+
+
+void updatePrevEPSquare(Board *board, MoveList prevmove) {
+	
+	int start, end, file;
+	start = prevmove.startLocation / 8;
+	end = prevmove.endLocation / 8;
+	file = prevmove.startLocation % 8;
+	//is the first if redundant?
+	if (prevmove.capturedPiece == EN_PASSANT) {		
+		if (prevmove.piece == WHITE_PAWN)
+			board->epSquare = board->boardSpaces[5][file].boardposition;
+		else if (prevmove.piece == BLACK_PAWN)
+			board->epSquare = board->boardSpaces[2][file].boardposition;
+	}//end if previous move was en passant move
+
+	else if ((prevmove.piece == WHITE_PAWN || prevmove.piece == BLACK_PAWN) &&
+		(((start == 1) && (end == 3)) || ((start == 6) && (start == 4)))    ){
+		if (prevmove.piece == WHITE_PAWN)
+			board->epSquare = board->boardSpaces[2][file].boardposition;
+		else if (prevmove.piece == BLACK_PAWN)
+			board->epSquare = board->boardSpaces[5][file].boardposition;
+	}//end else if 
+
+
+}//updatePrevEPSquare
 
 
 
@@ -335,8 +409,7 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 				//move->blackMoves[y] = board->boardSpaces[i][j].boardposition;
 				y++;
 			}//end else
-
-
+			
 			//TODO SET PAWN MOVES?
 			//SET QUEEN MOVES
 		}//end for j

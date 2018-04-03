@@ -40,7 +40,7 @@ int main()
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
 		
-	setBoard(board, move, position4);
+	setBoard(board, move, position3);
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);			
 	movetree->MoveTreeNode[0] = *movegen;
@@ -57,6 +57,9 @@ int main()
 		makeMoveTree(board, move, movetree, movegen, movehistory, 0); //creates move tree based on all possible moves, calls board evaluation function, and makes move
 		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
+		printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
+		printf("total # of castling: = [%d]\n", board->PerftCastleCounter);
+		resetDebugCounters(board);
 		//PRINTF # of captures:
 		//PrintF # of checks:
 
