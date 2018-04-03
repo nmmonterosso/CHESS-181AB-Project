@@ -1,11 +1,7 @@
 #ifndef SPACE_H_
 #define SPACE_H_
 
-<<<<<<< HEAD
-#define MAXDEPTH 3
-=======
-#define MAXDEPTH 5
->>>>>>> d70d34c540db5e646d2f50beb52da074d759452f
+#define MAXDEPTH 1
 
 #define WHITE 0xF
 #define BLACK 0x7
@@ -43,7 +39,6 @@
 #define NO_MOVE -1
 #define NO_EN_PASSANT -16
 #define EN_PASSANT 16
-#define NO_EN_PASSANT -1
 
 //PROMOTION CODES FOR PAWN PROMOTION
 //WHITE PAWN PROMOTION
@@ -87,14 +82,14 @@
 #define BLACK_PROMOTE_QUEEN_CAPTURE_KNIGHT	59
 #define BLACK_PROMOTE_QUEEN_CAPTURE_BISHOP	60
 #define BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN	61
-		
+
 #define BLACK_PROMOTE_ROOK_NO_CAPTURE		62
 #define BLACK_PROMOTE_ROOK_CAPTURE_PAWN		63
 #define BLACK_PROMOTE_ROOK_CAPTURE_ROOK		64
 #define BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT	65
 #define BLACK_PROMOTE_ROOK_CAPTURE_BISHOP	66
 #define BLACK_PROMOTE_ROOK_CAPTURE_QUEEN	67
-	
+
 #define BLACK_PROMOTE_KNIGHT_NO_CAPTURE		68
 #define BLACK_PROMOTE_KNIGHT_CAPTURE_PAWN	69
 #define BLACK_PROMOTE_KNIGHT_CAPTURE_ROOK	70
@@ -129,7 +124,7 @@
 #define GET_PIECE_TYPE 0xF
 
 
-typedef struct{
+typedef struct {
 	//type includes: color, and the type of piece: 1 = white 0 = black
 	//{000}	== KING
 	//{001} == Queen
@@ -141,12 +136,12 @@ typedef struct{
 	char boardposition;		// Space number identifier on the board {6 BITS}
 	char isOccupied;		// 1 if occupied, 0 if unoccupied		{1 BIT }
 	char pieceType;			// type of piece occupying the space	{4 BITS}
-	//TODO CHECK ENUM for string types:	
+							//TODO CHECK ENUM for string types:	
 } space;
 
 
 char getboardposition(space *board);	//returns boardposition
 char getisOccupied(space *board);		//returns 1 if occupied, 0 if not
-char getpieceType(space *board);		
+char getpieceType(space *board);
 
 #endif //SPACE_H

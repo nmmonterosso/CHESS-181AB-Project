@@ -7,12 +7,8 @@
 void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace);
 void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace);
 void updateColorSpaces(Board *board, MoveList move, Move *movespace, int undo);
-<<<<<<< HEAD
-void updateEPSquare(Board *board, MoveList move, MoveGen *moveHistory, int i, int j, int k, int unMakeFlag);
-=======
 void updateEPSquare(Board *board, MoveList move);
 void updatePrevEPSquare(Board *board, MoveList prevmove);
->>>>>>> d70d34c540db5e646d2f50beb52da074d759452f
 void updateKingCoordinates(Board *board, char piece, int i, int j);
 void demoteWhitePiece(Board *board, MoveList move);
 void demoteBlackPiece(Board *board, MoveList move);

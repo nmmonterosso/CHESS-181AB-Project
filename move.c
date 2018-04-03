@@ -13,58 +13,42 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	int i, j, k, l;
 
 	Addr_Conversion(move.startLocation, StartCoordinates);
-	Addr_Conversion(move.endLocation,   EndCoordinates);
+	Addr_Conversion(move.endLocation, EndCoordinates);
 
 	i = StartCoordinates[0];
 	j = StartCoordinates[1];
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
-	
+
 	board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED; //set Start Unoccupied
-	board->boardSpaces[i][j].pieceType  = EMPTY;		//set Start Piece EMPTY
+	board->boardSpaces[i][j].pieceType = EMPTY;		//set Start Piece EMPTY
 
 	board->boardSpaces[k][l].isOccupied = IS_OCCUPIED; //Set endLocation OCCUPIED
 	board->boardSpaces[k][l].pieceType = move.piece;	  //Set EndLocation's Piecetype
-	
+
 	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
 	moveHistory->count++;							//Appends move history
-<<<<<<< HEAD
-		
-	//TODO: verify EP:
-	if (move.capturedPiece == EN_PASSANT) {
-		if (board->turn == WHITE_TURN) {
-			board->boardSpaces[k - 1][l].isOccupied = NOT_OCCUPIED;
-			board->boardSpaces[k - 1][l].pieceType = EMPTY;
-			board->PerftEPCapture++;
-=======
-	//TODO: PROMOTION:
+													//TODO: PROMOTION:
 	if (move.capturedPiece >= 32 && move.capturedPiece <= 79) {
 		promotePawn(board, move);
 		board->PerftPromotionCounter++;
 	}//promote
 
-	//UPDATE EP SQUARE:
-	if (move.capturedPiece == EN_PASSANT) {		
+	 //UPDATE EP SQUARE:
+	if (move.capturedPiece == EN_PASSANT) {
 		board->PerftEPCapture++;
 		board->PerftCaptureCounter++;
 		if (board->turn == WHITE_TURN) {
 			board->boardSpaces[k - 1][l].isOccupied = NOT_OCCUPIED;
-			board->boardSpaces[k - 1][l].pieceType = EMPTY;			
->>>>>>> d70d34c540db5e646d2f50beb52da074d759452f
+			board->boardSpaces[k - 1][l].pieceType = EMPTY;
 		}//end if WHITE_TURN
 
 		else if (board->turn == BLACK_TURN) {
 			board->boardSpaces[k + 1][l].isOccupied = NOT_OCCUPIED;
 			board->boardSpaces[k + 1][l].pieceType = EMPTY;
-			board->PerftEPCapture++;
 		}//end if BLACK_TURN
 	}//end if	
-<<<<<<< HEAD
-	
-	updateEPSquare(board, move, moveHistory, i, j, k, 0);
-=======
 	updateEPSquare(board, move);
->>>>>>> d70d34c540db5e646d2f50beb52da074d759452f
 	updateColorSpaces(board, move, moveSpace, 0);
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
 	if (move.capturedPiece != NO_CAPTURE)
@@ -85,13 +69,8 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	j = StartCoordinates[1];
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
-<<<<<<< HEAD
-	//TODO: RESTORE EN PASSANT PIECE WHEN UNDOING
 
-=======
-	
 	//IF CAPTURE OCCURS:
->>>>>>> d70d34c540db5e646d2f50beb52da074d759452f
 	if (moveHistory->Moves[moveHistory->count - 1].capturedPiece != NO_CAPTURE) {
 		if (moveHistory->Moves[moveHistory->count - 1].capturedPiece == EN_PASSANT) {
 			//If EP Capture, Undo EP:
@@ -105,7 +84,7 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 				board->boardSpaces[3][j].pieceType = WHITE_PAWN;
 			}//end else if black pawn moved:			
 
-			//If Promotion, undo Promotion
+			 //If Promotion, undo Promotion
 			if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 32) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 55)) // WHITE PROMOTION
 				demoteWhitePiece(board, moveHistory->Moves[moveHistory->count - 1]);
 
@@ -128,41 +107,37 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 
 	board->boardSpaces[k][l].isOccupied = IS_OCCUPIED;
 	board->boardSpaces[k][l].pieceType = moveHistory->Moves[moveHistory->count - 1].piece;
-	
-	
-	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
-<<<<<<< HEAD
-	//TODO FIX UPDATE EPSQUARE FOR UNMAKING MOVES:
-	//updateEPSquare(board, moveHistory->Moves[moveHistory->count--], moveHistory, i, j, k, 1);//updated for unmaking the move: 2nd argument is dummy
-=======
 
-	
-	//UPDATE EP
-	if (moveHistory->count > 1)		
+
+	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN); //change turn:
+
+
+																		   //UPDATE EP
+	if (moveHistory->count > 1)
 		updatePrevEPSquare(board, moveHistory->Moves[moveHistory->count - 2]);//CHECK TO SEE IF SEG FAULT HERE
 	else
 		board->epSquare = NO_EN_PASSANT;
 	//END UPDATE EP	
->>>>>>> d70d34c540db5e646d2f50beb52da074d759452f
 	updateColorSpaces(board, moveHistory->Moves[moveHistory->count - 1], moveSpace, 1);
 
-	if ((moveHistory->Moves[moveHistory->count - 1 ].piece == WHITE_KING)|| 
-		(moveHistory->Moves[moveHistory->count - 1 ].piece == BLACK_KING))
+	if ((moveHistory->Moves[moveHistory->count - 1].piece == WHITE_KING) ||
+		(moveHistory->Moves[moveHistory->count - 1].piece == BLACK_KING))
 		updateKingCoordinates(board, moveHistory->Moves[moveHistory->count - 1].piece, k, l);
 
-	
 
-	moveHistory->Moves[moveHistory->count].capturedPiece	= -1;
-	moveHistory->Moves[moveHistory->count].startLocation	= -1;
-	moveHistory->Moves[moveHistory->count].endLocation		= -1;
-	moveHistory->Moves[moveHistory->count].piece			= -1;
+
+	moveHistory->Moves[moveHistory->count].capturedPiece = -1;
+	moveHistory->Moves[moveHistory->count].startLocation = -1;
+	moveHistory->Moves[moveHistory->count].endLocation = -1;
+	moveHistory->Moves[moveHistory->count].piece = -1;
 	moveHistory->count--;
 	//TODO, RESTORE CASTLING RIGHTS/ EN PASSANT:		
 }//UnMakeMove
 
-//Summary: updates colorspaces for movegeneration for the next set. Allows for easier calculations of which piece belongs to both sides:
+ //Summary: updates colorspaces for movegeneration for the next set. Allows for easier calculations of which piece belongs to both sides:
 void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
-{	
+{
+
 	for (int i = 0; i < 16; i++) {
 		if (board->turn == WHITE_TURN) {
 			if (move.startLocation == moveSpace->whiteSpaces[i][BOARD_POSITION]) {
@@ -176,7 +151,7 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 					moveSpace->whiteSpaces[i][PIECE_TYPE] = WHITE_PAWN;
 			}
 		}//white turn
-		else if (board->turn == BLACK_TURN){
+		else if (board->turn == BLACK_TURN) {
 			if (move.startLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) {
 				moveSpace->blackSpaces[i][BOARD_POSITION] = move.endLocation;
 				if ((move.capturedPiece >= 56) && (move.capturedPiece <= 79))
@@ -198,7 +173,7 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 							moveSpace->blackSpaces[i][PIECE_TYPE] = move.capturedPiece;
 					}// if undo == 1
 					else
-						moveSpace->blackSpaces[i][PIECE_TYPE] = -1;					
+						moveSpace->blackSpaces[i][PIECE_TYPE] = -1;
 					//moveSpace->blackSpaces[i][BOARD_POSITION] = -1;
 				}//endif				
 			}//endif 
@@ -218,40 +193,9 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 		}//end if no capture		
 	}//end for 			
 }//updateColorSpaces
+ //MakeMove
 
-<<<<<<< HEAD
-
-//Summary: Updates En Pasant Square every move:
-void updateEPSquare(Board *board, MoveList move, MoveGen *moveHistory, int i, int j, int k, int unMakeFlag) {
-	if (unMakeFlag == 1) {
-		//If undoing move, check if previous move was a pawn moving two spaces:
-		if ((moveHistory->Moves[moveHistory->count - 1].piece == BLACK_PAWN) &&
-			(moveHistory->Moves[moveHistory->count - 1].startLocation / 8 == 6) &&
-			(moveHistory->Moves[moveHistory->count - 1].endLocation / 8 == 4)) {
-			board->epSquare = 40 + (moveHistory->Moves[moveHistory->count - 1].endLocation % 8);
-		}//end if last move was black pawn moving two spaces:
-		else if (
-			(moveHistory->Moves[moveHistory->count - 1].piece == WHITE_PAWN) &&
-			(moveHistory->Moves[moveHistory->count - 1].startLocation / 8 == 1) &&
-			(moveHistory->Moves[moveHistory->count - 1].endLocation / 8 == 3)) {
-			board->epSquare = 8 + (moveHistory->Moves[moveHistory->count - 1].endLocation % 8);
-		}//end else if
-		else
-			board->epSquare = NO_EN_PASSANT;
-	}//end if undoing move, check if previous EP square is updated:
-	
-	else {		
-		if (((move.piece == BLACK_PAWN) && (i == 6) && (k == 4)) || 
-			((move.piece == WHITE_PAWN) && (i == 1) && (k == 3))) 
-			board->epSquare = ((move.piece == WHITE_PAWN) ? 8 : 40) + j;		
-		else
-			board->epSquare = NO_EN_PASSANT;//no en passant square
-	}//end else
-}//updateEPSquare
-
-
-=======
-//Summary: Updates the whitespace piece type during pawn promotion: Updates the piecetype value to the proper promotion.
+ //Summary: Updates the whitespace piece type during pawn promotion: Updates the piecetype value to the proper promotion.
 void promoteWhiteSpace(Move *moveSpace, char promotedPiece, int i) {
 	if ((promotedPiece >= WHITE_PROMOTE_QUEEN_NO_CAPTURE) && (promotedPiece <= WHITE_PROMOTE_QUEEN_CAPTURE_QUEEN))
 		moveSpace->whiteSpaces[i][PIECE_TYPE] = WHITE_QUEEN;
@@ -266,7 +210,7 @@ void promoteWhiteSpace(Move *moveSpace, char promotedPiece, int i) {
 		moveSpace->whiteSpaces[i][PIECE_TYPE] = WHITE_KNIGHT;
 }//promoteWhiteSpace
 
-//Summary: Updates the blackspace piece type during pawn promotion: Updates the piecetype value to the proper promotion.
+ //Summary: Updates the blackspace piece type during pawn promotion: Updates the piecetype value to the proper promotion.
 void promoteBlackSpace(Move *moveSpace, char promotedPiece, int i) {
 	if ((promotedPiece >= BLACK_PROMOTE_QUEEN_NO_CAPTURE) && (promotedPiece <= BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN))
 		moveSpace->blackSpaces[i][PIECE_TYPE] = BLACK_QUEEN;
@@ -282,9 +226,9 @@ void promoteBlackSpace(Move *moveSpace, char promotedPiece, int i) {
 }//promoteBlackvSpace
 
 
-//Summary: Demotes White Piece and updates board accordingly
+ //Summary: Demotes White Piece and updates board accordingly
 void demoteWhitePiece(Board *board, MoveList move) {
-	int startFile, endFile;	
+	int startFile, endFile;
 	startFile = move.startLocation % 8;
 	endFile = move.endLocation % 8;
 	if (move.capturedPiece == WHITE_PROMOTE_QUEEN_NO_CAPTURE || move.capturedPiece == WHITE_PROMOTE_ROOK_NO_CAPTURE ||
@@ -310,7 +254,7 @@ void demoteWhitePiece(Board *board, MoveList move) {
 			board->boardSpaces[6][startFile].isOccupied = IS_OCCUPIED;
 			board->boardSpaces[6][startFile].pieceType = WHITE_PAWN;
 		}//if captured rook
-		
+
 		else if (move.capturedPiece == WHITE_PROMOTE_QUEEN_CAPTURE_BISHOP || move.capturedPiece == WHITE_PROMOTE_ROOK_CAPTURE_BISHOP ||
 			move.capturedPiece == WHITE_PROMOTE_BISHOP_CAPTURE_BISHOP || move.capturedPiece == WHITE_PROMOTE_KNIGHT_CAPTURE_BISHOP) {
 			board->boardSpaces[7][endFile].isOccupied = IS_OCCUPIED;
@@ -318,7 +262,7 @@ void demoteWhitePiece(Board *board, MoveList move) {
 			board->boardSpaces[6][startFile].isOccupied = IS_OCCUPIED;
 			board->boardSpaces[6][startFile].pieceType = WHITE_PAWN;
 		}//if captured bishop
-		
+
 		else if (move.capturedPiece == WHITE_PROMOTE_QUEEN_CAPTURE_KNIGHT || move.capturedPiece == WHITE_PROMOTE_ROOK_CAPTURE_KNIGHT ||
 			move.capturedPiece == WHITE_PROMOTE_BISHOP_CAPTURE_KNIGHT || move.capturedPiece == WHITE_PROMOTE_KNIGHT_CAPTURE_KNIGHT) {
 			board->boardSpaces[7][endFile].isOccupied = IS_OCCUPIED;
@@ -326,11 +270,11 @@ void demoteWhitePiece(Board *board, MoveList move) {
 			board->boardSpaces[6][startFile].isOccupied = IS_OCCUPIED;
 			board->boardSpaces[6][startFile].pieceType = WHITE_PAWN;
 		}//if captured rook
-		//if captured knight
+		 //if captured knight
 	}//end else if piece was captured:
 }//demoteWhitePiece
 
-//Summary: Demotes Black Piece and updates board accordingly
+ //Summary: Demotes Black Piece and updates board accordingly
 void demoteBlackPiece(Board *board, MoveList move) {
 	int startFile, endFile;
 	startFile = move.startLocation % 8;
@@ -352,7 +296,7 @@ void demoteBlackPiece(Board *board, MoveList move) {
 		}//if captured queen
 
 		else if (move.capturedPiece == BLACK_PROMOTE_QUEEN_CAPTURE_ROOK || move.capturedPiece == BLACK_PROMOTE_ROOK_CAPTURE_ROOK ||
-				 move.capturedPiece == BLACK_PROMOTE_BISHOP_CAPTURE_ROOK || move.capturedPiece == BLACK_PROMOTE_KNIGHT_CAPTURE_ROOK) {
+			move.capturedPiece == BLACK_PROMOTE_BISHOP_CAPTURE_ROOK || move.capturedPiece == BLACK_PROMOTE_KNIGHT_CAPTURE_ROOK) {
 			board->boardSpaces[0][endFile].isOccupied = IS_OCCUPIED;
 			board->boardSpaces[0][endFile].pieceType = WHITE_ROOK;
 			board->boardSpaces[1][startFile].isOccupied = IS_OCCUPIED;
@@ -360,7 +304,7 @@ void demoteBlackPiece(Board *board, MoveList move) {
 		}//if captured rook
 
 		else if (move.capturedPiece == BLACK_PROMOTE_QUEEN_CAPTURE_BISHOP || move.capturedPiece == BLACK_PROMOTE_ROOK_CAPTURE_BISHOP ||
-				 move.capturedPiece == BLACK_PROMOTE_BISHOP_CAPTURE_BISHOP || move.capturedPiece == BLACK_PROMOTE_KNIGHT_CAPTURE_BISHOP) {
+			move.capturedPiece == BLACK_PROMOTE_BISHOP_CAPTURE_BISHOP || move.capturedPiece == BLACK_PROMOTE_KNIGHT_CAPTURE_BISHOP) {
 			board->boardSpaces[0][endFile].isOccupied = IS_OCCUPIED;
 			board->boardSpaces[0][endFile].pieceType = WHITE_BISHOP;
 			board->boardSpaces[1][startFile].isOccupied = IS_OCCUPIED;
@@ -368,7 +312,7 @@ void demoteBlackPiece(Board *board, MoveList move) {
 		}//if captured bishop
 
 		else if (move.capturedPiece == BLACK_PROMOTE_QUEEN_CAPTURE_KNIGHT || move.capturedPiece == BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT ||
-				 move.capturedPiece == BLACK_PROMOTE_BISHOP_CAPTURE_KNIGHT || move.capturedPiece == BLACK_PROMOTE_KNIGHT_CAPTURE_KNIGHT) {
+			move.capturedPiece == BLACK_PROMOTE_BISHOP_CAPTURE_KNIGHT || move.capturedPiece == BLACK_PROMOTE_KNIGHT_CAPTURE_KNIGHT) {
 			board->boardSpaces[0][endFile].isOccupied = IS_OCCUPIED;
 			board->boardSpaces[0][endFile].pieceType = WHITE_KNIGHT;
 			board->boardSpaces[1][startFile].isOccupied = IS_OCCUPIED;
@@ -378,11 +322,11 @@ void demoteBlackPiece(Board *board, MoveList move) {
 	}//end else if piece was captured:
 }//demote black PIECE
 
-//Summary: Recovers piece in the black space that was captured by a white promotion
+ //Summary: Recovers piece in the black space that was captured by a white promotion
 void demoteWhiteSpace(Move *moveSpace, MoveList move, int i) {
 	int startFile, endFile;
-	startFile	= move.startLocation % 8;
-	endFile		= move.endLocation   % 8;
+	startFile = move.startLocation % 8;
+	endFile = move.endLocation % 8;
 
 	if ((move.capturedPiece == 37) || (move.capturedPiece == 43) ||
 		(move.capturedPiece == 49) || (move.capturedPiece == 55))
@@ -407,7 +351,7 @@ void demoteWhiteSpace(Move *moveSpace, MoveList move, int i) {
 
 
 
-//Summary: Recovers piece in the white spaces that was captured by a white promotion
+ //Summary: Recovers piece in the white spaces that was captured by a white promotion
 void demoteBlackSpace(Move *moveSpace, MoveList move, int i) {
 	int startFile, endFile;
 	startFile = move.startLocation % 8;
@@ -437,8 +381,7 @@ void demoteBlackSpace(Move *moveSpace, MoveList move, int i) {
 
 
 
-//Summary: Updates King Coordinates for Black and white kings:
->>>>>>> d70d34c540db5e646d2f50beb52da074d759452f
+ //Summary: Updates King Coordinates for Black and white kings:
 void updateKingCoordinates(Board *board, char piece, int i, int j) {
 	if (piece == WHITE_KING) {
 		board->whiteKingCoordinates[0] = i;
@@ -453,14 +396,14 @@ void updateKingCoordinates(Board *board, char piece, int i, int j) {
 
 
 
-//Summary: Checks if current move moved pawn, if it did then check if moved 2 places. then update the EP Square
-//If not, then set EP square to default value
+ //Summary: Checks if current move moved pawn, if it did then check if moved 2 places. then update the EP Square
+ //If not, then set EP square to default value
 void updateEPSquare(Board *board, MoveList move) {
 	int start, end, file;
 	start = move.startLocation / 8;
-	end   = move.endLocation / 8;
+	end = move.endLocation / 8;
 	file = move.startLocation % 8;
-	if ((move.piece == WHITE_PAWN || move.piece == BLACK_PAWN) && ( (start == 1 && end == 3) || (start == 6 && end == 4) ) ){
+	if ((move.piece == WHITE_PAWN || move.piece == BLACK_PAWN) && ((start == 1 && end == 3) || (start == 6 && end == 4))) {
 		//printf("Printboard for debug Purposes:\n");
 		//printBoard(board);
 		//printf("Printboard end\n");
@@ -477,13 +420,13 @@ void updateEPSquare(Board *board, MoveList move) {
 
 
 void updatePrevEPSquare(Board *board, MoveList prevmove) {
-	
+
 	int start, end, file;
 	start = prevmove.startLocation / 8;
 	end = prevmove.endLocation / 8;
 	file = prevmove.startLocation % 8;
 	//is the first if redundant?
-	if (prevmove.capturedPiece == EN_PASSANT) {		
+	if (prevmove.capturedPiece == EN_PASSANT) {
 		if (prevmove.piece == WHITE_PAWN)
 			board->epSquare = board->boardSpaces[5][file].boardposition;
 		else if (prevmove.piece == BLACK_PAWN)
@@ -491,7 +434,7 @@ void updatePrevEPSquare(Board *board, MoveList prevmove) {
 	}//end if previous move was en passant move
 
 	else if ((prevmove.piece == WHITE_PAWN || prevmove.piece == BLACK_PAWN) &&
-		(((start == 1) && (end == 3)) || ((start == 6) && (start == 4)))    ){
+		(((start == 1) && (end == 3)) || ((start == 6) && (start == 4)))) {
 		if (prevmove.piece == WHITE_PAWN)
 			board->epSquare = board->boardSpaces[2][file].boardposition;
 		else if (prevmove.piece == BLACK_PAWN)
@@ -501,13 +444,13 @@ void updatePrevEPSquare(Board *board, MoveList prevmove) {
 
 }//updatePrevEPSquare
 
-//Summary: Promotes Pawn to the proper code based on which turn it is.
-//Need to create an unpromote pawn function for unmake move.
-//This function is called when a move is made:
+ //Summary: Promotes Pawn to the proper code based on which turn it is.
+ //Need to create an unpromote pawn function for unmake move.
+ //This function is called when a move is made:
 void promotePawn(Board *board, MoveList move) {
 	int file = move.endLocation % 8; //horizontal position	
 	if (board->turn == WHITE_TURN) {
-		board->boardSpaces[7][file].isOccupied = IS_OCCUPIED;		
+		board->boardSpaces[7][file].isOccupied = IS_OCCUPIED;
 		if ((move.capturedPiece >= WHITE_PROMOTE_QUEEN_NO_CAPTURE) && (move.capturedPiece <= WHITE_PROMOTE_QUEEN_CAPTURE_QUEEN))
 			board->boardSpaces[7][file].pieceType = WHITE_QUEEN;
 
@@ -542,23 +485,23 @@ void promotePawn(Board *board, MoveList move) {
 
 
 
-//Summary: Calculates each possible move a bishop can move to when given a starting space
-//Assumes Board is empty so this result must check to see if spaces in the path are occupied
-//to determine captures or movement blocking.
+ //Summary: Calculates each possible move a bishop can move to when given a starting space
+ //Assumes Board is empty so this result must check to see if spaces in the path are occupied
+ //to determine captures or movement blocking.
 void setBishopMoves(Board * board, int i, int j, Move * move)
 {
 	int x, y, k;
 
-	for (x = 0; x < 13; x++) 
+	for (x = 0; x < 13; x++)
 		move->bishopMoves[i][j][x] = -1;
 	//NOTE: We can break this function up into smaller easier to read subroutines:
 	k = 0;
 	y = i;
 	x = j;
 	//SetTopRightDirection:
-	while((x + 1 < 8) && (y + 1 < 8)) {
-		x++; y++;		
-		move->bishopMoves[i][j][k] = board->boardSpaces[y][x].boardposition;		
+	while ((x + 1 < 8) && (y + 1 < 8)) {
+		x++; y++;
+		move->bishopMoves[i][j][k] = board->boardSpaces[y][x].boardposition;
 		k++;
 	}//endWhile	
 	y = i;
@@ -577,7 +520,7 @@ void setBishopMoves(Board * board, int i, int j, Move * move)
 		move->bishopMoves[i][j][k] = board->boardSpaces[y][x].boardposition;
 		k++;
 	}//endWhileBotRight
-	
+
 	y = i;
 	x = j;
 	//SetTopLeftDirection:
@@ -589,64 +532,64 @@ void setBishopMoves(Board * board, int i, int j, Move * move)
 }//setBishopMoves
 
 
-//Summary: Calculates each possible movement a knight can move given a starting space
-//Assumes Board is empty so this result must check to see if the space is occupied to make captures
-//and to see if the occupied piece is friendly or hostile to determine the actual moveset:
-//Checks moves counterclockwise:
+ //Summary: Calculates each possible movement a knight can move given a starting space
+ //Assumes Board is empty so this result must check to see if the space is occupied to make captures
+ //and to see if the occupied piece is friendly or hostile to determine the actual moveset:
+ //Checks moves counterclockwise:
 void setKnightMoves(Board *board, int i, int j, Move *move) {
 	int x, k = 0; //initializing variables
-	//Initializes all values in the moves to -1 by default (-1 signifies end of moveset)
+				  //Initializes all values in the moves to -1 by default (-1 signifies end of moveset)
 	for (x = 0; x < 8; x++)
 		move->knightMoves[i][j][x] = -1;
-		
+
 	for (x = 0; x < 8; x++) {
 		switch (x) {
 		case 0: if ((i + 2 < 8) && (j + 1 < 8)) {//Check UP -> Right Position:
-					move->knightMoves[i][j][k] = board->boardSpaces[i + 2][j + 1].boardposition;
-					k++;
-				}//endif
+			move->knightMoves[i][j][k] = board->boardSpaces[i + 2][j + 1].boardposition;
+			k++;
+		}//endif
 				break;
 
 		case 1:	if ((i + 1 < 8) && (j + 2 < 8)) {//Check Right -> UP Position:
-					move->knightMoves[i][j][k] = board->boardSpaces[i + 1][j + 2].boardposition;
-					k++;
-				}//endif			
+			move->knightMoves[i][j][k] = board->boardSpaces[i + 1][j + 2].boardposition;
+			k++;
+		}//endif			
 				break;
 
 		case 2:	if ((i - 1 >= 0) && (j + 2 < 8)) {//Check Right -> DOWN Position:
-					move->knightMoves[i][j][k] = board->boardSpaces[i - 1][j + 2].boardposition;
-					k++;
-				}//endif			
+			move->knightMoves[i][j][k] = board->boardSpaces[i - 1][j + 2].boardposition;
+			k++;
+		}//endif			
 				break;
 
 		case 3:	if ((i - 2 >= 0) && (j + 1 < 8)) {//Check DOWN -> RIGHT Position:
-					move->knightMoves[i][j][k] = board->boardSpaces[i - 2][j + 1].boardposition;
-					k++;
-				}//endif			
+			move->knightMoves[i][j][k] = board->boardSpaces[i - 2][j + 1].boardposition;
+			k++;
+		}//endif			
 				break;
 
 		case 4:	if ((i - 2 >= 0) && (j - 1 >= 0)) {//Check DOWN -> LEFT Position:
-					move->knightMoves[i][j][k] = board->boardSpaces[i - 2][j - 1].boardposition;
-					k++;
-				}//endif			
+			move->knightMoves[i][j][k] = board->boardSpaces[i - 2][j - 1].boardposition;
+			k++;
+		}//endif			
 				break;
 
 		case 5:	if ((i - 1 >= 0) && (j - 2 >= 0)) {//Check LEFT -> DOWN Position:
-				move->knightMoves[i][j][k] = board->boardSpaces[i - 1][j - 2].boardposition;
-				k++;
-				}//endif			
+			move->knightMoves[i][j][k] = board->boardSpaces[i - 1][j - 2].boardposition;
+			k++;
+		}//endif			
 				break;
-				
+
 		case 6:	if ((i + 1 < 8) && (j - 2 >= 0)) {//Check LEFT -> UP Position:
-				move->knightMoves[i][j][k] = board->boardSpaces[i + 1][j - 2].boardposition;
-				k++;
-				}//endif			
+			move->knightMoves[i][j][k] = board->boardSpaces[i + 1][j - 2].boardposition;
+			k++;
+		}//endif			
 				break;
-				
+
 		case 7:	if ((i + 2 < 8) && (j - 1 >= 0)) {//Check UP -> LEFT Position:
-				move->knightMoves[i][j][k] = board->boardSpaces[i + 2][j - 1].boardposition;
-				k++;
-				}//endif			
+			move->knightMoves[i][j][k] = board->boardSpaces[i + 2][j - 1].boardposition;
+			k++;
+		}//endif			
 				break;
 
 		default:break;
@@ -654,19 +597,19 @@ void setKnightMoves(Board *board, int i, int j, Move *move) {
 	}//endFor
 }//setKnightMoves
 
-//Summary: Calculates each possible movement a rook can move given a starting space.
-//Stores the destination board positions as a result. 
-//Assumes the Board is empty so this result must be compared to the current boardstate
-//before making decisions.
+ //Summary: Calculates each possible movement a rook can move given a starting space.
+ //Stores the destination board positions as a result. 
+ //Assumes the Board is empty so this result must be compared to the current boardstate
+ //before making decisions.
 void setRookMoves(Board *board, int i, int j, Move *move)
 {
-	int x, y, k;			
+	int x, y, k;
 	for (k = 0; k < 14; k++) {
 		move->rookMoves[i][j][k] = 0; //Initialize array to 0 
 	}//End FOR initialization
 	k = 0;
 	//Calculating horizontal +X direction (RIGHT)
-	for(x = j + 1; x < 8; x++) {
+	for (x = j + 1; x < 8; x++) {
 		move->rookMoves[i][j][k] = board->boardSpaces[i][x].boardposition; //Sets the boardPosition for the valid move:
 		k++;
 	}//end FOR +X RIGHT	
@@ -689,14 +632,14 @@ void setRookMoves(Board *board, int i, int j, Move *move)
 }//verticalHorizontal_move
 
 
-//Summary: Passes the board and arguments to preconfigure the board movement.
-//All movement in this board is assumed to be on an empty board and must be compared
-//to the present board state to determine obstacle collisions.
+ //Summary: Passes the board and arguments to preconfigure the board movement.
+ //All movement in this board is assumed to be on an empty board and must be compared
+ //to the present board state to determine obstacle collisions.
 void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) {
 	int x = 0;
 	int y = 0;
 
-	for (int i = 0; i <= 100; i++) {		
+	for (int i = 0; i <= 100; i++) {
 		//Initialize MoveGen List to -1:
 		movegen->Moves[i].piece = -1;
 		movegen->Moves[i].startLocation = -1;
@@ -710,15 +653,15 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 	}//endfor	
 	movegen->count = 0;
 	movehistory->count = 0;
-	
+
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			//printf("boardInt = [%d]", boardInt);			
 			setRookMoves(board, i, j, move);
 			setKnightMoves(board, i, j, move);
 			setBishopMoves(board, i, j, move);
-			if (board->boardSpaces[i][j].isOccupied && 
-			   ((board->boardSpaces[i][j].pieceType & WHITE) >= 8)) {
+			if (board->boardSpaces[i][j].isOccupied &&
+				((board->boardSpaces[i][j].pieceType & WHITE) >= 8)) {
 				//move->whiteMoves[x] = board->boardSpaces[i][j].boardposition;
 				x++;
 			}// end if
@@ -727,15 +670,11 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 				//move->blackMoves[y] = board->boardSpaces[i][j].boardposition;
 				y++;
 			}//end else
-			
-			//TODO SET PAWN MOVES?
-			//SET QUEEN MOVES
+
+			 //TODO SET PAWN MOVES?
+			 //SET QUEEN MOVES
 		}//end for j
 	}//end for i	
 }
 
 //setMoves
-
-
-
-
