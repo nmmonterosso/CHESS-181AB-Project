@@ -58,11 +58,20 @@ int main()
 		makeMoveTree(board, move, movetree, movegen, movehistory, 0); //creates move tree based on all possible moves, calls board evaluation function, and makes move
 		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
+<<<<<<< HEAD
 		printf("total # of EP captures: = [%d]\n", board->PerftEPCapture);
 		printf("total # of castles: = [%d]\n", board->PerftCastleCounter);	
 		printBoard(board);
 
 
+=======
+		printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
+		printf("total # of castling: = [%d]\n", board->PerftCastleCounter);
+		printf("total # of pawn Promotions = [%d]\n", board->PerftPromotionCounter);
+		printBoard(board);
+		resetDebugCounters(board);
+		//PRINTF # of captures:
+>>>>>>> d70d34c540db5e646d2f50beb52da074d759452f
 		//PrintF # of checks:
 
 		//MAKE BEST MOVE HERE if it is BOT's TURN:
