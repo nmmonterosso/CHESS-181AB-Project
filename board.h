@@ -16,6 +16,7 @@ typedef struct {
 	int   PerftCaptureCounter; //used for perft debugging
 	int   PerftCastleCounter; //used to figure out # of castling:
 	int   PerftEPCapture;		// Used for perft Debugging # of En passants
+	int	  PerftPromotionCounter;
 	int   whiteKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly
 	int   blackKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly for illegal moves.
 }Board;

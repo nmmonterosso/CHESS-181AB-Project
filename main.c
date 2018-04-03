@@ -59,6 +59,8 @@ int main()
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
 		printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
 		printf("total # of castling: = [%d]\n", board->PerftCastleCounter);
+		printf("total # of pawn Promotions = [%d]\n", board->PerftPromotionCounter);
+		printBoard(board);
 		resetDebugCounters(board);
 		//PRINTF # of captures:
 		//PrintF # of checks:

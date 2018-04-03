@@ -82,6 +82,7 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 	board->PerftNodeCounter	   = 0;
 	board->PerftCastleCounter = 0;
 	board->PerftEPCapture = 0;
+	board->PerftPromotionCounter = 0;
 	board->epSquare = NO_EN_PASSANT;	
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -176,6 +177,7 @@ void resetDebugCounters(Board *board)
 	board->PerftCastleCounter = 0;
 	board->PerftEPCapture = 0;
 	board->PerftNodeCounter = 0;
+	board->PerftPromotionCounter = 0;
 }
 //setPiece
 
