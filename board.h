@@ -14,6 +14,9 @@ typedef struct {
 	char  moveNumber;		//Full number of moves in the game
 	int   PerftNodeCounter; // used for debugging nodes
 	int   PerftCaptureCounter; //used for perft debugging
+	int   PerftCastleCounter; //used to figure out # of castling:
+	int   PerftEPCapture;		// Used for perft Debugging # of En passants
+	int	  PerftPromotionCounter;
 	int   whiteKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly
 	int   blackKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly for illegal moves.
 }Board;
@@ -26,7 +29,7 @@ typedef struct {
 	char knightMoves[8][8][8]; //Knights can move at max 8 different locations
 	char bishopMoves[8][8][13]; //Bishops can move at maximum 8 locations
 
-	//Actual List of active controlled spaces/pieces:
+								//Actual List of active controlled spaces/pieces:
 	char blackSpaces[16][2];	//Stores the type and locations for each Move black can make
 	char whiteSpaces[16][2];	//Stores the type and locations for each Move white can make (IE NE4 = Knight E4):
 								//TODO Put Pawn Moves as well:
@@ -64,7 +67,7 @@ void initializePositions(Move *move);
 void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory);
 void printBoard(Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
-
+void resetDebugCounters(Board *board);
 
 void setBoard(Board *board, Move *move, char command[]); //Sets current boardstate based on the command:
 void setPiece(Board *board, char piece, int row, int col);
@@ -73,4 +76,3 @@ void setColorSpaces(Board *board, Move *move);
 
 #endif // !
 #pragma once
-
