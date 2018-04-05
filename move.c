@@ -40,7 +40,11 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 		}//end switch
 		board->PerftCastleCounter++;
 	}//if castling
-		
+	//check if castling rights need to be changed
+	if((move.piece == WHITE_ROOK) || (move.piece == WHITE_KING))
+		changeWhiteCastlingRights(board, move);	
+	if ((move.piece == BLACK_ROOK) || (move.piece == BLACK_KING))
+		changeBlackCastlingRights(board, move);
 	//END CASTLING
 	if ((move.capturedPiece >= 32) && (move.capturedPiece <= 79)) {
 		promotePawn(board, move);
@@ -600,7 +604,7 @@ void unmakeWhiteCastleKingSide(Board *board) {
 	board->boardSpaces[0][7].pieceType = WHITE_ROOK;
 	//update King Coordinates
 	updateKingCoordinates(board, WHITE_KING, 0, 4);
-	//change castling rights
+	//change castling rights NEED TO PROPERLY RESTORE RIGHTS
 	board->castlingRights += (board->castlingRights & 0xB); //-(1100) (12)
 }//unmakeWhiteCastleKingSide
 
@@ -658,6 +662,59 @@ void unmakeBlackCastleQueenSide(Board *board) {
 }//unmakeBlackCastleQueenSide
 
 //END UNMAKE CASTLING
+
+//Summary: Takes away castling rights when a white rook/king moves if necessary
+void changeWhiteCastlingRights(Board *board, MoveList move) {
+	//undo castling rights if rook/king moves:
+	if ((move.piece == WHITE_ROOK) && ((board->castlingRights & 0xB) >= 4)) {
+		if ((move.startLocation == 7) && ((board->castlingRights & 0x8) == 0x8))
+			board->castlingRights = board->castlingRights - 0x8;
+		if ((move.startLocation == 0) && ((board->castlingRights & 0x4) == 0x4))
+			board->castlingRights = board->castlingRights - 0x4;
+	}//end if white rook moved
+	if ((move.piece == WHITE_KING) && ((board->castlingRights & 0xB) >= 4)) {
+		board->castlingRights -= (board->castlingRights & 0xB);
+	}//end if white King moved
+}//changeWhiteCastlingRights
+
+//Summary: Takes away castling rights when a black rook/king moves if necessary
+void changeBlackCastlingRights(Board *board, MoveList move) {
+	//undo castling rights if rook/king moves:
+	if ((move.piece == BLACK_ROOK) && ((board->castlingRights & 0x3) > 0x0)) {
+		if ((move.startLocation == 56) && ((board->castlingRights & 0x2) == 0x2))
+			board->castlingRights = board->castlingRights - 0x2;
+		if ((move.startLocation == 63) && ((board->castlingRights & 0x1) == 0x1))
+			board->castlingRights = board->castlingRights - 0x1;
+	}//end if white rook moved
+	if ((move.piece == BLACK_KING) && ((board->castlingRights & 0xB) > 0x0)) {
+		board->castlingRights -= (board->castlingRights & 0x3);
+	}//end if white King moved
+}//changeBlackCastlingRights
+
+
+//Summary Restores White Castling Rights for undoing moves
+void restoreWhiteCastlingRights(Board *board, MoveList move, MoveGen *moveHistory) {
+	//CHECK MOVEHISTORY TO SEE WHAT THE RIGHTS ARE
+	board->castlingRights = (board->castlingRights | 0xB);//RESTORE ALL OF WHITE CASTLING RIGHTS
+	for (int i = 0; i < (moveHistory->count); i++) {	//TAKE AWAY RIGHTS BASED ON HISTORY		
+		if ((moveHistory->Moves[i].piece == WHITE_ROOK)) 
+			board->castlingRights -= (board->castlingRights & ((moveHistory->Moves[i].startLocation == 7) ? 0x8 : 0x4));
+		
+		else if (moveHistory->Moves[i].piece == WHITE_KING) 
+			board->castlingRights -= (board->castlingRights & 0xB);
+		
+		if ((board->castlingRights & 0xB) == 0) // IF castling rights are gone, end
+			break;
+	}
+
+}//restoreWhiteCastlingRights
+
+//Restores Black Castling Rights for undoing moves
+void restoreBlackCastlingRights(Board *board, MoveList move, MoveGen moveHistory) {
+	//CHECK MOVEHISTORY TO SEE WHAT OUR RIGHTS ARE
+
+}//restoreBlackCastlingRights
+
 
 
  //Summary: Calculates each possible move a bishop can move to when given a starting space

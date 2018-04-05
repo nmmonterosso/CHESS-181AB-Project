@@ -473,7 +473,7 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
 			makeMove(board, movegen->Moves[i], movehistory, move);
-			//printBoard(board);
+			printBoard(board);
 
 			//TODO CHECK LEGALITY OF CASTLING:
 			if ((movegen->Moves[i].capturedPiece >= 82) && (movegen->Moves[i].capturedPiece <= 85)) {
@@ -490,13 +490,13 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 				movetree->MoveTreeNode[depth + 1].count = 0;
 				MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
 				makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1); //Go one more depth lower:
-			  //printBoard(board);
+			    printBoard(board);
 				unMakeMove(board, movehistory, move);
-			//	printBoard(board);
+				printBoard(board);
 			}//end if 
 			else {
-			//	printf("BAD:\n");
-			//	printBoard(board);
+				printf("BAD:\n");
+				printBoard(board);
 				if (movehistory->Moves[movehistory->count - 1].capturedPiece != NO_CAPTURE)
 					board->PerftCaptureCounter--;
 				if (movehistory->Moves[movehistory->count - 1].capturedPiece == EN_PASSANT) {
@@ -506,8 +506,8 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 				if ((movehistory->Moves[movehistory->count - 1].capturedPiece >= 32) && (movehistory->Moves[movehistory->count - 1].capturedPiece <= 79)) //if promotion
 					board->PerftPromotionCounter--;
 				unMakeMove(board, movehistory, move);
-			//	printf("ENDBAD\n");
-			//	printBoard(board);				
+				printf("ENDBAD\n");
+				printBoard(board);				
 			}
 		}//end for 
 	}
@@ -1171,6 +1171,7 @@ void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 		a = Start_Location / 8;
 		b = Start_Location % 8;
 		//CHECK CASTLING BLACK:
+		checkBlackCastle(board, movegen);
 		//UP MOVEMENT and LEFT RIGHT DIAGONALS:		
 		if (a < 7) {
 			//MOVE UP:			
@@ -1263,13 +1264,11 @@ void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 void checkWhiteCastle(Board *board, MoveGen *movegen) {
 	if ((board->castlingRights & CHECK_WHITE_CASTLE_KINGSIDE) == 8)
 		if ((board->boardSpaces[0][5].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[0][6].isOccupied == NOT_OCCUPIED))
-			if ((checkKingSafety(board, 0, 4)) && (checkKingSafety(board, 0, 5)) && (checkKingSafety(board, 0, 6)))
-				AddToMoveList(movegen, 4, 6, WHITE_KING, WHITE_CASTLE_KINGSIDE);	
+			AddToMoveList(movegen, 4, 6, WHITE_KING, WHITE_CASTLE_KINGSIDE);	
 	//checkKingside
 	if ((board->castlingRights & CHECK_WHITE_CASTLE_QUEENSIDE) == 4) 
 		if ((board->boardSpaces[0][3].isOccupied == NOT_OCCUPIED) && (board->boardSpaces[0][2].isOccupied == NOT_OCCUPIED))
-			if ((checkKingSafety(board, 0, 4)) && (checkKingSafety(board, 0, 3)) && (checkKingSafety(board, 0, 2)))
-				AddToMoveList(movegen, 4, 2, WHITE_KING, WHITE_CASTLE_QUEENSIDE);
+			AddToMoveList(movegen, 4, 2, WHITE_KING, WHITE_CASTLE_QUEENSIDE);
 	//checkQueenside
 }//checkWhiteCastle
 

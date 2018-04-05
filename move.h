@@ -29,6 +29,11 @@ void unmakeWhiteCastleQueenSide(Board *board);
 void unmakeBlackCastleKingSide(Board *board);
 void unmakeBlackCastleQueenSide(Board *board);
 
+void changeWhiteCastlingRights(Board *board, MoveList move);
+void changeBlackCastlingRights(Board *board, MoveList move);
+void restoreWhiteCastlingRights(Board *board, MoveList move, MoveGen moveHistory);
+void restoreBlackCastlingRights(Board *board, MoveList move, MoveGen moveHistory);
+
 void setBishopMoves(Board *board, int i, int j, Move *move);
 void setKnightMoves(Board *board, int i, int j, Move *move);
 void setRookMoves(Board *board, int i, int j, Move *move);//TODO Precomputes vertical and horizontal movement for each space on the board
