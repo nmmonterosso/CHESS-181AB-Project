@@ -28,8 +28,21 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 
 	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
 	moveHistory->count++;							//Appends move history
-													//TODO: PROMOTION:
-	if (move.capturedPiece >= 32 && move.capturedPiece <= 79) {
+													
+	//TODO: CASTLING:
+	if ((move.capturedPiece >= 82) && (move.capturedPiece <= 85)) {
+		switch (move.capturedPiece){
+		case (WHITE_CASTLE_KINGSIDE):	whiteCastleKingSide(board);		break;
+		case (WHITE_CASTLE_QUEENSIDE):	whiteCastleQueenSide(board);	break;
+		case (BLACK_CASTLE_KINGSIDE):	blackCastleKingSide(board);		break;
+		case(BLACK_CASTLE_QUEENSIDE):	blackCastleQueenSide(board);	break;
+		default: printf("CASTLE ERROR"); break;
+		}//end switch
+		board->PerftCastleCounter++;
+	}//if castling
+		
+	//END CASTLING
+	if ((move.capturedPiece >= 32) && (move.capturedPiece <= 79)) {
 		promotePawn(board, move);
 		board->PerftPromotionCounter++;
 	}//promote
@@ -51,7 +64,9 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 	updateEPSquare(board, move);
 	updateColorSpaces(board, move, moveSpace, 0);
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
-	if (move.capturedPiece != NO_CAPTURE)
+	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece != 32) && (move.capturedPiece != 38) && (move.capturedPiece != 44) &&
+		(move.capturedPiece != 50) && (move.capturedPiece != 56) && (move.capturedPiece != 62) && (move.capturedPiece != 68) && 
+		(move.capturedPiece != 74) && (move.capturedPiece != 82) && (move.capturedPiece != 83) && (move.capturedPiece != 84) && (move.capturedPiece != 85))//update to make sure castling and capture doesn't increment capture counter
 		board->PerftCaptureCounter++;
 	if ((move.piece == WHITE_KING) || (move.piece == BLACK_KING))
 		updateKingCoordinates(board, move.piece, k, l);
@@ -70,7 +85,7 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	k = EndCoordinates[0];
 	l = EndCoordinates[1];
 
-	//IF CAPTURE OCCURS:
+	//IF CAPTURE, CASTLING, PROMOTION, or EP OCCURS:
 	if (moveHistory->Moves[moveHistory->count - 1].capturedPiece != NO_CAPTURE) {
 		if (moveHistory->Moves[moveHistory->count - 1].capturedPiece == EN_PASSANT) {
 			//If EP Capture, Undo EP:
@@ -78,26 +93,46 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 				//if white pawn restore black pawn:
 				board->boardSpaces[4][j].isOccupied = IS_OCCUPIED;
 				board->boardSpaces[4][j].pieceType = BLACK_PAWN;
+				board->boardSpaces[5][j].isOccupied = NOT_OCCUPIED;
+				board->boardSpaces[5][j].pieceType = EMPTY;				
 			}//end if white piece moved
 			else if (moveHistory->Moves[moveHistory->count - 1].piece == BLACK_PAWN) {
 				board->boardSpaces[3][j].isOccupied = IS_OCCUPIED;
 				board->boardSpaces[3][j].pieceType = WHITE_PAWN;
-			}//end else if black pawn moved:			
+				board->boardSpaces[2][j].isOccupied = NOT_OCCUPIED;
+				board->boardSpaces[2][j].pieceType = EMPTY;				
+			}//end else if black pawn moved:	
 
-			 //If Promotion, undo Promotion
+			board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED;
+			board->boardSpaces[i][j].pieceType = EMPTY;			
+		}// end if 
+		//IF CASTLING, UNDO CASTLING:
+		else if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 82) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 85)) {
+			switch (moveHistory->Moves[moveHistory->count - 1].capturedPiece) {
+			case (WHITE_CASTLE_KINGSIDE):	unmakeWhiteCastleKingSide(board);	break;
+			case (WHITE_CASTLE_QUEENSIDE):	unmakeWhiteCastleQueenSide(board);	break;
+			case (BLACK_CASTLE_KINGSIDE):	unmakeBlackCastleKingSide(board);	break;
+			case(BLACK_CASTLE_QUEENSIDE):	unmakeBlackCastleQueenSide(board);	break;
+			default: printf("CASTLE ERROR"); break;
+			}//end switch
+		}//if castling, undo castling
+		else {
+			board->boardSpaces[i][j].isOccupied = IS_OCCUPIED;
+			board->boardSpaces[i][j].pieceType = moveHistory->Moves[moveHistory->count - 1].capturedPiece;
+		}//else normal capture, no EP:
+		//END EP UNDO
+
+		//If promotion occurred, undo promotion:
+		if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 32) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 79)) {
 			if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 32) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 55)) // WHITE PROMOTION
 				demoteWhitePiece(board, moveHistory->Moves[moveHistory->count - 1]);
 
 			else if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 56) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 79)) //BLACK PROMOTION
 				demoteBlackPiece(board, moveHistory->Moves[moveHistory->count - 1]);
-			//end undo promotion
-			board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED;
-			board->boardSpaces[i][j].pieceType = EMPTY;
-		}// end if 
-		else {
-			board->boardSpaces[i][j].isOccupied = IS_OCCUPIED;
-			board->boardSpaces[i][j].pieceType = moveHistory->Moves[moveHistory->count - 1].capturedPiece;
-		}//else normal capture, no EP:
+		}//end undo promotion
+		
+		//TODO: UNDO CASTLING
+
 	}//end if Captured piece
 
 	else {
@@ -481,8 +516,148 @@ void promotePawn(Board *board, MoveList move) {
 	}// end if black turn
 }//promotePawn
 
+//CASTLING
+void whiteCastleKingSide(Board *board) {
+	//set pieces starting locations empty.
+	board->boardSpaces[0][4].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[0][4].pieceType = EMPTY;
+	board->boardSpaces[0][7].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[0][7].isOccupied = EMPTY;
+	//set new locations
+	board->boardSpaces[0][6].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[0][6].pieceType = WHITE_KING;
+	board->boardSpaces[0][5].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[0][5].pieceType = WHITE_ROOK;
+	//update King Coordinates
+	updateKingCoordinates(board, WHITE_KING, 0, 6);
+	//change castling rights
+	board->castlingRights -= (board->castlingRights & 0xB); //-(1100) (12)
+}//whiteCastleKingSide
+
+void whiteCastleQueenSide(Board *board) {
+	//set pieces starting locations empty.
+	board->boardSpaces[0][4].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[0][4].pieceType = EMPTY;
+	board->boardSpaces[0][0].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[0][0].isOccupied = EMPTY;
+	//set new locations
+	board->boardSpaces[0][2].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[0][2].pieceType = WHITE_KING;
+	board->boardSpaces[0][3].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[0][3].pieceType = WHITE_ROOK;
+	//update King Coordinates
+	updateKingCoordinates(board, WHITE_KING, 0, 2);
+	//change castling rights
+	board->castlingRights -= (board->castlingRights & 0xB); //-(1100)-( (12)| (8) | 4)
+}//whiteCastleQueenSide
+
+void blackCastleKingSide(Board *board) {
+	//set pieces starting locations empty.
+	board->boardSpaces[7][4].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[7][4].pieceType = EMPTY;
+	board->boardSpaces[7][7].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[7][7].isOccupied = EMPTY;
+	//set new locations
+	board->boardSpaces[7][6].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[7][6].pieceType = BLACK_KING;
+	board->boardSpaces[7][5].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[7][5].pieceType = BLACK_ROOK;
+	//update King Coordinates
+	updateKingCoordinates(board, BLACK_KING, 7, 6);
+	//change castling rights
+	board->castlingRights -= (board->castlingRights & 0x3); //-(0011) -((3) |(2) |(1)) 
+}//blackCastleKingSide
+
+void blackCastleQueenSide(Board *board) {
+	//set pieces starting locations empty.
+	board->boardSpaces[7][4].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[7][4].pieceType = EMPTY;
+	board->boardSpaces[7][7].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[7][7].isOccupied = EMPTY;
+	//set new locations
+	board->boardSpaces[7][2].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[7][2].pieceType = BLACK_KING;
+	board->boardSpaces[7][3].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[7][3].pieceType = BLACK_ROOK;
+	//update King Coordinates
+	updateKingCoordinates(board, BLACK_KING, 7, 2);
+	//change castling rights
+	board->castlingRights -= (board->castlingRights & 0x3); //-(0011) -((3) |(2) |(1)) 
+}//blackCastleQueenSide
+//END CASTLING:
+
+//START UNMAKE CASTLING:
+void unmakeWhiteCastleKingSide(Board *board) {
+	//set pieces starting locations empty.
+	board->boardSpaces[0][6].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[0][6].pieceType = EMPTY;
+	board->boardSpaces[0][5].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[0][5].isOccupied = EMPTY;
+	//set new locations
+	board->boardSpaces[0][4].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[0][4].pieceType = WHITE_KING;
+	board->boardSpaces[0][7].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[0][7].pieceType = WHITE_ROOK;
+	//update King Coordinates
+	updateKingCoordinates(board, WHITE_KING, 0, 4);
+	//change castling rights
+	board->castlingRights += (board->castlingRights & 0xB); //-(1100) (12)
+}//unmakeWhiteCastleKingSide
+
+void unmakeWhiteCastleQueenSide(Board *board) {
+	//set pieces starting locations empty.
+	board->boardSpaces[0][2].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[0][2].pieceType = EMPTY;
+	board->boardSpaces[0][3].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[0][3].isOccupied = EMPTY;
+	//set new locations
+	board->boardSpaces[0][4].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[0][4].pieceType = WHITE_KING;
+	board->boardSpaces[0][0].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[0][0].pieceType = WHITE_ROOK;
+	//update King Coordinates
+	updateKingCoordinates(board, WHITE_KING, 0, 4);
+	//change castling rights
+	board->castlingRights += (board->castlingRights & 0xB); //-(1100)-( (12)| (8) | 4)
+}//unmakeWhiteCastleQueenside
 
 
+void unmakeBlackCastleKingSide(Board *board) {
+	//set pieces starting locations empty.
+	board->boardSpaces[7][6].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[7][6].pieceType = EMPTY;
+	board->boardSpaces[7][5].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[7][5].isOccupied = EMPTY;
+	//set new locations
+	board->boardSpaces[7][4].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[7][4].pieceType = BLACK_KING;
+	board->boardSpaces[7][7].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[7][7].pieceType = BLACK_ROOK;
+	//update King Coordinates
+	updateKingCoordinates(board, BLACK_KING, 7, 4);
+	//change castling rights
+	board->castlingRights += (board->castlingRights & 0x3); //-(0011) -((3) |(2) |(1))
+}//unmakeBlackCastleKingSide
+
+
+void unmakeBlackCastleQueenSide(Board *board) {
+	//set pieces starting locations empty.
+	board->boardSpaces[7][2].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[7][2].pieceType = EMPTY;
+	board->boardSpaces[7][3].isOccupied = NOT_OCCUPIED;
+	board->boardSpaces[7][3].isOccupied = EMPTY;
+	//set new locations
+	board->boardSpaces[7][4].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[7][4].pieceType = BLACK_KING;
+	board->boardSpaces[7][0].isOccupied = IS_OCCUPIED;
+	board->boardSpaces[7][0].pieceType = BLACK_ROOK;
+	//update King Coordinates
+	updateKingCoordinates(board, BLACK_KING, 7, 4);
+	//change castling rights
+	board->castlingRights += (board->castlingRights & 0x3); //-(0011) -((3) |(2) |(1)) 
+}//unmakeBlackCastleQueenSide
+
+//END UNMAKE CASTLING
 
 
  //Summary: Calculates each possible move a bishop can move to when given a starting space
@@ -670,9 +845,7 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 				//move->blackMoves[y] = board->boardSpaces[i][j].boardposition;
 				y++;
 			}//end else
-
-			 //TODO SET PAWN MOVES?
-			 //SET QUEEN MOVES
+			 
 		}//end for j
 	}//end for i	
 }

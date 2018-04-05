@@ -13,6 +13,7 @@ int checkKingKnight		(Board *board, int row, int col);
 int checkKingHorizontal	(Board *board, int row, int col);
 int checkKingVertical	(Board *board, int row, int col);
 int checkKingPawn		(Board *board, int row, int col);
+int checkCastle			(Board * board, char castle);
 
 void makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth);//Makes tree for moves
 void initializeMoveGen(MoveGen *movegen);
@@ -22,8 +23,10 @@ void MoveGenPawn	(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenKnight	(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenRook	(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenBishop	(Board *board, Move *move, MoveGen *movegen, int count);
+void MoveGenQueen(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenKing	(Board *board, Move *move, MoveGen *movegen, int count);
-void MoveGenQueen	(Board *board, Move *move, MoveGen *movegen, int count);
+void checkWhiteCastle(Board *board, MoveGen *movegen);
+void checkBlackCastle(Board *board, MoveGen *movegen);
 
 #endif // !MOVEGEN_H_
 #pragma once

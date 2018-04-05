@@ -33,7 +33,7 @@ int main()
 	char position4[] = "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1";
 	char position5[] = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
 	char position6[] = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
-	char position7[] = "2n5/3P4/8/K6k/8/8/3p4/2N5 w - - 0 10";
+	char position7[] = "2Q5/8/8/K6k/8/8/3p4/2N5 w - - 0 10";
 	//END DEBUGGING POSITIONS//
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
 	MoveGenFunction(board, move, movegen);			//Initial Movegen:
@@ -41,11 +41,12 @@ int main()
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
 
-	setBoard(board, move, position7);
+	setBoard(board, move, position2);
+	printBoard(board); //Prints Second board:
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;
-	printBoard(board); //Prints Second board:
+	
 					   //REALLOCATE
 					   //MoveGen *movegen = realloc(movegen, sizeof(MoveGen));
 					   //movegen->count = 0;// pseudo reset
