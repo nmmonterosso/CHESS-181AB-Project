@@ -10,7 +10,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move);
 
 // Pawns are encourgaed to press forward and control the center. Pawn structure will be implemented later
 char pawnPlaceTable[8][8] = {
-	{ 0,  0,  0,  0,  0,  0,  0,  0 },
+{ 0,  0,  0,  0,  0,  0,  0,  0 },
 { 75, 75, 75, 75, 75, 75, 75, 75 }, // Promoting pawns is good and you should feel good
 { 10, 15, 20, 35, 35, 20, 15, 10 },
 { 5, 10, 15, 30, 30, 15, 10,  5 },
@@ -92,5 +92,11 @@ char kingPlaceTableEnd[8][8] = {
 { -50,-40,-30,-20,-20,-30,-40,-50 }  // No
 };
 
+// Pruning struct, used in MakeMoveTree
+typedef struct {
+	short int alphaVal;
+	short int betaVal;
+	Move * pruneChoice;
+}Prunes;
 
-#endif // !PLACE_TABLES_H
+#endif // EVAL_H
