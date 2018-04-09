@@ -24,15 +24,20 @@ void whiteCastleQueenSide(Board *board);
 void blackCastleKingSide(Board *board);
 void blackCastleQueenSide(Board *board);
 
-void unmakeWhiteCastleKingSide(Board *board);
-void unmakeWhiteCastleQueenSide(Board *board);
-void unmakeBlackCastleKingSide(Board *board);
-void unmakeBlackCastleQueenSide(Board *board);
+void unmakeWhiteCastleKingSide(Board *board, MoveGen *movehistory);
+void unmakeWhiteCastleQueenSide(Board *board, MoveGen *movehistory);
+void unmakeBlackCastleKingSide(Board *board, MoveGen *movehistory);
+void unmakeBlackCastleQueenSide(Board *board, MoveGen *movehistory);
 
 void changeWhiteCastlingRights(Board *board, MoveList move);
 void changeBlackCastlingRights(Board *board, MoveList move);
-void restoreWhiteCastlingRights(Board *board, MoveList move, MoveGen moveHistory);
-void restoreBlackCastlingRights(Board *board, MoveList move, MoveGen moveHistory);
+void restoreWhiteCastlingRights(Board *board, MoveGen *moveHistory);
+void restoreBlackCastlingRights(Board *board, MoveGen *moveHistory);
+
+void updateWhiteCastleSpace(Board *board, Move *moveSpace, char side);
+void updateBlackCastleSpace(Board *board, Move *moveSpace, char side);
+void undoWhiteCastleSpace(Board *board, Move *moveSpace, char side);
+void undoBlackCastleSpace(Board *board, Move *moveSpace, char side);
 
 void setBishopMoves(Board *board, int i, int j, Move *move);
 void setKnightMoves(Board *board, int i, int j, Move *move);

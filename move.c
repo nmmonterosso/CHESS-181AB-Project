@@ -113,10 +113,10 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 		//IF CASTLING, UNDO CASTLING:
 		else if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 82) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 85)) {
 			switch (moveHistory->Moves[moveHistory->count - 1].capturedPiece) {
-			case (WHITE_CASTLE_KINGSIDE):	unmakeWhiteCastleKingSide(board);	break;
-			case (WHITE_CASTLE_QUEENSIDE):	unmakeWhiteCastleQueenSide(board);	break;
-			case (BLACK_CASTLE_KINGSIDE):	unmakeBlackCastleKingSide(board);	break;
-			case(BLACK_CASTLE_QUEENSIDE):	unmakeBlackCastleQueenSide(board);	break;
+			case (WHITE_CASTLE_KINGSIDE):	unmakeWhiteCastleKingSide(board, moveHistory);	 break;
+			case (WHITE_CASTLE_QUEENSIDE):	unmakeWhiteCastleQueenSide(board, moveHistory);	 break;
+			case (BLACK_CASTLE_KINGSIDE):	unmakeBlackCastleKingSide(board, moveHistory);	 break;
+			case(BLACK_CASTLE_QUEENSIDE):	unmakeBlackCastleQueenSide(board, moveHistory);	 break;
 			default: printf("CASTLE ERROR"); break;
 			}//end switch
 		}//if castling, undo castling
@@ -162,8 +162,17 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 	if ((moveHistory->Moves[moveHistory->count - 1].piece == WHITE_KING) ||
 		(moveHistory->Moves[moveHistory->count - 1].piece == BLACK_KING))
 		updateKingCoordinates(board, moveHistory->Moves[moveHistory->count - 1].piece, k, l);
+	if (moveHistory->count > 1) {
+		if ((moveHistory->Moves[moveHistory->count - 1].piece == WHITE_KING) ||
+			moveHistory->Moves[moveHistory->count - 1].piece == WHITE_ROOK)
+			restoreWhiteCastlingRights(board, moveHistory);
 
-
+		if ((moveHistory->Moves[moveHistory->count - 1].piece == WHITE_KING) ||
+			moveHistory->Moves[moveHistory->count - 1].piece == BLACK_ROOK)
+			restoreBlackCastlingRights(board, moveHistory);
+	}//if more than 1 more. If this is the 0 depth we must restore to full
+	else
+		board->castlingRights = 0xF;
 
 	moveHistory->Moves[moveHistory->count].capturedPiece = -1;
 	moveHistory->Moves[moveHistory->count].startLocation = -1;
@@ -176,30 +185,49 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
  //Summary: updates colorspaces for movegeneration for the next set. Allows for easier calculations of which piece belongs to both sides:
 void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 {
-
+	//TODO: UPDATE THE CASTLING SPACE WHENEVER A CASTLE GOES OFF:
 	for (int i = 0; i < 16; i++) {
 		if (board->turn == WHITE_TURN) {
 			if (move.startLocation == moveSpace->whiteSpaces[i][BOARD_POSITION]) {
 				moveSpace->whiteSpaces[i][BOARD_POSITION] = move.endLocation;	//updates on makemove()
 				if ((move.capturedPiece >= 32) && (move.capturedPiece <= 55))
 					promoteWhiteSpace(moveSpace, move.capturedPiece, i);		//White Pawn Promotion
+				if (move.piece == WHITE_KING) {
+					if ((move.capturedPiece == WHITE_CASTLE_KINGSIDE) || (move.capturedPiece == WHITE_CASTLE_QUEENSIDE))
+						updateWhiteCastleSpace(board, moveSpace, move.capturedPiece);					
+				}//if castling occurs, undo castling
 			}//updates on MakeMove()
 			else if (move.endLocation == moveSpace->whiteSpaces[i][BOARD_POSITION]) {
 				moveSpace->whiteSpaces[i][BOARD_POSITION] = move.startLocation; //updates on unmakemove()
 				if ((move.capturedPiece >= 32) && (move.capturedPiece <= 55))
 					moveSpace->whiteSpaces[i][PIECE_TYPE] = WHITE_PAWN;
-			}
+				if (move.piece == WHITE_KING) {
+					if ((move.capturedPiece == WHITE_CASTLE_KINGSIDE) || (move.capturedPiece == WHITE_CASTLE_QUEENSIDE))
+						undoWhiteCastleSpace(board, moveSpace, move.capturedPiece);
+				}//undo castling
+
+			}// if end location matches:
 		}//white turn
 		else if (board->turn == BLACK_TURN) {
 			if (move.startLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) {
 				moveSpace->blackSpaces[i][BOARD_POSITION] = move.endLocation;
 				if ((move.capturedPiece >= 56) && (move.capturedPiece <= 79))
-					promoteBlackSpace(moveSpace, move.capturedPiece, i);	//Promotion of black piece				
+					promoteBlackSpace(moveSpace, move.capturedPiece, i);	//Promotion of black piece	
+
+				if (move.piece == BLACK_KING) {
+					if ((move.capturedPiece == BLACK_CASTLE_KINGSIDE) || (move.capturedPiece == BLACK_CASTLE_QUEENSIDE))
+						updateBlackCastleSpace(board, moveSpace, move.capturedPiece);
+				}//undo castling if possible
 			}//updates on MakeMove()
 			else if (move.endLocation == moveSpace->blackSpaces[i][BOARD_POSITION]) {
 				moveSpace->blackSpaces[i][BOARD_POSITION] = move.startLocation; //used for undoing moves
 				if ((move.capturedPiece >= 56) && (move.capturedPiece <= 79))
 					moveSpace->blackSpaces[i][PIECE_TYPE] = BLACK_PAWN;
+
+				if (move.piece == BLACK_KING) {
+					if ((move.capturedPiece == BLACK_CASTLE_KINGSIDE) || (move.capturedPiece == BLACK_CASTLE_QUEENSIDE))
+						undoBlackCastleSpace(board, moveSpace, move.capturedPiece);
+				}//undo castling if possible
 			}
 		}//black turn
 		if (move.capturedPiece != NO_CAPTURE) {
@@ -263,6 +291,89 @@ void promoteBlackSpace(Move *moveSpace, char promotedPiece, int i) {
 	else if ((promotedPiece >= BLACK_PROMOTE_KNIGHT_NO_CAPTURE) && (promotedPiece <= BLACK_PROMOTE_KNIGHT_CAPTURE_QUEEN))
 		moveSpace->blackSpaces[i][PIECE_TYPE] = BLACK_KNIGHT;
 }//promoteBlackvSpace
+
+//updating board space after castling
+void updateWhiteCastleSpace(Board *board, Move *moveSpace, char side) {
+	if (side == WHITE_CASTLE_KINGSIDE) {
+		for (int i = 0; i < 16; i++) {
+			if ((moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_ROOK) && (moveSpace->whiteSpaces[i][BOARD_POSITION] == 7)) {
+				moveSpace->whiteSpaces[i][BOARD_POSITION] = 5;
+				break;
+			}//if found the corresponding rook;
+		}//end for 
+	}//if white castle kingside
+
+	else if (side == WHITE_CASTLE_QUEENSIDE) {
+		for (int i = 0; i < 16; i++) {
+			if ((moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_ROOK) && (moveSpace->whiteSpaces[i][BOARD_POSITION] == 0)) {
+				moveSpace->whiteSpaces[i][BOARD_POSITION] = 3;
+			}//if found the corresponding rook
+		}//end for
+	}//end else queenside castling
+}//updateWhiteCastleSpace
+
+void updateBlackCastleSpace(Board *board, Move *moveSpace, char side) {
+	if (side == BLACK_CASTLE_KINGSIDE) {
+		for (int i = 0; i < 16; i++) {
+			if ((moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_ROOK) && (moveSpace->blackSpaces[i][BOARD_POSITION] == 63)) {
+				moveSpace->blackSpaces[i][BOARD_POSITION] = 61;
+				break;
+			}//if found the corresponding rook;
+		}//end for 
+	}//if white castle kingside
+
+	else if (side == BLACK_CASTLE_QUEENSIDE) {
+		for (int i = 0; i < 16; i++) {
+			if ((moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_ROOK) && (moveSpace->blackSpaces[i][BOARD_POSITION] == 56)) {
+				moveSpace->blackSpaces[i][BOARD_POSITION] = 59;
+			}//if found the corresponding rook
+		}//end for
+	}//end else queenside castling
+}//updateBlackCastleSpace
+
+//Summary: Reverts whitespace positions for rook after castling is undone.
+void undoWhiteCastleSpace(Board *board, Move *moveSpace, char side) {
+	if (side == WHITE_CASTLE_KINGSIDE) {
+		for (int i = 0; i < 16; i++) {
+			if ((moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_ROOK) && (moveSpace->whiteSpaces[i][BOARD_POSITION] == 5)) {
+				moveSpace->whiteSpaces[i][BOARD_POSITION] = 7;
+				break;
+			}//end if 
+		}//end for
+	}//end if white_castle_Kingside
+
+	else if (side == WHITE_CASTLE_QUEENSIDE) {
+		for (int i = 0; i < 16; i++) {
+			if ((moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_ROOK) && (moveSpace->whiteSpaces[i][BOARD_POSITION] == 3)) {
+				moveSpace->whiteSpaces[i][BOARD_POSITION] = 0;
+				break;
+			}//end if 
+		}//end for
+	}//end whiteCastleQueenside
+}//undoWhiteCastleSpace
+
+ //Summary: Reverts blackspace positions for rook after castling is undone.
+void undoBlackCastleSpace(Board *board, Move *moveSpace, char side) {
+	if (side == BLACK_CASTLE_KINGSIDE) {
+		for (int i = 0; i < 16; i++) {
+			if ((moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_ROOK) && (moveSpace->blackSpaces[i][BOARD_POSITION] == 61)) {
+				moveSpace->blackSpaces[i][BOARD_POSITION] = 63;
+				break;
+			}//end if 
+		}//end for
+	}//end if white_castle_Kingside
+
+	else if (side == BLACK_CASTLE_QUEENSIDE) {
+		for (int i = 0; i < 16; i++) {
+			if ((moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_ROOK) && (moveSpace->blackSpaces[i][BOARD_POSITION] == 59)) {
+				moveSpace->blackSpaces[i][BOARD_POSITION] = 56;
+				break;
+			}//end if 
+		}//end for
+	}//end whiteCastleQueenside
+}//undoBlackCastleSpace
+//end updating boardspace after castling
+
 
 
  //Summary: Demotes White Piece and updates board accordingly
@@ -473,7 +584,7 @@ void updatePrevEPSquare(Board *board, MoveList prevmove) {
 	}//end if previous move was en passant move
 
 	else if ((prevmove.piece == WHITE_PAWN || prevmove.piece == BLACK_PAWN) &&
-		(((start == 1) && (end == 3)) || ((start == 6) && (start == 4)))) {
+		(((start == 1) && (end == 3)) || ((start == 6) && (end == 4)))) {
 		if (prevmove.piece == WHITE_PAWN)
 			board->epSquare = board->boardSpaces[2][file].boardposition;
 		else if (prevmove.piece == BLACK_PAWN)
@@ -591,7 +702,7 @@ void blackCastleQueenSide(Board *board) {
 //END CASTLING:
 
 //START UNMAKE CASTLING:
-void unmakeWhiteCastleKingSide(Board *board) {
+void unmakeWhiteCastleKingSide(Board *board, MoveGen *moveHistory) {
 	//set pieces starting locations empty.
 	board->boardSpaces[0][6].isOccupied = NOT_OCCUPIED;
 	board->boardSpaces[0][6].pieceType = EMPTY;
@@ -604,11 +715,10 @@ void unmakeWhiteCastleKingSide(Board *board) {
 	board->boardSpaces[0][7].pieceType = WHITE_ROOK;
 	//update King Coordinates
 	updateKingCoordinates(board, WHITE_KING, 0, 4);
-	//change castling rights NEED TO PROPERLY RESTORE RIGHTS
-	board->castlingRights += (board->castlingRights & 0xB); //-(1100) (12)
+	restoreWhiteCastlingRights(board, moveHistory);
 }//unmakeWhiteCastleKingSide
 
-void unmakeWhiteCastleQueenSide(Board *board) {
+void unmakeWhiteCastleQueenSide(Board *board, MoveGen *moveHistory) {
 	//set pieces starting locations empty.
 	board->boardSpaces[0][2].isOccupied = NOT_OCCUPIED;
 	board->boardSpaces[0][2].pieceType = EMPTY;
@@ -621,12 +731,11 @@ void unmakeWhiteCastleQueenSide(Board *board) {
 	board->boardSpaces[0][0].pieceType = WHITE_ROOK;
 	//update King Coordinates
 	updateKingCoordinates(board, WHITE_KING, 0, 4);
-	//change castling rights
-	board->castlingRights += (board->castlingRights & 0xB); //-(1100)-( (12)| (8) | 4)
+	restoreWhiteCastlingRights(board, moveHistory);
 }//unmakeWhiteCastleQueenside
 
 
-void unmakeBlackCastleKingSide(Board *board) {
+void unmakeBlackCastleKingSide(Board *board, MoveGen *moveHistory) {
 	//set pieces starting locations empty.
 	board->boardSpaces[7][6].isOccupied = NOT_OCCUPIED;
 	board->boardSpaces[7][6].pieceType = EMPTY;
@@ -639,12 +748,11 @@ void unmakeBlackCastleKingSide(Board *board) {
 	board->boardSpaces[7][7].pieceType = BLACK_ROOK;
 	//update King Coordinates
 	updateKingCoordinates(board, BLACK_KING, 7, 4);
-	//change castling rights
-	board->castlingRights += (board->castlingRights & 0x3); //-(0011) -((3) |(2) |(1))
+	restoreBlackCastlingRights(board, moveHistory);
 }//unmakeBlackCastleKingSide
 
 
-void unmakeBlackCastleQueenSide(Board *board) {
+void unmakeBlackCastleQueenSide(Board *board, MoveGen *moveHistory) {
 	//set pieces starting locations empty.
 	board->boardSpaces[7][2].isOccupied = NOT_OCCUPIED;
 	board->boardSpaces[7][2].pieceType = EMPTY;
@@ -657,8 +765,8 @@ void unmakeBlackCastleQueenSide(Board *board) {
 	board->boardSpaces[7][0].pieceType = BLACK_ROOK;
 	//update King Coordinates
 	updateKingCoordinates(board, BLACK_KING, 7, 4);
-	//change castling rights
-	board->castlingRights += (board->castlingRights & 0x3); //-(0011) -((3) |(2) |(1)) 
+	//change castling rights	
+	restoreBlackCastlingRights(board, moveHistory);
 }//unmakeBlackCastleQueenSide
 
 //END UNMAKE CASTLING
@@ -666,37 +774,37 @@ void unmakeBlackCastleQueenSide(Board *board) {
 //Summary: Takes away castling rights when a white rook/king moves if necessary
 void changeWhiteCastlingRights(Board *board, MoveList move) {
 	//undo castling rights if rook/king moves:
-	if ((move.piece == WHITE_ROOK) && ((board->castlingRights & 0xB) >= 4)) {
+	if ((move.piece == WHITE_ROOK) && ((board->castlingRights & 0xC) >= 4)) {
 		if ((move.startLocation == 7) && ((board->castlingRights & 0x8) == 0x8))
 			board->castlingRights = board->castlingRights - 0x8;
 		if ((move.startLocation == 0) && ((board->castlingRights & 0x4) == 0x4))
 			board->castlingRights = board->castlingRights - 0x4;
 	}//end if white rook moved
-	if ((move.piece == WHITE_KING) && ((board->castlingRights & 0xB) >= 4)) {
-		board->castlingRights -= (board->castlingRights & 0xB);
+	if ((move.piece == WHITE_KING) && ((board->castlingRights & 0xC) >= 4)) {
+		board->castlingRights -= (board->castlingRights & 0xC);
 	}//end if white King moved
 }//changeWhiteCastlingRights
 
 //Summary: Takes away castling rights when a black rook/king moves if necessary
 void changeBlackCastlingRights(Board *board, MoveList move) {
 	//undo castling rights if rook/king moves:
-	if ((move.piece == BLACK_ROOK) && ((board->castlingRights & 0x3) > 0x0)) {
+	if ((move.piece == BLACK_ROOK) && ((board->castlingRights & 0x3) > 0)) {
 		if ((move.startLocation == 56) && ((board->castlingRights & 0x2) == 0x2))
 			board->castlingRights = board->castlingRights - 0x2;
 		if ((move.startLocation == 63) && ((board->castlingRights & 0x1) == 0x1))
 			board->castlingRights = board->castlingRights - 0x1;
 	}//end if white rook moved
-	if ((move.piece == BLACK_KING) && ((board->castlingRights & 0xB) > 0x0)) {
+	if ((move.piece == BLACK_KING) && ((board->castlingRights & 0x3) > 0x0)) {
 		board->castlingRights -= (board->castlingRights & 0x3);
 	}//end if white King moved
 }//changeBlackCastlingRights
 
 
 //Summary Restores White Castling Rights for undoing moves
-void restoreWhiteCastlingRights(Board *board, MoveList move, MoveGen *moveHistory) {
+void restoreWhiteCastlingRights(Board *board, MoveGen *moveHistory) {
 	//CHECK MOVEHISTORY TO SEE WHAT THE RIGHTS ARE
 	board->castlingRights = (board->castlingRights | 0xB);//RESTORE ALL OF WHITE CASTLING RIGHTS
-	for (int i = 0; i < (moveHistory->count); i++) {	//TAKE AWAY RIGHTS BASED ON HISTORY		
+	for (int i = 0; i < (moveHistory->count - 2); i++) {	//TAKE AWAY RIGHTS BASED ON HISTORY		
 		if ((moveHistory->Moves[i].piece == WHITE_ROOK)) 
 			board->castlingRights -= (board->castlingRights & ((moveHistory->Moves[i].startLocation == 7) ? 0x8 : 0x4));
 		
@@ -705,14 +813,23 @@ void restoreWhiteCastlingRights(Board *board, MoveList move, MoveGen *moveHistor
 		
 		if ((board->castlingRights & 0xB) == 0) // IF castling rights are gone, end
 			break;
-	}
-
+	}//end for
 }//restoreWhiteCastlingRights
 
 //Restores Black Castling Rights for undoing moves
-void restoreBlackCastlingRights(Board *board, MoveList move, MoveGen moveHistory) {
-	//CHECK MOVEHISTORY TO SEE WHAT OUR RIGHTS ARE
+void restoreBlackCastlingRights(Board *board, MoveGen *moveHistory) {	
+	//CHECK MOVEHISTORY TO SEE WHAT THE RIGHTS ARE
+	board->castlingRights = (board->castlingRights | 0x3);//RESTORE ALL OF WHITE CASTLING RIGHTS
+	for (int i = 0; i < (moveHistory->count - 2); i++) {	//TAKE AWAY RIGHTS BASED ON HISTORY		
+		if ((moveHistory->Moves[i].piece == BLACK_ROOK))
+			board->castlingRights -= (board->castlingRights & ((moveHistory->Moves[i].startLocation == 63) ? 0x2 : 0x1));
 
+		else if (moveHistory->Moves[i].piece == BLACK_KING)
+			board->castlingRights -= (board->castlingRights & 0x3);
+
+		if ((board->castlingRights & 0x3) == 0) // IF castling rights are gone, end
+			break;
+	}//end for
 }//restoreBlackCastlingRights
 
 
@@ -871,7 +988,7 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 	int x = 0;
 	int y = 0;
 
-	for (int i = 0; i <= 100; i++) {
+	for (int i = 0; i < 100; i++) {
 		//Initialize MoveGen List to -1:
 		movegen->Moves[i].piece = -1;
 		movegen->Moves[i].startLocation = -1;
@@ -905,6 +1022,4 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 			 
 		}//end for j
 	}//end for i	
-}
-
-//setMoves
+}//setMoves
