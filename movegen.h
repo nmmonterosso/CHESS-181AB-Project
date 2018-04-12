@@ -3,7 +3,7 @@
 
 
 
-
+// Move Generation
 void AddToMoveList  (MoveGen *movegen, char Start_Location, char End_Location, char Piece, char Captured_Piece);
 void Addr_Conversion(char boardposition, int Board_Coordinates[2]);
 
@@ -28,5 +28,8 @@ void MoveGenKing	(Board *board, Move *move, MoveGen *movegen, int count);
 void checkWhiteCastle(Board *board, MoveGen *movegen);
 void checkBlackCastle(Board *board, MoveGen *movegen);
 
+//Move Ordering
+void quickSortMoveGen(MoveGen *movegen);
+int getSortValue(MoveList *move);
 #endif // !MOVEGEN_H_
 #pragma once

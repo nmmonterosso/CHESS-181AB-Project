@@ -1304,3 +1304,101 @@ void checkBlackCastle(Board *board, MoveGen *movegen) {
 				AddToMoveList(movegen, 60, 58, BLACK_KING, BLACK_CASTLE_QUEENSIDE);
 	//checkQueenside
 }//checkBlackCastle
+
+
+//MoveGen Move Ordering:
+//Summary: Sorts current movegen by least valuable victim, most valuable attacker:
+void quickSortMoveGen(MoveGen *moveGen, int backPivot, int frontPivot) {
+	int initialBackPivot = backPivot; // needed when swap occurs:
+	
+	
+	//quicksort algorithm:
+	//starting from frontPivot:
+	//If advancing from front, if front pivot finds element that is "greater" than initial back move: stop moving:
+	//If front advancement stop moving, increment back pivot and stop if element is LESS than pivot element.
+	//If both front and back are stopped, SWAP, and increment front
+	//if front pivot == backpivot, SWAP frontpivot element with pivot element.
+	//Recursively do this function for two halves. 
+	// One function: New back pivot = front pivot -1, and front pivot = 0;
+	// Second function: New front pivot = pivot + 1, backpivot = initialBackPivot element:
+
+
+
+}//sortMoveGen
+
+
+//Summary: Returns value corresponding to possible captures/promotions, ordered by MVV LVA:
+int getSortValue(MoveList *move) {
+	int value;
+
+	if ((move->piece & GET_PIECE_TYPE) == PAWN) {
+		if ((move->capturedPiece >= 32) && (move->capturedPiece <= 79)) {
+			switch (move->capturedPiece) {
+				case (WHITE_PROMOTE_QUEEN_CAPTURE_QUEEN):	value = 1;break;
+				case (WHITE_PROMOTE_QUEEN_CAPTURE_ROOK):	value = 1;break;
+				case (WHITE_PROMOTE_QUEEN_CAPTURE_BISHOP):	value = 1;break;
+				case (WHITE_PROMOTE_QUEEN_CAPTURE_KNIGHT):	value = 1;break;
+				case (WHITE_PROMOTE_QUEEN_CAPTURE_PAWN):	value = 1;break;
+				case (WHITE_PROMOTE_QUEEN_NO_CAPTURE):		value = 1;break;
+				case (BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN):	value = 1;break;
+				case (BLACK_PROMOTE_QUEEN_CAPTURE_ROOK):	value = 1;break;
+				case (BLACK_PROMOTE_QUEEN_CAPTURE_BISHOP):	value = 1;break;
+				case (BLACK_PROMOTE_QUEEN_CAPTURE_KNIGHT):	value = 1;break;
+				case (BLACK_PROMOTE_QUEEN_CAPTURE_PAWN):	value = 1;break;
+				case (BLACK_PROMOTE_QUEEN_NO_CAPTURE):		value = 1;break;
+
+				case (WHITE_PROMOTE_ROOK_CAPTURE_QUEEN):	value = 1; break;
+				case (WHITE_PROMOTE_ROOK_CAPTURE_ROOK):		value = 1; break;
+				case (WHITE_PROMOTE_ROOK_CAPTURE_BISHOP):	value = 1; break;
+				case (WHITE_PROMOTE_ROOK_CAPTURE_KNIGHT):	value = 1; break;
+				case (WHITE_PROMOTE_ROOK_CAPTURE_PAWN):		value = 1; break;
+				case (WHITE_PROMOTE_ROOK_NO_CAPTURE):		value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_QUEEN):	value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_ROOK):		value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_BISHOP):	value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT):	value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_PAWN):		value = 1; break;
+				case (BLACK_PROMOTE_ROOK_NO_CAPTURE):		value = 1; break;
+
+				case (WHITE_PROMOTE_ROOK_CAPTURE_QUEEN):	value = 1; break;
+				case (WHITE_PROMOTE_ROOK_CAPTURE_ROOK):		value = 1; break;
+				case (WHITE_PROMOTE_ROOK_CAPTURE_BISHOP):	value = 1; break;
+				case (WHITE_PROMOTE_ROOK_CAPTURE_KNIGHT):	value = 1; break;
+				case (WHITE_PROMOTE_ROOK_CAPTURE_PAWN):		value = 1; break;
+				case (WHITE_PROMOTE_ROOK_NO_CAPTURE):		value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_QUEEN):	value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_ROOK):		value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_BISHOP):	value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT):	value = 1; break;
+				case (BLACK_PROMOTE_ROOK_CAPTURE_PAWN):		value = 1; break;
+				case (BLACK_PROMOTE_ROOK_NO_CAPTURE):		value = 1; break;
+				
+			}//end switch
+		}//end if promotion
+		else {
+			//if no promotion: Check if captured Pieces:
+		}
+		else
+			value = 10; //TODO: (placeholder)
+	} //end if pawn
+
+	else if ((move->piece & GET_PIECE_TYPE) == KNIGHT) {
+
+	}
+	
+	else if ((move->piece & GET_PIECE_TYPE) == BISHOP) {
+
+	}
+	else if ((move->piece & GET_PIECE_TYPE) == ROOK) {
+
+	}
+	else if ((move->piece & GET_PIECE_TYPE) == QUEEN) {
+
+	}
+	else if ((move->piece & GET_PIECE_TYPE) == KING) {
+
+	}
+
+
+
+}//getSortValue
