@@ -29,7 +29,10 @@ void checkWhiteCastle(Board *board, MoveGen *movegen);
 void checkBlackCastle(Board *board, MoveGen *movegen);
 
 //Move Ordering
-void quickSortMoveGen(MoveGen *movegen);
+void quickSortMoveGen(MoveGen *movegen, int frontPivot, int backPivot);
+void swapMoves(MoveGen *movegen, int leftPivot, int rightPivot);
 int getSortValue(MoveList *move);
+int isIndexHigher(MoveList *move1, MoveList *move2);
+int isIndexLower(MoveList *move1, MoveList *move2);
 #endif // !MOVEGEN_H_
 #pragma once

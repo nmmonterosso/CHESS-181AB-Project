@@ -135,7 +135,7 @@ Signed short integer that is the value of the given board in centi-pawns. Negati
 		case(WHITE_BISHOP):	boardVal = boardVal + 350 + bishopPlaceTable[y][x];	break; 
 		case(WHITE_KNIGHT):	boardVal = boardVal + 325 + knightPlaceTable[y][x];	break;
 		case(WHITE_PAWN):	boardVal = boardVal + 100 + pawnPlaceTable[y][x];	break;
-		default:			printf("Wut\n"); break;
+		default:			printf("ERROR IN WHITESPACES EVAL.C\n"); break;
 		}
 		// Black pieces
 		y = move->blackSpaces[j][0] / 8; // Get the piece's file index
@@ -150,7 +150,7 @@ Signed short integer that is the value of the given board in centi-pawns. Negati
 		case(BLACK_ROOK):	boardVal = boardVal - 500 - rookPlaceTable[8 - y][8 - x];	break;
 		case(BLACK_QUEEN):	boardVal = boardVal - 900 - queenPlaceTable[8 - y][8 - x];	break;
 		case(BLACK_KING):	boardVal = boardVal - kingPlaceTable[8 - y][8 - x];			break;
-		default:			printf("Wut\n"); break;
+		default:			printf("ERROR IN BLACKSPACES EVAL.C\n"); break;
 		}
 	}
 
