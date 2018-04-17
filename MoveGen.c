@@ -497,11 +497,11 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				
 				//Alpha-beta pruning algorithm
 				prunes = makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, alphaVal, betaVal, prevPath); //Go one more depth lower:
+				unMakeMove(board, movehistory, move); // We examined one depth lower, unmake the move we did
 				if (board->turn == BLACK_TURN) { //Minimizing player's turn to evaluate
 					if (prunes.boardVal <= alphaVal) { // If we fail the hard-alpha cutoff, we prune
 						prunes.boardVal = betaVal; //Pruning: take better alternative beta
 						prunes.movePath = prevPath; //Pruning: take move path associated with better alternative
-						unMakeMove(board, movehistory, move); //Pruning: unmake the move and return
 						return prunes;
 					}// end if hard-alpha cutoff
 					if (prunes.boardVal < betaVal) { //Found a better alternative, update beta
@@ -531,10 +531,8 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					printf("ALPHA_VAL = %d\n", alphaVal);
 					printf("BETA_VAL = %d\n", betaVal);
 				} // end if maximizer pruning
-
-				// Pruning is done, unmake the move and kick back up one level
-				unMakeMove(board, movehistory, move);
-				return prunes;
+				// Pruning is done, return statement outside of the for loop
+							
 				
 			//	printBoard(board);
 			}//end if 
@@ -554,6 +552,8 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 			//	printBoard(board);				
 			}
 		}//end for 
+		// Pruning is done, kick back up one level
+		return prunes;
 	}
 }//makeMoveTree
 
