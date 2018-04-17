@@ -9,10 +9,6 @@
 // Initialization for searching
 short int boardVal; // Holds value of a board state
 Prunes prunes;
-extern char kingPlaceTable[8][8];
-extern char kingPlaceTableEnd[8][8];
-extern char rookPlaceTable;
-extern char knightPlaceTable;
 
 
 void Addr_Conversion(char boardposition, int Board_Coordinates[2])
@@ -293,10 +289,11 @@ int checkKingKnight(Board * board, int row, int col)
 			}break;
 			default: break;
 			}//end switch
-		}//end ifFOR LOOP		
-	}// end else 
-	return 1;
-}//checkKingKnight
+		}//end ifFOR LOOP
+
+		return 1;
+	}
+}
 
 //Summary: Returns 0 if enemy queen/rook occupies in the same
 //column and has a clear path to capture KING.
@@ -470,12 +467,12 @@ int checkCastle(Board *board, char castle) {
 void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth)
 {
 	// Initialize our pruning at first depth
-	if (depth == 0) {
+	if (depth == 1) {
 		prunes.alphaVal = INT_MIN;
 		prunes.betaVal = INT_MAX;
 	}//end if
 	
-	//TODO: Create move tree to desired depth and return 
+	//TODO: Create move tree to desired depth and 	
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
 		boardVal = eval(board, 10, move);
@@ -542,7 +539,10 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 	//startingSpace gives all information of current space that is being checked for possible moves
 	//Generate all valid move that a given piece can make
-			
+
+	int Board_Coordinates[2]; //stores i and j vals for board
+	int i, j;		//storing Board_Coordinates Values
+	int iPos, jPos; //store Board_Coordinates of moves (i.e. move->rookMoves[i][j][k])
 	int k = 0;		//temporary variable for while loops
 
 	if (board->turn == WHITE_TURN) {
@@ -578,7 +578,7 @@ void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 {
 	char Start_Location;
-	int  a, b;
+	int i, j, a, b;
 	//TODO: CHECK IF MOVING FOWARD WILL PUT KING IN CHECK. CHECK WHICH DIRECTION KING IS IN:
 	if (board->turn == WHITE_TURN) {
 		Start_Location = move->whiteSpaces[count][BOARD_POSITION];
@@ -718,7 +718,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 			}//end if space in front unoccuppied:
 			 //check right side
 			if (b < 7) {
-				if ((board->boardSpaces[0][b + 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[0][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)) {
+				if ((board->boardSpaces[0][b + 1].isOccupied == IS_OCCUPIED) && (board->boardSpaces[0][b + 1].pieceType & getpieceType >= WHITE_PIECE)) {
 					if (board->boardSpaces[0][b + 1].pieceType == WHITE_QUEEN) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN);
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_QUEEN);
@@ -748,7 +748,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 			}//end check right side
 			 //check left side:
 			if (b > 0) {
-				if ((board->boardSpaces[0][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[0][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)) {
+				if ((board->boardSpaces[0][b - 1].isOccupied == IS_OCCUPIED) && (board->boardSpaces[0][b - 1].pieceType & getpieceType >= WHITE_PIECE)) {
 					if (board->boardSpaces[0][b - 1].pieceType == WHITE_QUEEN) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN);
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_QUEEN);
@@ -1081,8 +1081,9 @@ void MoveGenQueen(Board * board, Move * move, MoveGen * movegen, int count)
 
 void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 {
+	int Board_Coordinates[2];
 	char Start_Location;
-	int a, b;
+	int i, j, a, b, x;
 	//TODO NEED TO FIX SO KING CANNOT MOVE ITSELF INTO CHECK.	
 
 	if (board->turn == WHITE_TURN) {

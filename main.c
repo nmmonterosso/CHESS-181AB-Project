@@ -41,7 +41,7 @@ int main()
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
 
-	setBoard(board, move, position3);
+	setBoard(board, move, position2);
 	printBoard(board); //Prints Second board:
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);
