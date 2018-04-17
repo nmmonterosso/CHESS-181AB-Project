@@ -1,7 +1,10 @@
 #ifndef MOVEGEN_H_
 #define MOVEGEN_H_
 
-
+typedef struct {
+	short int boardVal;
+	MoveGen * movePath;
+} Prunes;
 
 
 void AddToMoveList  (MoveGen *movegen, char Start_Location, char End_Location, char Piece, char Captured_Piece);
@@ -15,7 +18,7 @@ int checkKingVertical	(Board *board, int row, int col);
 int checkKingPawn		(Board *board, int row, int col);
 int checkCastle			(Board * board, char castle);
 
-void makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth);//Makes tree for moves
+Prunes makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth, short int alphaVal, short int betaVal, MoveGen *prevPath);//Makes tree for moves
 void initializeMoveGen(MoveGen *movegen);
 
 void MoveGenFunction(Board *board, Move *move, MoveGen *movegen);

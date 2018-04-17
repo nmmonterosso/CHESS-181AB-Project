@@ -3,13 +3,8 @@
 #include "board.h"
 #include "move.h"
 #include "movegen.h"
-#include "eval.h"
+#include "evaluation.h"
 #include <limits.h>
-
-// Initialization for searching
-short int boardVal; // Holds value of a board state
-Prunes prunes;
-
 
 void Addr_Conversion(char boardposition, int Board_Coordinates[2])
 {
@@ -464,30 +459,21 @@ int checkCastle(Board *board, char castle) {
 }//checkCastle
 
 
-void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth)
-{
-	// Initialize our pruning at first depth
-	if (depth == 1) {
-		prunes.alphaVal = INT_MIN;
-		prunes.betaVal = INT_MAX;
-	}//end if
-	
-	//TODO: Create move tree to desired depth and 	
+Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth, short int alphaVal, short int betaVal, MoveGen *prevPath)
+{	
+	Prunes prunes; //keeps track of alpha beta values and the final move path
+	//MoveGen * prevPath; //keeps track the previously examined movepath
+
+	// Defining Base Case
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
-		boardVal = eval(board, 10, move);
-		if ((board->turn == 1) & (boardVal < prunes.betaVal)) { // Black updates beta
-			prunes.betaVal = boardVal;
-			prunes.pruneChoice = move;
-		}//end if
-		else if ((board->turn == 0) & (boardVal < prunes.alphaVal)) { // White updates alpha
-			prunes.alphaVal = boardVal;
-			prunes.pruneChoice = move;
-		}//end if
+		prunes.boardVal = eval(board, 10, move); //TODO: keep track of turn count
+		prunes.movePath = movehistory;
 		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.
-		return;
+		return prunes;
 	}//end if 
 
+	// after iteration 1 --> depth = depth + 1
 	else {
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
@@ -508,9 +494,48 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 
 				movetree->MoveTreeNode[depth + 1].count = 0;
 				MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
-				makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1); //Go one more depth lower:
-			  //printBoard(board);
+				
+				//Alpha-beta pruning algorithm
+				prunes = makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, alphaVal, betaVal, prevPath); //Go one more depth lower:
+				if (board->turn == BLACK_TURN) { //Minimizing player's turn to evaluate
+					if (prunes.boardVal <= alphaVal) { // If we fail the hard-alpha cutoff, we prune
+						prunes.boardVal = betaVal; //Pruning: take better alternative beta
+						prunes.movePath = prevPath; //Pruning: take move path associated with better alternative
+						unMakeMove(board, movehistory, move); //Pruning: unmake the move and return
+						return prunes;
+					}// end if hard-alpha cutoff
+					if (prunes.boardVal < betaVal) { //Found a better alternative, update beta
+						betaVal = prunes.boardVal; //Remember better alternate value
+						prevPath = prunes.movePath; //Remember the associated move path
+					}// end if beta update
+					prunes.boardVal = betaVal;
+					prunes.movePath = prevPath;
+
+					printf("ALPHA_VAL = %d\n", alphaVal);
+					printf("BETA_VAL = %d\n", betaVal);
+				}//end if minimizer pruning
+				if (board->turn == WHITE_TURN) { //Maximizing player's turn to evaluate
+					if (prunes.boardVal >= betaVal) { // If we fail the hard-alpha cutoff, we prune
+						prunes.boardVal = alphaVal; //Pruning: take better alternative beta
+						prunes.movePath = prevPath; //Pruning: take move path associated with better alternative
+						unMakeMove(board, movehistory, move); //Pruning: unmake the move and return
+						return prunes;
+					}// end if hard-alpha cutoff
+					if (prunes.boardVal > alphaVal) { //Found a better alternative, update beta
+						alphaVal = prunes.boardVal; //Remember better alternate value
+						prevPath = prunes.movePath; //Remember the associated move path
+					}// end if beta update
+					prunes.boardVal = alphaVal;
+					prunes.movePath = prevPath;
+
+					printf("ALPHA_VAL = %d\n", alphaVal);
+					printf("BETA_VAL = %d\n", betaVal);
+				} // end if maximizer pruning
+
+				// Pruning is done, unmake the move and kick back up one level
 				unMakeMove(board, movehistory, move);
+				return prunes;
+				
 			//	printBoard(board);
 			}//end if 
 			else {
