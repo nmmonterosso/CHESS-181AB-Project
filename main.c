@@ -10,6 +10,7 @@
 #include "board.h"
 #include "move.h"
 #include "movegen.h"
+#include <limits.h>
 //void makeBoard(space *board[8][8]);
 //MACROS IN SPACE.H
 
@@ -24,6 +25,12 @@ int main()
 	MoveGen *movegen = (MoveGen*)malloc(sizeof(MoveGen));
 	MoveGen *movehistory = (MoveGen*)malloc(sizeof(MoveGen));
 	MoveTree *movetree = (MoveTree*)malloc(sizeof(MoveTree));
+	MoveList pruneChoice;
+	Prunes prunes;
+	pruneChoice.capturedPiece = -1;
+	pruneChoice.endLocation = -1;
+	pruneChoice.piece = -1;
+	pruneChoice.startLocation = -1;
 	//int *MoveCounter = (int *)malloc(sizeof(int));
 	//*MoveCounter = 0;
 
@@ -41,7 +48,7 @@ int main()
 	printBoard(board);  //Prints Board into Console:
 	printf("Hello World!\n");
 
-	setBoard(board, move, position2);
+	setBoard(board, move, position3);
 	printBoard(board); //Prints Second board:
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);
@@ -55,8 +62,7 @@ int main()
 					   //printBoard(board);
 
 	while (1) {
-
-		makeMoveTree(board, move, movetree, movegen, movehistory, 0); //creates move tree based on all possible moves, calls board evaluation function, and makes move
+		prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, pruneChoice); //creates move tree based on all possible moves, calls board evaluation function, and makes move
 		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
 		printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
