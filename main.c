@@ -10,6 +10,7 @@
 #include "board.h"
 #include "move.h"
 #include "movegen.h"
+#include "xboard.h"
 #include <limits.h>
 //void makeBoard(space *board[8][8]);
 //MACROS IN SPACE.H
@@ -33,6 +34,11 @@ int main()
 	pruneChoice.startLocation = -1;
 	//int *MoveCounter = (int *)malloc(sizeof(int));
 	//*MoveCounter = 0;
+
+	//xboard variables
+	char piece;
+	char startLocation[2];
+	char endLocation[2];
 
 	//DEBUGGING POSITIONS//
 	char position2[] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 0"; //KiwiPete
@@ -62,6 +68,7 @@ int main()
 					   //printBoard(board);
 
 	while (1) {
+		//xboard(board); //listen to xboard
 		prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, pruneChoice); //creates move tree based on all possible moves, calls board evaluation function, and makes move
 		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
@@ -70,6 +77,44 @@ int main()
 		printf("total # of pawn Promotions = [%d]\n", board->PerftPromotionCounter);
 		printBoard(board);
 		resetDebugCounters(board);
+		/* xboard stuff
+		//sending move to xboard
+		//address conversion to coordinate notation for xboard
+		startLocation[1] = prunes.pruneMove.startLocation / 8; //i values
+		startLocation[0] = prunes.pruneMove.startLocation % 8; //a,b,c,d,... coordinates
+
+		endLocation[1] = prunes.pruneMove.endLocation / 8;
+		endLocation[0] = prunes.pruneMove.endLocation % 8;
+
+		switch (startLocation[0])
+		{
+		case 0: startLocation[0] = 'a'; break;
+		case 1: startLocation[0] = 'b'; break;
+		case 2: startLocation[0] = 'c'; break;
+		case 3: startLocation[0] = 'd'; break;
+		case 4: startLocation[0] = 'e'; break;
+		case 5: startLocation[0] = 'f'; break;
+		case 6: startLocation[0] = 'g'; break;
+		case 7: startLocation[0] = 'h'; break;
+		default: break;
+		}
+		
+		switch (endLocation[0])
+		{		
+		case 0: endLocation[0] = 'a'; break;
+		case 1: endLocation[0] = 'b'; break;
+		case 2: endLocation[0] = 'c'; break;
+		case 3: endLocation[0] = 'd'; break;
+		case 4: endLocation[0] = 'e'; break;
+		case 5: endLocation[0] = 'f'; break;
+		case 6: endLocation[0] = 'g'; break;
+		case 7: endLocation[0] = 'h'; break;
+		default: break;
+		}
+
+		//send signal to xboard
+		fprintf(stdout, "move %c%c%c%c", startLocation[0], startLocation[1], endLocation[0], endLocation[1]);
+		end xboard stuff */
 		//PRINTF # of captures:
 		//PrintF # of checks:
 
