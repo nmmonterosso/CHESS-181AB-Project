@@ -10,16 +10,10 @@ This function will be multiple times in a serach tree funciton
 #include "space.h"
 #include "eval.h"
 
-// General Variable Declarations
-short int boardVal = 0; // Value of current board state
-char i, j, x, y; // Indexers
-				 // char cal, car; // Values in the corners of the rook placement table. Depends on castling rights. We'll use these later
-
-
-				 // Placement Table Declarations and Initialization
-				 // These tables are from white's perspective, flip the indexing (8-i, 8-j) and the values (-value) for black's perspecitve
-				 // Direct comments on the table should be read bottom to top
-				 // Pawns are encourgaed to press forward and control the center. Pawn structure will be implemented later
+// Placement Table Declarations and Initialization
+// These tables are from white's perspective, flip the indexing (8-i, 8-j) and the values (-value) for black's perspecitve
+// Direct comments on the table should be read bottom to top
+// Pawns are encourgaed to press forward and control the center. Pawn structure will be implemented later
 char pawnPlaceTable[8][8] = {
 	{ 0,  0,  0,  0,  0,  0,  0,  0 },
 { 75, 75, 75, 75, 75, 75, 75, 75 }, // Promoting pawns is good and you should feel good
@@ -125,15 +119,19 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
  */
 
  // Material Consideration. Loop through the pieces still on the board via whiteSpaces/blackSpaces, and assign values based on each piece and its position.
-	int end = 0; //initialize flag
+ // General Variable Declarations
+	short int boardVal = 0; // Value of current board state
+	char i, j, x, y; // Indexers: x = file, y = rank, j = whiteSPaces/blackSpaces index
+	// char cal, car; // Values in the corners of the rook placement table. Depends on castling rights. We'll use these later
+	int end = 0; //initialize flag for end of whiteSpaces/blackSpaces
 	for (j = 0; j < 16; j++)
 	{
 		// White pieces
 		y = move->whiteSpaces[j][0] / 8; // Get the piece's file index
 		x = move->whiteSpaces[j][0] % 8; // Get the piece's rank index
 
-		printf("White Space Y == %d\n", y);
-		printf("White Space X == %d\n", x);
+		/*printf("White Space Y == %d\n", y);
+		printf("White Space X == %d\n", x);*/
 
 		// Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->whiteSpaces[j][1])
@@ -147,7 +145,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		default:			end = 1;  break;
 		}
 
-		printf("%d\n", boardVal);
+		//printf("%d\n", boardVal);
 		if (end == 1)
 			break;
 	}
@@ -160,8 +158,8 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		y = move->blackSpaces[j][0] / 8; // Get the piece's file index
 		x = move->blackSpaces[j][0] % 8; // Get the piece's rank index
 
-		printf("Black Space Y == %d\n", y);
-		printf("Black Space X == %d\n", x);
+		/*printf("Black Space Y == %d\n", y);
+		printf("Black Space X == %d\n", x);*/
 
 		// Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->blackSpaces[j][1])
@@ -175,11 +173,11 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		default:			end = 1; break;
 		}
 
-		printf("%d\n", boardVal);
+		//printf("%d\n", boardVal);
 		if (end == 1)
 			break;
 	}
-	printf("%d\n", boardVal);
+	//printf("%d\n", boardVal);
 
 	//All done! Return the board value
 	return(boardVal);

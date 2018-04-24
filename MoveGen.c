@@ -467,6 +467,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 	// Defining Base Case
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
+		//printBoard(board);
 		prunes.boardVal = eval(board, 10, move); //TODO: keep track of turn count
 		prunes.pruneMove = movehistory->Moves[depth-1];
 		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.
@@ -497,13 +498,13 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				
 				//Alpha-beta pruning algorithm
 				prunes = makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, alphaVal, betaVal, pruneChoice); //Go one more depth lower:
-				printf("ALPHA_VAL = %d\n", alphaVal);
+				/*printf("ALPHA_VAL = %d\n", alphaVal);
 				printf("BETA_VAL = %d\n", betaVal);
 				printf("RETURNED VAL = %d\n", prunes.boardVal);
-				printf("\n");
+				printf("\n");*/
 				unMakeMove(board, movehistory, move); // We examined one depth lower, unmake the move we did
 				if (board->turn == BLACK_TURN) { //Minimizing player's turn to evaluate
-					printf("Minimizer\n");
+					//printf("Minimizer\n");
 					if (prunes.boardVal <= alphaVal) { // If we fail the hard-alpha cutoff, we prune
 						prunes.boardVal = alphaVal; //Pruning: take better alternative beta
 						prunes.pruneMove = pruneChoice; //Pruning: take move path associated with better alternative
@@ -515,13 +516,13 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					}// end if beta update
 					prunes.boardVal = betaVal;
 					prunes.pruneMove = pruneChoice;
-					printf("ALPHA_VAL = %d\n", alphaVal);
+					/*printf("ALPHA_VAL = %d\n", alphaVal);
 					printf("BETA_VAL = %d\n", betaVal);
-					printf("\n");
+					printf("\n");*/
 
 				}//end if minimizer pruning
 				else if (board->turn == WHITE_TURN) { //Maximizing player's turn to evaluate
-					printf("Maximizer\n");
+					//printf("Maximizer\n");
 					if (prunes.boardVal >= betaVal) { // If we fail the hard-alpha cutoff, we prune
 						prunes.boardVal = betaVal; //Pruning: take better alternative beta
 						prunes.pruneMove = pruneChoice; //Pruning: take move path associated with better alternative
@@ -534,9 +535,9 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					prunes.boardVal = alphaVal;
 					prunes.pruneMove = pruneChoice;
 
-					printf("ALPHA_VAL = %d\n", alphaVal);
+					/*printf("ALPHA_VAL = %d\n", alphaVal);
 					printf("BETA_VAL = %d\n", betaVal);
-					printf("\n");
+					printf("\n");*/
 
 				} // end if maximizer pruning
 				// Pruning is done, return statement outside of the for loop

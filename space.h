@@ -1,7 +1,7 @@
 #ifndef SPACE_H_
 #define SPACE_H_
 
-#define MAXDEPTH 4
+#define MAXDEPTH 6
 
 #define WHITE 0xF
 #define BLACK 0x7
