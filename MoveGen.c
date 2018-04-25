@@ -479,7 +479,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
 			makeMove(board, movegen->Moves[i], movehistory, move);
-			printBoard(board);
+			//printBoard(board);
 
 			//TODO CHECK LEGALITY OF CASTLING:
 			if ((movegen->Moves[i].capturedPiece >= 82) && (movegen->Moves[i].capturedPiece <= 85)) {
@@ -540,12 +540,14 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					printf("\n");*/
 
 				} // end if maximizer pruning
-				// Pruning is done, return statement outside of the for loop				
+				// Pruning is done, return statement outside of the for loop
+							
+				
 			//	printBoard(board);
 			}//end if 
 			else {
-				printf("BAD:\n");
-				printBoard(board);
+			//	printf("BAD:\n");
+			//	printBoard(board);
 				if (movehistory->Moves[movehistory->count - 1].capturedPiece != NO_CAPTURE)
 					board->PerftCaptureCounter--;
 				if (movehistory->Moves[movehistory->count - 1].capturedPiece == EN_PASSANT) {
@@ -555,8 +557,8 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				if ((movehistory->Moves[movehistory->count - 1].capturedPiece >= 32) && (movehistory->Moves[movehistory->count - 1].capturedPiece <= 79)) //if promotion
 					board->PerftPromotionCounter--;
 				unMakeMove(board, movehistory, move);
-				printf("ENDBAD\n");
-				printBoard(board);				
+			//	printf("ENDBAD\n");
+			//	printBoard(board);				
 			}
 		}//end for 
 		// Pruning is done, kick back up one level
@@ -605,8 +607,6 @@ void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 			}
 		}//end for
 	}//end else (BLACK TURN)
-	//Moveordering:
-	quickSortMoveGen(movegen, 0, movegen->count - 1);
 }//MoveGenFunction
 
 void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
@@ -1339,204 +1339,3 @@ void checkBlackCastle(Board *board, MoveGen *movegen) {
 				AddToMoveList(movegen, 60, 58, BLACK_KING, BLACK_CASTLE_QUEENSIDE);
 	//checkQueenside
 }//checkBlackCastle
-
-
-//MoveGen Move Ordering:
-//Summary: Sorts current movegen by least valuable victim, most valuable attacker:
-void quickSortMoveGen(MoveGen *movegen, int frontPivot, int backPivot) {
-		
-	//quicksort algorithm:
-	//starting from frontPivot:
-	//If advancing from front, if front pivot finds element that is "greater" than initial back move: stop moving:
-	//If front advancement stop moving, increment back pivot and stop if element is LESS than pivot element.
-	//If both front and back are stopped, SWAP, and increment front
-	//if front pivot == backpivot, SWAP frontpivot element with pivot element.
-	//Recursively do this function for two halves. 
-	// One function: New back pivot = front pivot -1, and front pivot = 0;
-	// Second function: New front pivot = pivot + 1, backpivot = initialBackPivot element:
-	if (frontPivot < backPivot) {
-		int pivot = partition(movegen, frontPivot, backPivot);
-		quickSortMoveGen(movegen, frontPivot, pivot - 1);
-		quickSortMoveGen(movegen, pivot + 1, backPivot);
-	}//end if
-}//sortMoveGen
-
-int partition(MoveGen *movegen, int frontPivot, int backPivot) {
-
-	int i = frontPivot - 1;
-	int pivot = getSortValue(&movegen->Moves[backPivot]);
-	for (int j = frontPivot; j < backPivot; j++) {
-		//if current element is <= to pivot:
-		if (getSortValue(&movegen->Moves[j]) < pivot) {
-			i++; //increment smaller element
-			swapMoves(movegen, i, j);
-		}//end if 
-	}//end for
-	swapMoves(movegen, i + 1, backPivot);
-	return (i + 1);
-}//partition
-
-void swapMoves(MoveGen *movegen, int leftPivot, int rightPivot) {
-	MoveList temp = movegen->Moves[leftPivot];
-	movegen->Moves[leftPivot] = movegen->Moves[rightPivot];
-	movegen->Moves[rightPivot] = temp;	
-}
-
-//Summary: Returns value corresponding to possible captures/promotions, ordered by MVV LVA:
-int getSortValue(MoveList *move) {
-
-	int value = 50;
-
-	if ((move->piece & GET_PIECE_NO_COLOR) == PAWN) {
-		if ((move->capturedPiece >= 32) && (move->capturedPiece <= 79)) {
-			switch (move->capturedPiece) {
-				case (WHITE_PROMOTE_QUEEN_CAPTURE_QUEEN):	value = 1;	break;
-				case (WHITE_PROMOTE_QUEEN_CAPTURE_ROOK):	value = 1;	break;
-				case (WHITE_PROMOTE_QUEEN_CAPTURE_BISHOP):	value = 1;	break;
-				case (WHITE_PROMOTE_QUEEN_CAPTURE_KNIGHT):	value = 1;	break;
-				case (WHITE_PROMOTE_QUEEN_CAPTURE_PAWN):	value = 1;	break;
-				case (WHITE_PROMOTE_QUEEN_NO_CAPTURE):		value = 1;	break;
-				case (BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN):	value = 1;	break;
-				case (BLACK_PROMOTE_QUEEN_CAPTURE_ROOK):	value = 1;	break;
-				case (BLACK_PROMOTE_QUEEN_CAPTURE_BISHOP):	value = 1;	break;
-				case (BLACK_PROMOTE_QUEEN_CAPTURE_KNIGHT):	value = 1;	break;
-				case (BLACK_PROMOTE_QUEEN_CAPTURE_PAWN):	value = 1;	break;
-				case (BLACK_PROMOTE_QUEEN_NO_CAPTURE):		value = 1;	break;
-
-				case (WHITE_PROMOTE_ROOK_CAPTURE_QUEEN):	value = 26;	break;
-				case (WHITE_PROMOTE_ROOK_CAPTURE_ROOK):		value = 26;	break;
-				case (WHITE_PROMOTE_ROOK_CAPTURE_BISHOP):	value = 26;	break;
-				case (WHITE_PROMOTE_ROOK_CAPTURE_KNIGHT):	value = 26;	break;
-				case (WHITE_PROMOTE_ROOK_CAPTURE_PAWN):		value = 26;	break;
-				case (WHITE_PROMOTE_ROOK_NO_CAPTURE):		value = 26;	break;
-				case (BLACK_PROMOTE_ROOK_CAPTURE_QUEEN):	value = 26;	break;
-				case (BLACK_PROMOTE_ROOK_CAPTURE_ROOK):		value = 26;	break;
-				case (BLACK_PROMOTE_ROOK_CAPTURE_BISHOP):	value = 26;	break;
-				case (BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT):	value = 26;	break;
-				case (BLACK_PROMOTE_ROOK_CAPTURE_PAWN):		value = 26;	break;
-				case (BLACK_PROMOTE_ROOK_NO_CAPTURE):		value = 26;	break;
-
-				case (WHITE_PROMOTE_BISHOP_CAPTURE_QUEEN):	value = 27; break;
-				case (WHITE_PROMOTE_BISHOP_CAPTURE_ROOK):	value = 27; break;
-				case (WHITE_PROMOTE_BISHOP_CAPTURE_BISHOP):	value = 27; break;
-				case (WHITE_PROMOTE_BISHOP_CAPTURE_KNIGHT):	value = 27; break;
-				case (WHITE_PROMOTE_BISHOP_CAPTURE_PAWN):	value = 27; break;
-				case (WHITE_PROMOTE_BISHOP_NO_CAPTURE):		value = 27; break;
-				case (BLACK_PROMOTE_BISHOP_CAPTURE_QUEEN):	value = 27; break;
-				case (BLACK_PROMOTE_BISHOP_CAPTURE_ROOK):	value = 27; break;
-				case (BLACK_PROMOTE_BISHOP_CAPTURE_BISHOP):	value = 27; break;
-				case (BLACK_PROMOTE_BISHOP_CAPTURE_KNIGHT):	value = 27; break;
-				case (BLACK_PROMOTE_BISHOP_CAPTURE_PAWN):	value = 27; break;
-				case (BLACK_PROMOTE_BISHOP_NO_CAPTURE):		value = 27; break;
-
-				case (WHITE_PROMOTE_KNIGHT_CAPTURE_QUEEN):	value = 30; break;
-				case (WHITE_PROMOTE_KNIGHT_CAPTURE_ROOK):	value = 30; break;
-				case (WHITE_PROMOTE_KNIGHT_CAPTURE_BISHOP):	value = 30; break;
-				case (WHITE_PROMOTE_KNIGHT_CAPTURE_KNIGHT):	value = 30; break;
-				case (WHITE_PROMOTE_KNIGHT_CAPTURE_PAWN):	value = 30; break;
-				case (WHITE_PROMOTE_KNIGHT_NO_CAPTURE):		value = 30; break;
-				case (BLACK_PROMOTE_KNIGHT_CAPTURE_QUEEN):	value = 30; break;
-				case (BLACK_PROMOTE_KNIGHT_CAPTURE_ROOK):	value = 30; break;
-				case (BLACK_PROMOTE_KNIGHT_CAPTURE_BISHOP):	value = 30; break;
-				case (BLACK_PROMOTE_KNIGHT_CAPTURE_KNIGHT):	value = 30; break;
-				case (BLACK_PROMOTE_KNIGHT_CAPTURE_PAWN):	value = 30; break;
-				case (BLACK_PROMOTE_KNIGHT_NO_CAPTURE):		value = 30; break;				
-				
-			}//end switch
-		}//end if promotion				
-		else
-			//if no promotion: Check if captured Pieces:
-			switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
-			case(KING):		value = 1;  break;
-			case(QUEEN):	value = 1;	break;
-			case(ROOK):		value = 2;	break;
-			case(BISHOP):	value = 3;	break;
-			case(KNIGHT):	value = 4;	break;
-			case(PAWN):		value = 5; break;
-			default:		value = 50; break;
-			}//end switch			
-	} //end if pawn
-
-	else if ((move->piece & GET_PIECE_NO_COLOR) == KNIGHT) {
-
-		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
-		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 1;	break;
-		case(ROOK):		value = 2;	break;
-		case(BISHOP):	value = 5;	break;
-		case(KNIGHT):	value = 5;	break;
-		case(PAWN):		value = 6; break;
-		default:		value = 50; break;
-		}//end switch			
-	}// end else if knight
-	
-	else if ((move->piece & GET_PIECE_NO_COLOR) == BISHOP) {
-		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
-		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 1;	break;
-		case(ROOK):		value = 2;	break;
-		case(BISHOP):	value = 5;	break;
-		case(KNIGHT):	value = 6;	break;
-		case(PAWN):		value = 7;	break;
-		default:		value = 50; break;
-		}//end switch			
-	}// end if bishop
-	else if ((move->piece & GET_PIECE_NO_COLOR) == ROOK) {
-		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
-		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 2;	break;
-		case(ROOK):		value = 5;	break;
-		case(BISHOP):	value = 6;	break;
-		case(KNIGHT):	value = 7;	break;
-		case(PAWN):		value = 8;  break;
-		default:		value = 50; break;
-		}//end switch
-	}// end if rook
-	else if ((move->piece & GET_PIECE_NO_COLOR) == QUEEN) {
-		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
-		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 3;	break;
-		case(ROOK):		value = 8;	break;
-		case(BISHOP):	value = 9;	break;
-		case(KNIGHT):	value = 10;	break;
-		case(PAWN):		value = 11; break;
-		default:		value = 50; break;
-		}//end switch			
-	}// end if queen
-	else if ((move->piece & GET_PIECE_NO_COLOR) == KING) {
-		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
-		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 22;	break;
-		case(ROOK):		value = 23;	break;
-		case(BISHOP):	value = 24;	break;
-		case(KNIGHT):	value = 25;	break;
-		case(PAWN):		value = 26; break;
-		default:		value = 60; break;
-		}//end switch			
-	}// end if king
-	else {
-		fprintf(stderr, "ERROR IN getSORTVALUE, ILLEGAL MOVE\n");
-	}
-	return value;
-}//getSortValue
-
-int isIndexHigher(MoveList *move1, MoveList *move2) {
-
-	int index1 = getSortValue(move1);
-	int index2 = getSortValue(move2);
-	if (index1 > index2)
-		return 1;
-	else
-		return 0;
-}//isIndexHigher
-
-int isIndexLower(MoveList *move1, MoveList *move2) {
-
-	int index1 = getSortValue(move1);
-	int index2 = getSortValue(move2);
-
-	if (index1 < index2)
-		return 1;
-	else
-		return 0;
-}//isIndexLower

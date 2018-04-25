@@ -6,7 +6,7 @@ typedef struct {
 	MoveList pruneMove;
 } Prunes;
 
-// Move Generation
+
 void AddToMoveList  (MoveGen *movegen, char Start_Location, char End_Location, char Piece, char Captured_Piece);
 void Addr_Conversion(char boardposition, int Board_Coordinates[2]);
 
@@ -31,11 +31,5 @@ void MoveGenKing	(Board *board, Move *move, MoveGen *movegen, int count);
 void checkWhiteCastle(Board *board, MoveGen *movegen);
 void checkBlackCastle(Board *board, MoveGen *movegen);
 
-//Move Ordering
-void quickSortMoveGen(MoveGen *movegen, int frontPivot, int backPivot);
-void swapMoves(MoveGen *movegen, int leftPivot, int rightPivot);
-int getSortValue(MoveList *move);
-int isIndexHigher(MoveList *move1, MoveList *move2);
-int isIndexLower(MoveList *move1, MoveList *move2);
 #endif // !MOVEGEN_H_
 #pragma once
