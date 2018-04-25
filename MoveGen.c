@@ -478,15 +478,7 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 	//TODO: Create move tree to desired depth and return 
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
-		//boardVal = eval(board, 10, move);
-		if ((board->turn == 1) & (boardVal < prunes.betaVal)) { // Black updates beta
-			prunes.betaVal = boardVal;
-			prunes.pruneChoice = move;
-		}//end if
-		else if ((board->turn == 0) & (boardVal < prunes.alphaVal)) { // White updates alpha
-			prunes.alphaVal = boardVal;
-			prunes.pruneChoice = move;
-		}//end if
+		//boardVal = eval(board, 10, move);		
 		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.
 		return;
 	}//end if 
