@@ -230,8 +230,15 @@ void setBoard(Board * board, Move *move, char command[])
 	token = strtok(command, "/");
 	while (token != NULL) {
 		printf("Token [%d] = [%s]\n", i, token);
-		if (i > 7) //BOARD RIGHTS
+		if (i > 7) { //BOARD RIGHTS
+			if (i == 9) {
+				if (token[0] == '-')
+					board->castlingRights = 0x0;
+				else
+					board->castlingRights = 0xF;
+			}//end if 
 			token = strtok(NULL, " ");
+		}
 		else {
 			int j = 0;
 			for (int k = 0; j < 8; k++) {
@@ -245,8 +252,8 @@ void setBoard(Board * board, Move *move, char command[])
 					j++;
 				}//end else, setting piece since no whitespace				
 			}//end for
-			if (i >= 6)
-				token = strtok(NULL, " ");
+			if (i >= 6) 				
+				token = strtok(NULL, " ");			
 			else
 				token = strtok(NULL, "/");
 		}//end else

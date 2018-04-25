@@ -485,6 +485,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 			if ((movegen->Moves[i].capturedPiece >= 82) && (movegen->Moves[i].capturedPiece <= 85)) {
 				if (checkCastle(board, movegen->Moves[i].capturedPiece) == 0) {
 					unMakeMove(board, movehistory, move);
+				//	printBoard(board);
 					board->PerftCastleCounter--;
 					continue;
 				}//end if checkCastle
@@ -503,6 +504,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				printf("RETURNED VAL = %d\n", prunes.boardVal);
 				printf("\n");*/
 				unMakeMove(board, movehistory, move); // We examined one depth lower, unmake the move we did
+				
 				if (board->turn == BLACK_TURN) { //Minimizing player's turn to evaluate
 					//printf("Minimizer\n");
 					if (prunes.boardVal <= alphaVal) { // If we fail the hard-alpha cutoff, we prune
@@ -540,8 +542,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					printf("\n");*/
 
 				} // end if maximizer pruning
-				// Pruning is done, return statement outside of the for loop
-							
+				// Pruning is done, return statement outside of the for loop				
 				
 			//	printBoard(board);
 			}//end if 
