@@ -126,6 +126,7 @@
 #define WHITE_PIECE 0x8 
 #define BLACK_PIECE 0x7
 #define GET_PIECE_TYPE 0xF
+#define GET_PIECE_NO_COLOR 0x7
 
 
 typedef struct {

@@ -142,7 +142,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		case(WHITE_BISHOP):	boardVal = boardVal + 350 + bishopPlaceTable[7 - y][x];	break;
 		case(WHITE_KNIGHT):	boardVal = boardVal + 325 + knightPlaceTable[7 - y][x];	break;
 		case(WHITE_PAWN):	boardVal = boardVal + 100 + pawnPlaceTable[7 - y][x];	break;
-		default:			end = 1;  break;
+		default:			end = 1;  break; // MIGHT BE ERROR HERE:
 		}
 
 		//printf("%d\n", boardVal);
@@ -170,7 +170,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		case(BLACK_ROOK):	boardVal = boardVal - 500 - rookPlaceTable[y][7 - x];	break;
 		case(BLACK_QUEEN):	boardVal = boardVal - 900 - queenPlaceTable[y][7 - x];	break;
 		case(BLACK_KING):	boardVal = boardVal - kingPlaceTable[y][7 - x];			break;
-		default:			end = 1; break;
+		default:			end = 1; break; //ERROR HERE FOR EARLY EXIT
 		}
 
 		//printf("%d\n", boardVal);
