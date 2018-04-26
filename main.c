@@ -4,6 +4,7 @@
 
 #include "stdafx.h" //comment out this line or add your own #include stdio, etc.
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "piece.h"
 #include "space.h"
@@ -14,6 +15,8 @@
 #include <limits.h>
 //void makeBoard(space *board[8][8]);
 //MACROS IN SPACE.H
+
+//GLOBALS: HASH TABLE;
 
 
 
@@ -28,6 +31,8 @@ int main()
 	MoveTree *movetree = (MoveTree*)malloc(sizeof(MoveTree));
 	MoveList pruneChoice;
 	Prunes prunes;
+	ht_hash_table* ht = ht_new(); //create new hash table:
+
 	pruneChoice.capturedPiece = -1;
 	pruneChoice.endLocation = -1;
 	pruneChoice.piece = -1;

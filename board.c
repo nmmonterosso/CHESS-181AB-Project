@@ -296,3 +296,52 @@ void printBoard(Board *board) {
 	printf("**************************\n\n\n");
 
 }//printBoard();
+
+
+//HASH TABLE FUNCTIONS:
+
+ //Summary: Creates new hash table item index:
+static ht_item* ht_new_item(const char* k, const char* v) {
+	ht_item* i = malloc(sizeof(ht_item));
+	i->key = strdup(k);
+	i->value = strdup(v);
+	return i;
+} //ht_new_item
+
+  //Summary: Creates new hash table
+ht_hash_table* ht_new() {
+	ht_hash_table* ht = malloc(sizeof(ht_hash_table);
+
+	ht->size = 53;
+	ht->count = 0;
+	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
+	return ht;
+}//ht_new
+
+ //Summary: Deletes item from hash table:
+static void ht_del_item(ht_item* i) {
+	free(i->key);
+	free(i->value);
+	free(i);
+}//ht_del_item
+
+ //Summary: Deletes hash table structure:
+void ht_del_hash_table(ht_hash_table* ht) {
+	for (int i = 0; i < ht->size; i++) {
+		ht_item* item = ht->items[i];
+		if (item != NULL)
+			ht_del_item(item);
+	}//end for
+	free(ht->items);
+	free(ht);
+}//ht_del_hash_table
+
+//HASH FUNCTION:
+//PsuedoCode:
+//function hash(string, a, num_buckets):
+// hash = 0;
+// string_len = length(string)
+// for (i = 0, 1... string length)
+//     hash += (a ** ((string_len - (i + 1))) * char_code(string[i])
+// hash = hash % num_buckets
+// return hash;

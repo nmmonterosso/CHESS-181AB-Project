@@ -58,6 +58,17 @@ typedef struct {
 
 }MoveTree;
 
+//Transposition Hash Table;
+typedef struct {
+	char* key;
+	char* value;
+}ht_item;
+
+typedef struct {
+	int size;
+	int count;
+	ht_item** items;
+}ht_hash_table;
 
 
 
@@ -73,6 +84,12 @@ void setBoard(Board *board, Move *move, char command[]); //Sets current boardsta
 void setPiece(Board *board, char piece, int row, int col);
 void setWhiteSpaces(Board *board, int number, int row, int col);
 void setColorSpaces(Board *board, Move *move);
+//Hash table functions:
+
+static ht_item* ht_new_item(const char* k, const char* v);
+ht_hash_table* ht_new();
+static void ht_del_item(ht_item *i);
+void ht_del_hash_table(ht_hash_table* ht);
 
 #endif // !
 #pragma once
