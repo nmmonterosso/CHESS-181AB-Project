@@ -60,8 +60,12 @@ typedef struct {
 
 //Transposition Hash Table;
 typedef struct {
-	char* key;
-	char* value;
+	long zobrist;
+	int depth;
+	int flag;
+	int eval;
+	int ancient;
+	MoveList move;
 }ht_item;
 
 typedef struct {
@@ -86,10 +90,12 @@ void setWhiteSpaces(Board *board, int number, int row, int col);
 void setColorSpaces(Board *board, Move *move);
 //Hash table functions:
 
-static ht_item* ht_new_item(const char* k, const char* v);
+static ht_item* ht_new_item(const long zobrist, int depth, int flag, int eval, int ancient, MoveList move);
 ht_hash_table* ht_new();
 static void ht_del_item(ht_item *i);
 void ht_del_hash_table(ht_hash_table* ht);
+
+void init_zobrist();
 
 #endif // !
 #pragma once

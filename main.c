@@ -75,12 +75,16 @@ int main()
 
 	while (1) {
 		//xboard(board); //listen to xboard
-		prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, pruneChoice); //creates move tree based on all possible moves, calls board evaluation function, and makes move
+		prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, pruneChoice); 
+//creates move tree based on all possible moves, calls board evaluation function, and makes move
 		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
 		printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
 		printf("total # of castling: = [%d]\n", board->PerftCastleCounter);
 		printf("total # of pawn Promotions = [%d]\n", board->PerftPromotionCounter);
+		printBoard(board);
+		//if board's turn: make the move, else wait for xboard
+		makeMove(board, prunes.pruneMove, movehistory, move);
 		printBoard(board);
 		resetDebugCounters(board);
 		/* xboard stuff

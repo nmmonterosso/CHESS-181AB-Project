@@ -462,7 +462,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 {	
 	Prunes prunes; //keeps track of alpha beta values and the final move path
 	//MoveGen * prevPath; //keeps track the previously examined movepath
-
+	//check if position in hash table: if in table, return best move/alpha/beta values:if not continue with function:
 	// Defining Base Case
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
@@ -498,6 +498,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				
 				//Alpha-beta pruning algorithm
 				prunes = makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, alphaVal, betaVal, pruneChoice); //Go one more depth lower:
+				//add to hash table index for prune value:
 				/*printf("ALPHA_VAL = %d\n", alphaVal);
 				printf("BETA_VAL = %d\n", betaVal);
 				printf("RETURNED VAL = %d\n", prunes.boardVal);
@@ -1540,4 +1541,4 @@ int isIndexLower(MoveList *move1, MoveList *move2) {
 		return 1;
 	else
 		return 0;
-}//isIndexLower
+}//isIndexLofwer

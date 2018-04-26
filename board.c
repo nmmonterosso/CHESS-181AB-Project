@@ -299,20 +299,32 @@ void printBoard(Board *board) {
 
 
 //HASH TABLE FUNCTIONS:
+void setMove(MoveList *dest, MoveList source) {	
+	dest->startLocation = source.startLocation;
+	dest->endLocation = source.endLocation;
+	dest->piece = source.piece;
+	dest->capturedPiece = source.capturedPiece;
+}//setMove
+
+
 
  //Summary: Creates new hash table item index:
-static ht_item* ht_new_item(const char* k, const char* v) {
+static ht_item* ht_new_item(const long zobrist, int depth, int flag, int eval, int ancient, MoveList move) {
 	ht_item* i = malloc(sizeof(ht_item));
-	i->key = strdup(k);
-	i->value = strdup(v);
+	i->zobrist	= zobrist;
+	i->depth	= depth;
+	i->flag		= flag;
+	i->eval		= eval;
+	i->ancient	= ancient;
+	setMove(&i->move, move);
 	return i;
 } //ht_new_item
 
   //Summary: Creates new hash table
 ht_hash_table* ht_new() {
-	ht_hash_table* ht = malloc(sizeof(ht_hash_table);
+	ht_hash_table* ht = malloc(sizeof(ht_hash_table));
 
-	ht->size = 53;
+	ht->size = 1048583; //2^20 + 7
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
 	return ht;
@@ -320,8 +332,12 @@ ht_hash_table* ht_new() {
 
  //Summary: Deletes item from hash table:
 static void ht_del_item(ht_item* i) {
-	free(i->key);
-	free(i->value);
+	free(i->zobrist);
+	free(i->depth);
+	free(i->flag);
+	free(i->eval);
+	free(i->ancient);
+	free(i->move);
 	free(i);
 }//ht_del_item
 
