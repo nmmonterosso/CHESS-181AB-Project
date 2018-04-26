@@ -60,12 +60,8 @@ typedef struct {
 
 //Transposition Hash Table;
 typedef struct {
-	long zobrist;
-	int depth;
-	int flag;
-	int eval;
-	int ancient;
-	Move move;	
+	char* key;
+	char* value;
 }ht_item;
 
 typedef struct {
@@ -75,9 +71,7 @@ typedef struct {
 }ht_hash_table;
 
 
-//Implement replace by depth: DEEP + always replacement policy (most effective)
-// Always replace: Simplest to implement
-// replace by depth: tougher
+
 
 
 void initializePositions(Move *move);

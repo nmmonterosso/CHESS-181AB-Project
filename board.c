@@ -310,9 +310,9 @@ static ht_item* ht_new_item(const char* k, const char* v) {
 
   //Summary: Creates new hash table
 ht_hash_table* ht_new() {
-	ht_hash_table* ht = malloc(sizeof(ht_hash_table));
+	ht_hash_table* ht = malloc(sizeof(ht_hash_table);
 
-	ht->size = 1048583; //2^20 + 7
+	ht->size = 53;
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
 	return ht;
