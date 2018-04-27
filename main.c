@@ -29,14 +29,14 @@ int main()
 	MoveGen *movegen = (MoveGen*)malloc(sizeof(MoveGen));
 	MoveGen *movehistory = (MoveGen*)malloc(sizeof(MoveGen));
 	MoveTree *movetree = (MoveTree*)malloc(sizeof(MoveTree));
-	MoveList pruneChoice;
+	MoveList blankMove; // Blank movelist that gets passed up and down during pruning
 	Prunes prunes;
 	ht_hash_table* ht = ht_new(); //create new hash table:
 
-	pruneChoice.capturedPiece = -1;
-	pruneChoice.endLocation = -1;
-	pruneChoice.piece = -1;
-	pruneChoice.startLocation = -1;
+	blankMove.capturedPiece = -1;
+	blankMove.endLocation = -1;
+	blankMove.piece = -1;
+	blankMove.startLocation = -1;
 	//int *MoveCounter = (int *)malloc(sizeof(int));
 	//*MoveCounter = 0;
 
@@ -75,7 +75,7 @@ int main()
 
 	while (1) {
 		//xboard(board); //listen to xboard
-		prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, pruneChoice); //creates move tree based on all possible moves, calls board evaluation function, and makes move
+		prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, blankMove); //creates move tree based on all possible moves, calls board evaluation function, and makes move
 		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
 		printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
@@ -83,44 +83,44 @@ int main()
 		printf("total # of pawn Promotions = [%d]\n", board->PerftPromotionCounter);
 		printBoard(board);
 		resetDebugCounters(board);
-		/* xboard stuff
+		//xboard stuff
 		//sending move to xboard
 		//address conversion to coordinate notation for xboard
-		startLocation[1] = prunes.pruneMove.startLocation / 8; //i values
-		startLocation[0] = prunes.pruneMove.startLocation % 8; //a,b,c,d,... coordinates
+		//startLocation[1] = prunes.pruneMove.startLocation / 8; //i values
+		//startLocation[0] = prunes.pruneMove.startLocation % 8; //a,b,c,d,... coordinates
 
-		endLocation[1] = prunes.pruneMove.endLocation / 8;
-		endLocation[0] = prunes.pruneMove.endLocation % 8;
+		//endLocation[1] = prunes.pruneMove.endLocation / 8;
+		//endLocation[0] = prunes.pruneMove.endLocation % 8;
 
-		switch (startLocation[0])
-		{
-		case 0: startLocation[0] = 'a'; break;
-		case 1: startLocation[0] = 'b'; break;
-		case 2: startLocation[0] = 'c'; break;
-		case 3: startLocation[0] = 'd'; break;
-		case 4: startLocation[0] = 'e'; break;
-		case 5: startLocation[0] = 'f'; break;
-		case 6: startLocation[0] = 'g'; break;
-		case 7: startLocation[0] = 'h'; break;
-		default: break;
-		}
-		
-		switch (endLocation[0])
-		{		
-		case 0: endLocation[0] = 'a'; break;
-		case 1: endLocation[0] = 'b'; break;
-		case 2: endLocation[0] = 'c'; break;
-		case 3: endLocation[0] = 'd'; break;
-		case 4: endLocation[0] = 'e'; break;
-		case 5: endLocation[0] = 'f'; break;
-		case 6: endLocation[0] = 'g'; break;
-		case 7: endLocation[0] = 'h'; break;
-		default: break;
-		}
+		//switch (startLocation[0])
+		//{
+		//case 0: startLocation[0] = 'a'; break;
+		//case 1: startLocation[0] = 'b'; break;
+		//case 2: startLocation[0] = 'c'; break;
+		//case 3: startLocation[0] = 'd'; break;
+		//case 4: startLocation[0] = 'e'; break;
+		//case 5: startLocation[0] = 'f'; break;
+		//case 6: startLocation[0] = 'g'; break;
+		//case 7: startLocation[0] = 'h'; break;
+		//default: break;
+		//}
+		//
+		//switch (endLocation[0])
+		//{		
+		//case 0: endLocation[0] = 'a'; break;
+		//case 1: endLocation[0] = 'b'; break;
+		//case 2: endLocation[0] = 'c'; break;
+		//case 3: endLocation[0] = 'd'; break;
+		//case 4: endLocation[0] = 'e'; break;
+		//case 5: endLocation[0] = 'f'; break;
+		//case 6: endLocation[0] = 'g'; break;
+		//case 7: endLocation[0] = 'h'; break;
+		//default: break;
+		//}
 
-		//send signal to xboard
-		fprintf(stdout, "move %c%c%c%c", startLocation[0], startLocation[1], endLocation[0], endLocation[1]);
-		end xboard stuff */
+		////send signal to xboard
+		//fprintf(stdout, "move %c%c%c%c", startLocation[0], startLocation[1], endLocation[0], endLocation[1]);
+		//end xboard stuff 
 		//PRINTF # of captures:
 		//PrintF # of checks:
 

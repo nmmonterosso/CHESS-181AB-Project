@@ -468,7 +468,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
 		//printBoard(board);
 		prunes.boardVal = eval(board, 10, move); //TODO: keep track of turn count
-		prunes.pruneMove = movehistory->Moves[depth];
+		prunes.pruneMove = movehistory->Moves[0];
 		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.
 		return prunes;
 	}//end if 
@@ -513,7 +513,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					}// end if hard-alpha cutoff
 					if (prunes.boardVal < betaVal) { //Found a better alternative, update beta
 						betaVal = prunes.boardVal; //Remember better alternate value
-						pruneChoice = movehistory->Moves[depth];; //Remember the current move
+						pruneChoice = movehistory->Moves[0];; //Remember the current move
 					}// end if beta update
 					prunes.boardVal = betaVal;
 					prunes.pruneMove = pruneChoice;
@@ -531,7 +531,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					}// end if hard-alpha cutoff
 					if (prunes.boardVal > alphaVal) { //Found a better alternative, update beta
 						alphaVal = prunes.boardVal; //Remember better alternate value
-						pruneChoice = movehistory->Moves[depth]; //Remember the current move
+						pruneChoice = movehistory->Moves[0]; //Remember the current move
 					}// end if beta update
 					prunes.boardVal = alphaVal;
 					prunes.pruneMove = pruneChoice;
