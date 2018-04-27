@@ -39,5 +39,8 @@ int partition(MoveGen *movegen, int frontPivot, int backPivot);
 int isIndexHigher(MoveList *move1, MoveList *move2);
 int isIndexLower(MoveList *move1, MoveList *move2);
 
+//RESET PRUNES:
+void resetPruneChoice(MoveList *prunechoice);
+void resetPrunes(Prunes *prunes);
 #endif // !MOVEGEN_H_
 #pragma once
