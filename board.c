@@ -178,8 +178,29 @@ void resetDebugCounters(Board *board)
 	board->PerftEPCapture = 0;
 	board->PerftNodeCounter = 0;
 	board->PerftPromotionCounter = 0;
+}//resetDebug Counters
+
+
+void shiftMoveTree(MoveTree * movetree, int maxdepth)
+{
+	MoveGen *temp = (MoveGen*)malloc(sizeof(MoveGen));
+	for (int i = 0; i < maxdepth; i++) 
+		movetree->MoveTreeNode[i] = movetree->MoveTreeNode[i + 1];	
+	clearMoveGen(&movetree->MoveTreeNode[maxdepth]);
 }
-//setPiece
+
+void clearMoveGen(MoveGen * movegen)
+{
+	for (int i = 0; i < 80; i++) {
+
+		movegen->Moves[i].startLocation = -1;
+		movegen->Moves[i].endLocation	= -1;
+		movegen->Moves[i].piece			= -1;
+		movegen->Moves[i].capturedPiece = -1;
+	}//end for
+	movegen->count = 0;
+}//clearMoveGen
+
 
 
 void setPiece(Board *board, char piece, int row, int col) {

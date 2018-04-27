@@ -33,10 +33,8 @@ int main()
 	Prunes prunes;
 	ht_hash_table* ht = ht_new(); //create new hash table:
 
-	pruneChoice.capturedPiece = -1;
-	pruneChoice.endLocation = -1;
-	pruneChoice.piece = -1;
-	pruneChoice.startLocation = -1;
+	resetPrunes(&prunes);
+	resetPruneChoice(&pruneChoice);
 	//int *MoveCounter = (int *)malloc(sizeof(int));
 	//*MoveCounter = 0;
 
@@ -86,7 +84,14 @@ int main()
 		//if board's turn: make the move, else wait for xboard
 		makeMove(board, prunes.pruneMove, movehistory, move);
 		printBoard(board);
-		resetDebugCounters(board);
+		resetDebugCounters(board);	
+		resetPrunes(&prunes);
+		resetPruneChoice(&pruneChoice);
+		shiftMoveTree(movetree, MAXDEPTH);
+		clearMoveGen(movegen);
+		*movegen = movetree->MoveTreeNode[0];
+		//MoveGenFunction(board, move, movegen);
+		
 		/* xboard stuff
 		//sending move to xboard
 		//address conversion to coordinate notation for xboard
