@@ -181,12 +181,10 @@ void resetDebugCounters(Board *board)
 }//resetDebug Counters
 
 
-void shiftMoveTree(MoveTree * movetree, int maxdepth)
-{
-	MoveGen *temp = (MoveGen*)malloc(sizeof(MoveGen));
-	for (int i = 0; i < maxdepth; i++) 
-		movetree->MoveTreeNode[i] = movetree->MoveTreeNode[i + 1];	
-	clearMoveGen(&movetree->MoveTreeNode[maxdepth]);
+void clearMoveTree(MoveTree * movetree)
+{	
+	for (int i = 0; i < MAXDEPTH; i++) 
+		clearMoveGen(&movetree->MoveTreeNode[i]);	
 }
 
 void clearMoveGen(MoveGen * movegen)
