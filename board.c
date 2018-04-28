@@ -178,8 +178,29 @@ void resetDebugCounters(Board *board)
 	board->PerftEPCapture = 0;
 	board->PerftNodeCounter = 0;
 	board->PerftPromotionCounter = 0;
+}//resetDebug Counters
+
+
+void shiftMoveTree(MoveTree * movetree, int maxdepth)
+{
+	MoveGen *temp = (MoveGen*)malloc(sizeof(MoveGen));
+	for (int i = 0; i < maxdepth; i++) 
+		movetree->MoveTreeNode[i] = movetree->MoveTreeNode[i + 1];	
+	clearMoveGen(&movetree->MoveTreeNode[maxdepth]);
 }
-//setPiece
+
+void clearMoveGen(MoveGen * movegen)
+{
+	for (int i = 0; i < 80; i++) {
+
+		movegen->Moves[i].startLocation = -1;
+		movegen->Moves[i].endLocation	= -1;
+		movegen->Moves[i].piece			= -1;
+		movegen->Moves[i].capturedPiece = -1;
+	}//end for
+	movegen->count = 0;
+}//clearMoveGen
+
 
 
 void setPiece(Board *board, char piece, int row, int col) {
@@ -299,12 +320,24 @@ void printBoard(Board *board) {
 
 
 //HASH TABLE FUNCTIONS:
+void setMove(MoveList *dest, MoveList source) {	
+	dest->startLocation = source.startLocation;
+	dest->endLocation = source.endLocation;
+	dest->piece = source.piece;
+	dest->capturedPiece = source.capturedPiece;
+}//setMove
+
+
 
  //Summary: Creates new hash table item index:
-static ht_item* ht_new_item(const char* k, const char* v) {
+static ht_item* ht_new_item(const long zobrist, int depth, int flag, int eval, int ancient, MoveList move) {
 	ht_item* i = malloc(sizeof(ht_item));
-	i->key = strdup(k);
-	i->value = strdup(v);
+	i->zobrist	= zobrist;
+	i->depth	= depth;
+	i->flag		= flag;
+	i->eval		= eval;
+	i->ancient	= ancient;
+	setMove(&i->move, move);
 	return i;
 } //ht_new_item
 
@@ -312,7 +345,7 @@ static ht_item* ht_new_item(const char* k, const char* v) {
 ht_hash_table* ht_new() {
 	ht_hash_table* ht = malloc(sizeof(ht_hash_table));
 
-	ht->size = 53;
+	ht->size = 1048583; //2^20 + 7
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
 	return ht;
@@ -320,8 +353,12 @@ ht_hash_table* ht_new() {
 
  //Summary: Deletes item from hash table:
 static void ht_del_item(ht_item* i) {
-	free(i->key);
-	free(i->value);
+	free(i->zobrist);
+	free(i->depth);
+	free(i->flag);
+	free(i->eval);
+	free(i->ancient);
+	free(i->move);
 	free(i);
 }//ht_del_item
 

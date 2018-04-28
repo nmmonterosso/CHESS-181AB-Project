@@ -3,7 +3,6 @@
 
 #include "space.h"
 
-
 typedef struct {
 
 	space boardSpaces[8][8];
@@ -60,8 +59,12 @@ typedef struct {
 
 //Transposition Hash Table;
 typedef struct {
-	char* key;
-	char* value;
+	long zobrist;
+	int depth;
+	int flag;
+	int eval;
+	int ancient;
+	MoveList move;
 }ht_item;
 
 typedef struct {
@@ -79,17 +82,21 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 void printBoard(Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
 void resetDebugCounters(Board *board);
+void shiftMoveTree(MoveTree *movetree, int maxdepth);
 
+void clearMoveGen(MoveGen *movegen);
 void setBoard(Board *board, Move *move, char command[]); //Sets current boardstate based on the command:
 void setPiece(Board *board, char piece, int row, int col);
 void setWhiteSpaces(Board *board, int number, int row, int col);
 void setColorSpaces(Board *board, Move *move);
 //Hash table functions:
 
-static ht_item* ht_new_item(const char* k, const char* v);
+static ht_item* ht_new_item(const long zobrist, int depth, int flag, int eval, int ancient, MoveList move);
 ht_hash_table* ht_new();
 static void ht_del_item(ht_item *i);
 void ht_del_hash_table(ht_hash_table* ht);
+
+void init_zobrist();
 
 #endif // !
 #pragma once

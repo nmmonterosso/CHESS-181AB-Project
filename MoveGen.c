@@ -462,7 +462,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 {	
 	Prunes prunes; //keeps track of alpha beta values and the final move path
 	//MoveGen * prevPath; //keeps track the previously examined movepath
-
+	//check if position in hash table: if in table, return best move/alpha/beta values:if not continue with function:
 	// Defining Base Case
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
@@ -498,6 +498,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				
 				//Alpha-beta pruning algorithm
 				prunes = makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, alphaVal, betaVal, pruneChoice); //Go one more depth lower:
+				//add to hash table index for prune value:
 				/*printf("ALPHA_VAL = %d\n", alphaVal);
 				printf("BETA_VAL = %d\n", betaVal);
 				printf("RETURNED VAL = %d\n", prunes.boardVal);
@@ -573,10 +574,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 	//startingSpace gives all information of current space that is being checked for possible moves
 	//Generate all valid move that a given piece can make
-
-	int Board_Coordinates[2]; //stores i and j vals for board
-	int i, j;		//storing Board_Coordinates Values
-	int iPos, jPos; //store Board_Coordinates of moves (i.e. move->rookMoves[i][j][k])
+		
 	int k = 0;		//temporary variable for while loops
 
 	if (board->turn == WHITE_TURN) {
@@ -594,7 +592,7 @@ void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 	}//end if turn == white turn
 
 
-	else {//BLACK TURN
+	else if (board->turn == BLACK_TURN){//BLACK TURN
 		for (int count = 0; count < 16; count++) {
 			switch ((int)move->blackSpaces[count][PIECE_TYPE]) {
 			case (BLACK_PAWN):	MoveGenPawn(board, move, movegen, count);	break;
@@ -613,7 +611,7 @@ void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 {
 	char Start_Location;
-	int i, j, a, b;
+	int a, b;
 	//TODO: CHECK IF MOVING FOWARD WILL PUT KING IN CHECK. CHECK WHICH DIRECTION KING IS IN:
 	if (board->turn == WHITE_TURN) {
 		Start_Location = move->whiteSpaces[count][BOARD_POSITION];
@@ -753,7 +751,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 			}//end if space in front unoccuppied:
 			 //check right side
 			if (b < 7) {
-				if ((board->boardSpaces[0][b + 1].isOccupied == IS_OCCUPIED) && (board->boardSpaces[0][b + 1].pieceType & getpieceType >= WHITE_PIECE)) {
+				if ((board->boardSpaces[0][b + 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[0][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)) {
 					if (board->boardSpaces[0][b + 1].pieceType == WHITE_QUEEN) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN);
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_QUEEN);
@@ -783,7 +781,7 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 			}//end check right side
 			 //check left side:
 			if (b > 0) {
-				if ((board->boardSpaces[0][b - 1].isOccupied == IS_OCCUPIED) && (board->boardSpaces[0][b - 1].pieceType & getpieceType >= WHITE_PIECE)) {
+				if ((board->boardSpaces[0][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[0][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)) {
 					if (board->boardSpaces[0][b - 1].pieceType == WHITE_QUEEN) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN);
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_QUEEN);
@@ -983,7 +981,7 @@ void MoveGenBishop(Board *board, Move *move, MoveGen *movegen, int count)
 					if ((a > i) && (b > j))				  //TOP RIGHT DIRECTION
 						x = x + (7 - ((a > b) ? a : b));  //if a > b, then x = x + (7 - a), else x = x + (7 - b)
 					else if ((a < i) && (b > j))		  //BOTTOM RIGHT DIRECTION			
-						x = x + (7 - ((a > b) ? a : b));  //if a > b, x = x + (7-b), else x = x + (7-a) 	
+						x = x + (7 - ((a > b) ? b : a));  //if a > b, x = x + (7-b), else x = x + (7-a) 	
 					else if ((a < i) && (b < j))		  //BOTTOM LEFT DIRECTION
 						x = x + ((a > b) ? b : a);		  //if a > b, x = x + b, else x = x + a: 	
 					else if ((a > i) && (b < j))		  //TOP LEFT DIRECTION
@@ -1097,7 +1095,7 @@ void MoveGenQueen(Board * board, Move * move, MoveGen * movegen, int count)
 					if ((a > i) && (b > j))				  //TOP RIGHT DIRECTION
 						x = x + (7 - ((a > b) ? a : b));  //if a > b, then x = x + (7 - a), else x = x + (7 - b)
 					else if ((a < i) && (b > j))		  //BOTTOM RIGHT DIRECTION			
-						x = x + (7 - ((a > b) ? a : b));  //if a > b, x = x + (7-b), else x = x + (7-a) 	
+						x = x + (7 - ((a > b) ? b : a));  //if a > b, x = x + (7-b), else x = x + (7-a) 	
 					else if ((a < i) && (b < j))		  //BOTTOM LEFT DIRECTION
 						x = x + ((a > b) ? b : a);		  //if a > b, x = x + b, else x = x + a: 	
 					else if ((a > i) && (b < j))		  //TOP LEFT DIRECTION
@@ -1116,9 +1114,8 @@ void MoveGenQueen(Board * board, Move * move, MoveGen * movegen, int count)
 
 void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count)
 {
-	int Board_Coordinates[2];
 	char Start_Location;
-	int i, j, a, b, x;
+	int a, b;
 	//TODO NEED TO FIX SO KING CANNOT MOVE ITSELF INTO CHECK.	
 
 	if (board->turn == WHITE_TURN) {
@@ -1540,4 +1537,23 @@ int isIndexLower(MoveList *move1, MoveList *move2) {
 		return 1;
 	else
 		return 0;
-}//isIndexLower
+}//isIndexLofwer
+
+
+
+void resetPrunes(Prunes *prunes)
+{
+	prunes->boardVal = 0;
+	prunes->pruneMove.startLocation = -1;
+	prunes->pruneMove.endLocation = -1;
+	prunes->pruneMove.piece = -1;
+	prunes->pruneMove.capturedPiece = -1;
+} //resetPrunes
+
+void resetPruneChoice(MoveList * prunechoice)
+{
+	prunechoice->startLocation = -1;
+	prunechoice->endLocation = -1;
+	prunechoice->piece = -1;
+	prunechoice->capturedPiece = -1;
+}//resetPruneChoice

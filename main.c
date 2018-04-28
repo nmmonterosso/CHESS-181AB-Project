@@ -33,10 +33,15 @@ int main()
 	Prunes prunes;
 	ht_hash_table* ht = ht_new(); //create new hash table:
 
+<<<<<<< HEAD
 	blankMove.capturedPiece = -1;
 	blankMove.endLocation = -1;
 	blankMove.piece = -1;
 	blankMove.startLocation = -1;
+=======
+	resetPrunes(&prunes);
+	resetPruneChoice(&pruneChoice);
+>>>>>>> 8ed28e13267211ddf5b285f07a30d3c7e45f429f
 	//int *MoveCounter = (int *)malloc(sizeof(int));
 	//*MoveCounter = 0;
 
@@ -75,15 +80,35 @@ int main()
 
 	while (1) {
 		//xboard(board); //listen to xboard
+<<<<<<< HEAD
 		prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, blankMove); //creates move tree based on all possible moves, calls board evaluation function, and makes move
+=======
+		prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, pruneChoice); 
+//creates move tree based on all possible moves, calls board evaluation function, and makes move
+>>>>>>> 8ed28e13267211ddf5b285f07a30d3c7e45f429f
 		printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
 		printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
 		printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
 		printf("total # of castling: = [%d]\n", board->PerftCastleCounter);
 		printf("total # of pawn Promotions = [%d]\n", board->PerftPromotionCounter);
 		printBoard(board);
+<<<<<<< HEAD
 		resetDebugCounters(board);
 		//xboard stuff
+=======
+		//if board's turn: make the move, else wait for xboard
+		makeMove(board, prunes.pruneMove, movehistory, move);
+		printBoard(board);
+		resetDebugCounters(board);	
+		resetPrunes(&prunes);
+		resetPruneChoice(&pruneChoice);
+		shiftMoveTree(movetree, MAXDEPTH);
+		clearMoveGen(movegen);
+		*movegen = movetree->MoveTreeNode[0];
+		//MoveGenFunction(board, move, movegen);
+		
+		/* xboard stuff
+>>>>>>> 8ed28e13267211ddf5b285f07a30d3c7e45f429f
 		//sending move to xboard
 		//address conversion to coordinate notation for xboard
 		//startLocation[1] = prunes.pruneMove.startLocation / 8; //i values
