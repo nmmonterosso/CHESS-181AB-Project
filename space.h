@@ -128,6 +128,10 @@
 #define GET_PIECE_TYPE 0xF
 #define GET_PIECE_NO_COLOR 0x7
 
+//Hash Macros:
+#define RAND() (rand() & 0x7fff)
+
+
 
 typedef struct {
 	//type includes: color, and the type of piece: 1 = white 0 = black

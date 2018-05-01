@@ -17,7 +17,7 @@
 //MACROS IN SPACE.H
 
 //GLOBALS: HASH TABLE;
-
+unsigned long long randTable[64][13];
 
 
 
@@ -32,7 +32,7 @@ int main()
 	MoveList blankMove; // Blank movelist that gets passed up and down during pruning
 	Prunes prunes;
 	ht_hash_table* ht = ht_new(); //create new hash table:
-
+	//long zobrist[781];			
 
 	blankMove.capturedPiece = -1;
 	blankMove.endLocation = -1;
@@ -60,6 +60,7 @@ int main()
 	MoveGenFunction(board, move, movegen);			//Initial Movegen:
 													//movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
 	printBoard(board);  //Prints Board into Console:
+	init_zobrist();
 	printf("Hello World!\n");
 
 	setBoard(board, move, startingPosition);
@@ -68,7 +69,7 @@ int main()
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;
 	
-					   //REALLOCATE
+					   //static long randTable[64][13];l
 					   //MoveGen *movegen = realloc(movegen, sizeof(MoveGen));
 					   //movegen->count = 0;// pseudo reset
 					   //Calculate Black Moves:

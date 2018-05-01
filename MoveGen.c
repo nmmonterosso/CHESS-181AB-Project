@@ -1539,8 +1539,6 @@ int isIndexLower(MoveList *move1, MoveList *move2) {
 		return 0;
 }//isIndexLofwer
 
-
-
 void resetPrunes(Prunes *prunes)
 {
 	prunes->boardVal = 0;

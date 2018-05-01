@@ -5,6 +5,7 @@
 #include "movegen.h"
 //SEE MACROS IN SPACE.H
 
+extern unsigned long long randTable[64][13];
 
 
 
@@ -370,6 +371,20 @@ void ht_del_hash_table(ht_hash_table* ht) {
 	free(ht->items);
 	free(ht);
 }//ht_del_hash_table
+
+void init_zobrist() {
+	srand(999631412);
+	for (int i = 0; i < 64; i++) {
+		for (int j = 0; j < 13; j++) {
+			randTable[i][j] = ((unsigned long long)RAND() << 48) ^
+							  ((unsigned long long)RAND() << 35) ^
+							  ((unsigned long long)RAND() << 22) ^
+							  ((unsigned long long)RAND() << 9)  ^
+							  ((unsigned long long)RAND() >> 4);
+		}
+	}//end if 
+}// init_zobrist()
+
 
 //HASH FUNCTION:
 //PsuedoCode:
