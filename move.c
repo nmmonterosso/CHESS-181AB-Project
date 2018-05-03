@@ -3,7 +3,7 @@
 #include "move.h"
 #include "movegen.h"
 
-
+extern volatile unsigned long long *zobrist;
 
 //SUMMARY: Makes Move given the Movelist parameter and stores the MoveList
 //into an array of Moves already done:
@@ -61,6 +61,8 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 			board->boardSpaces[k + 1][l].pieceType = EMPTY;
 		}//end if BLACK_TURN
 	}//end if	
+	
+	update_zobrist(move, zobrist);
 	updateEPSquare(board, move);
 	updateColorSpaces(board, move, moveSpace, 0);
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
@@ -152,6 +154,8 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 		updatePrevEPSquare(board, moveHistory->Moves[moveHistory->count - 2]);//CHECK TO SEE IF SEG FAULT HERE
 	else
 		board->epSquare = NO_EN_PASSANT;
+
+	update_zobrist(moveHistory->Moves[moveHistory->count - 1], zobrist);
 	//END UPDATE EP	
 	updateColorSpaces(board, moveHistory->Moves[moveHistory->count - 1], moveSpace, 1);
 

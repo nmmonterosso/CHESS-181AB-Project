@@ -329,7 +329,7 @@ void setMove(MoveList *dest, MoveList source) {
 
 
  //Summary: Creates new hash table item index:
-static ht_item* ht_new_item(const long zobrist, int depth, int flag, int eval, int ancient, MoveList move) {
+static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, int ancient, MoveList move) {
 	ht_item* i = malloc(sizeof(ht_item));
 	i->zobrist	= zobrist;
 	i->depth	= depth;
@@ -344,7 +344,7 @@ static ht_item* ht_new_item(const long zobrist, int depth, int flag, int eval, i
 ht_hash_table* ht_new() {
 	ht_hash_table* ht = malloc(sizeof(ht_hash_table));
 
-	ht->size = 1048583; //2^20 + 7
+	ht->size = 2097152; //2^21 ~2 million 
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
 	return ht;
@@ -372,6 +372,7 @@ void ht_del_hash_table(ht_hash_table* ht) {
 	free(ht);
 }//ht_del_hash_table
 
+//Sets random number table for Hash Function:
 void init_zobrist() {
 	srand(999631412);
 	for (int i = 0; i < 64; i++) {
@@ -381,11 +382,145 @@ void init_zobrist() {
 							  ((unsigned long long)RAND() << 22) ^
 							  ((unsigned long long)RAND() << 9)  ^
 							  ((unsigned long long)RAND() >> 4);
-		}
+		}//end for j
 	}//end if 
 }// init_zobrist()
 
+void set_zobrist_value(Board *board, volatile unsigned long long *zobrist) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			switch (board->boardSpaces[i][j].pieceType) {
+			case(WHITE_PAWN):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_WHITE_PAWN]);	break;
+			case(WHITE_KNIGHT):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_WHITE_KNIGHT]); break;
+			case(WHITE_BISHOP):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_WHITE_BISHOP]); break;
+			case(WHITE_ROOK):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_WHITE_ROOK]);	break;
+			case(WHITE_QUEEN):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_WHITE_QUEEN]);	break;
+			case(WHITE_KING):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_WHITE_KING]);	break;
+			case(BLACK_PAWN):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_BLACK_PAWN]);	break;
+			case(BLACK_KNIGHT):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_BLACK_KNIGHT]); break;
+			case(BLACK_BISHOP):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_BLACK_BISHOP]); break;
+			case(BLACK_ROOK):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_BLACK_ROOK]);	break;
+			case(BLACK_QUEEN):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_BLACK_QUEEN]);	break;
+			case(BLACK_KING):	*zobrist = (*zobrist ^ randTable[8 * i + j][HASH_BLACK_KING]);	break;
+			default:			*zobrist = (*zobrist ^ randTable[8 * i + j][EMPTY_HASH]);		break;
+			}//end switch				
+		} // for j
+	} // for i
+} //set_zobrist_value
 
+
+//Summary: Updates on makemove and unmake move regardless of 
+void update_zobrist(MoveList move, volatile unsigned long long *zobrist) {
+	
+	switch (move.piece) {
+	case(WHITE_PAWN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_PAWN]);	break;
+	case(WHITE_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KNIGHT]); break;
+	case(WHITE_BISHOP):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_BISHOP]); break;
+	case(WHITE_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_ROOK]);	break;
+	case(WHITE_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_QUEEN]);	break;
+	case(WHITE_KING):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KING]);	break;
+	case(BLACK_PAWN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_PAWN]);	break;
+	case(BLACK_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_KNIGHT]); break;
+	case(BLACK_BISHOP):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_BISHOP]); break;
+	case(BLACK_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_ROOK]);	break;
+	case(BLACK_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_QUEEN]);	break;
+	case(BLACK_KING):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_KING]);	break;
+	default:			fprintf(stderr, "ERROR in update_zobrist:\n");		break; //should not reach this
+	}//end switch
+
+	//normal capture:
+	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece >= 0) && (move.capturedPiece <= 13)) {
+		switch (move.capturedPiece) {
+		case(WHITE_PAWN):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_PAWN]);	break;
+		case(WHITE_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_KNIGHT]); break;
+		case(WHITE_BISHOP):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_BISHOP]); break;
+		case(WHITE_ROOK):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_ROOK]);	break;
+		case(WHITE_QUEEN):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_QUEEN]);	break;
+		case(WHITE_KING):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_KING]);	break;
+		case(BLACK_PAWN):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_PAWN]);	break;
+		case(BLACK_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KNIGHT]); break;
+		case(BLACK_BISHOP):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_BISHOP]); break;
+		case(BLACK_ROOK):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_ROOK]);	break;
+		case(BLACK_QUEEN):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]);	break;
+		case(BLACK_KING):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KING]);	break;
+		default:			fprintf(stderr, "ERROR in update_zobrist:\n");		break; //should not reach this
+		}//end switch
+	}// end if 
+	//Castling: XOR ROOKS:
+	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece >= 82) && (move.capturedPiece <= 85))
+		update_zobrist_castling(move, zobrist);	
+	// If Promotion:
+	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece >= 32 && (move.capturedPiece <= 79))) 
+		update_zobrist_promotion(move, zobrist);			
+}// updates_zobrist()
+
+
+void update_zobrist_castling(MoveList move, volatile unsigned long long *zobrist) {
+	switch (move.capturedPiece) {
+	case(WHITE_CASTLE_KINGSIDE): *zobrist = (*zobrist ^ randTable[7][HASH_WHITE_ROOK]);
+								 *zobrist = (*zobrist ^ randTable[5][HASH_WHITE_ROOK]);
+							     break;
+
+	case(WHITE_CASTLE_QUEENSIDE): *zobrist = (*zobrist ^ randTable[0][HASH_WHITE_ROOK]);
+								  *zobrist = (*zobrist ^ randTable[3][HASH_WHITE_ROOK]);
+								  break;
+
+	case(BLACK_CASTLE_KINGSIDE): *zobrist = (*zobrist ^ randTable[63][HASH_BLACK_ROOK]);
+								 *zobrist = (*zobrist ^ randTable[61][HASH_BLACK_ROOK]);
+								 break;
+
+	case(BLACK_CASTLE_QUEENSIDE): *zobrist = (*zobrist ^ randTable[56][HASH_BLACK_ROOK]);
+								  *zobrist = (*zobrist ^ randTable[59][HASH_BLACK_ROOK]);
+								  break;
+	}//end switch
+
+}//update_zobrist_castling()
+
+
+void update_zobrist_promotion(MoveList move, volatile unsigned long long *zobrist) {
+	
+	//HASH IN PROMOTED PIECE
+	*zobrist = (*zobrist ^ randTable[move.endLocation][(((move.endLocation / 8) == 7) ? HASH_WHITE_PAWN : HASH_BLACK_PAWN)]);
+	if (((move.capturedPiece >= 32) && (move.capturedPiece <= 37)) || ((move.capturedPiece >= 56) && (move.capturedPiece <= 61)))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][(((move.endLocation / 8) == 7) ? HASH_WHITE_QUEEN : HASH_BLACK_QUEEN)]);
+
+	else if (((move.capturedPiece >= 38) && (move.capturedPiece <= 43)) || ((move.capturedPiece >= 62) && (move.capturedPiece <= 67)))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][(((move.endLocation / 8) == 7) ? HASH_WHITE_ROOK : HASH_BLACK_ROOK)]);
+
+	else if (((move.capturedPiece >= 44) && (move.capturedPiece <= 49)) || ((move.capturedPiece >= 68) && (move.capturedPiece <= 73)))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][(((move.endLocation / 8) == 7) ? HASH_WHITE_KNIGHT : HASH_BLACK_KNIGHT)]);
+
+	else if (((move.capturedPiece >= 50) && (move.capturedPiece <= 55)) || ((move.capturedPiece >= 74) && (move.capturedPiece <= 79)))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][(((move.endLocation / 8) == 7) ? HASH_WHITE_BISHOP : HASH_BLACK_BISHOP)]);
+
+
+	//HASH OUT CAPTURED PIECE
+	//capture black queen;
+	if ((move.capturedPiece == 37) || (move.capturedPiece == 43) || (move.capturedPiece == 49) || (move.capturedPiece == 55))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]);
+	//capture black rook
+	if ((move.capturedPiece == 34) || (move.capturedPiece == 40) || (move.capturedPiece == 46) || (move.capturedPiece == 52))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_ROOK]);
+	//capture black knight
+	if ((move.capturedPiece == 35) || (move.capturedPiece == 41) || (move.capturedPiece == 47) || (move.capturedPiece == 53))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KNIGHT]);
+	//capture black bishop
+	if ((move.capturedPiece == 36) || (move.capturedPiece == 42) || (move.capturedPiece == 48) || (move.capturedPiece == 54))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_BISHOP]);
+
+	//capture white queen:
+	if ((move.capturedPiece == 61) || (move.capturedPiece == 67) || (move.capturedPiece == 73) || (move.capturedPiece == 79))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]);
+	//capture white rook:
+	if ((move.capturedPiece == 58) || (move.capturedPiece == 64) || (move.capturedPiece == 70) || (move.capturedPiece == 76))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]);
+	//capture white knight:
+	if ((move.capturedPiece == 59) || (move.capturedPiece == 55) || (move.capturedPiece == 61) || (move.capturedPiece == 67))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]);
+	//capture white bishop:
+	if ((move.capturedPiece == 60) || (move.capturedPiece == 66) || (move.capturedPiece == 72) || (move.capturedPiece == 78))
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]);
+}
 //HASH FUNCTION:
 //PsuedoCode:
 //function hash(string, a, num_buckets):

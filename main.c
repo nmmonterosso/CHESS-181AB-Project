@@ -18,7 +18,7 @@
 
 //GLOBALS: HASH TABLE;
 unsigned long long randTable[64][13];
-
+volatile unsigned long long *zobrist; 
 
 
 int main()
@@ -32,8 +32,8 @@ int main()
 	MoveList blankMove; // Blank movelist that gets passed up and down during pruning
 	Prunes prunes;
 	ht_hash_table* ht = ht_new(); //create new hash table:
-	//long zobrist[781];			
-
+	zobrist = (unsigned long long *)malloc(sizeof(unsigned long long));
+	*zobrist = 0;
 	blankMove.capturedPiece = -1;
 	blankMove.endLocation = -1;
 	blankMove.piece = -1;
@@ -60,11 +60,15 @@ int main()
 	MoveGenFunction(board, move, movegen);			//Initial Movegen:
 													//movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
 	printBoard(board);  //Prints Board into Console:
-	init_zobrist();
+	
 	printf("Hello World!\n");
 
 	setBoard(board, move, startingPosition);
 	printBoard(board); //Prints Second board:
+
+	init_zobrist();
+	set_zobrist_value(board, zobrist);
+
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;

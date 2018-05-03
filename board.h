@@ -97,6 +97,10 @@ static void ht_del_item(ht_item *i);
 void ht_del_hash_table(ht_hash_table* ht);
 
 void init_zobrist();
+void set_zobrist_value(Board *board, volatile unsigned long long *zobrist);
+void update_zobrist(MoveList move, volatile unsigned long long *zobrist);
+void update_zobrist_castling(MoveList move, volatile unsigned long long *zobrist);
+void update_zobrist_promotion(MoveList move, volatile unsigned long long *zobrist);
 
 #endif // !
 #pragma once

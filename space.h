@@ -131,7 +131,19 @@
 //Hash Macros:
 #define RAND() (rand() & 0x7fff)
 
-
+#define HASH_WHITE_PAWN		0
+#define HASH_WHITE_KNIGHT	1
+#define HASH_WHITE_BISHOP	2
+#define HASH_WHITE_ROOK		3
+#define HASH_WHITE_QUEEN	4
+#define HASH_WHITE_KING		5
+#define HASH_BLACK_PAWN		6
+#define HASH_BLACK_KNIGHT	7
+#define HASH_BLACK_BISHOP	8
+#define HASH_BLACK_ROOK		9
+#define HASH_BLACK_QUEEN	10
+#define HASH_BLACK_KING		11
+#define EMPTY_HASH			12
 
 typedef struct {
 	//type includes: color, and the type of piece: 1 = white 0 = black
