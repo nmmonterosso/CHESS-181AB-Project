@@ -319,14 +319,6 @@ void printBoard(Board *board) {
 
 
 //HASH TABLE FUNCTIONS:
-void setMove(MoveList *dest, MoveList source) {	
-	dest->startLocation = source.startLocation;
-	dest->endLocation = source.endLocation;
-	dest->piece = source.piece;
-	dest->capturedPiece = source.capturedPiece;
-}//setMove
-
-
 
  //Summary: Creates new hash table item index:
 static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, int ancient, MoveList move) {
@@ -334,8 +326,7 @@ static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int fla
 	i->zobrist	= zobrist;
 	i->depth	= depth;
 	i->flag		= flag;
-	i->eval		= eval;
-	i->ancient	= ancient;
+	i->eval		= eval;	
 	setMove(&i->move, move);
 	return i;
 } //ht_new_item
@@ -355,8 +346,7 @@ static void ht_del_item(ht_item* i) {
 	free(i->zobrist);
 	free(i->depth);
 	free(i->flag);
-	free(i->eval);
-	free(i->ancient);
+	free(i->eval);	
 	free(i->move);
 	free(i);
 }//ht_del_item
@@ -372,6 +362,24 @@ void ht_del_hash_table(ht_hash_table* ht) {
 	free(ht);
 }//ht_del_hash_table
 
+
+void setMove(MoveList *dest, MoveList source) {
+	dest->startLocation = source.startLocation;
+	dest->endLocation = source.endLocation;
+	dest->piece = source.piece;
+	dest->capturedPiece = source.capturedPiece;
+}//setMove
+
+ht_item * get_item(ht_hash_table * ht, unsigned long long * zobrist)
+{
+	return ht->items[*zobrist % ht->size];
+}// get_item
+
+
+void ht_replace_item(ht_item *item) {
+
+}//ht_replace_item
+
 //Sets random number table for Hash Function:
 void init_zobrist() {
 	srand(999631412);
@@ -383,6 +391,7 @@ void init_zobrist() {
 							  ((unsigned long long)RAND() << 9)  ^
 							  ((unsigned long long)RAND() >> 4);
 		}//end for j
+
 	}//end if 
 }// init_zobrist()
 
@@ -413,18 +422,42 @@ void set_zobrist_value(Board *board, volatile unsigned long long *zobrist) {
 void update_zobrist(MoveList move, volatile unsigned long long *zobrist) {
 	
 	switch (move.piece) {
-	case(WHITE_PAWN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_PAWN]);	break;
-	case(WHITE_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KNIGHT]); break;
-	case(WHITE_BISHOP):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_BISHOP]); break;
-	case(WHITE_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_ROOK]);	break;
-	case(WHITE_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_QUEEN]);	break;
-	case(WHITE_KING):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KING]);	break;
-	case(BLACK_PAWN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_PAWN]);	break;
-	case(BLACK_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_KNIGHT]); break;
-	case(BLACK_BISHOP):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_BISHOP]); break;
-	case(BLACK_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_ROOK]);	break;
-	case(BLACK_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_QUEEN]);	break;
-	case(BLACK_KING):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_KING]);	break;
+	case(WHITE_PAWN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_PAWN]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_PAWN]); 
+						break;
+	case(WHITE_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KNIGHT]); 
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_KNIGHT]); 
+						break;
+	case(WHITE_BISHOP):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_BISHOP]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_BISHOP]); 
+						break;
+	case(WHITE_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_ROOK]);	
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_ROOK]); 
+						break;
+	case(WHITE_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_QUEEN]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_QUEEN]); 
+						break;
+	case(WHITE_KING):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KING]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_KING]); 
+						break;
+	case(BLACK_PAWN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_PAWN]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_PAWN]); 
+						break;
+	case(BLACK_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_KNIGHT]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KNIGHT]); 
+						break;
+	case(BLACK_BISHOP):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_BISHOP]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_BISHOP]); 
+						break;
+	case(BLACK_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_ROOK]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_ROOK]); 
+						break;
+	case(BLACK_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_QUEEN]);	
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]); 
+						break;
+	case(BLACK_KING):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_KING]);
+						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KING]);
+						break;
 	default:			fprintf(stderr, "ERROR in update_zobrist:\n");		break; //should not reach this
 	}//end switch
 

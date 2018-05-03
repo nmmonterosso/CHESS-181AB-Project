@@ -61,10 +61,9 @@ typedef struct {
 typedef struct {
 	long zobrist;
 	int depth;
-	int flag;
-	int eval;
-	int ancient;
-	MoveList move;
+	int flag; //ALPHA PRUNING / BETA PRUNING:
+	int eval; 
+	MoveList move; //BEST MOVE: 
 }ht_item;
 
 typedef struct {
@@ -72,9 +71,6 @@ typedef struct {
 	int count;
 	ht_item** items;
 }ht_hash_table;
-
-
-
 
 
 void initializePositions(Move *move);
@@ -91,11 +87,16 @@ void setWhiteSpaces(Board *board, int number, int row, int col);
 void setColorSpaces(Board *board, Move *move);
 //Hash table functions:
 
-static ht_item* ht_new_item(const long zobrist, int depth, int flag, int eval, int ancient, MoveList move);
+static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, int ancient, MoveList move);
 ht_hash_table* ht_new();
 static void ht_del_item(ht_item *i);
 void ht_del_hash_table(ht_hash_table* ht);
+void setMove(MoveList *dest, MoveList source);
 
+//Hash Table Functions:
+ht_item* get_item(ht_hash_table* ht, volatile unsigned long long *zobrist);
+void ht_replace_item(ht_item *item);
+//Hash Table Zobrist Functions:
 void init_zobrist();
 void set_zobrist_value(Board *board, volatile unsigned long long *zobrist);
 void update_zobrist(MoveList move, volatile unsigned long long *zobrist);

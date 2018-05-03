@@ -1,7 +1,7 @@
 #ifndef SPACE_H_
 #define SPACE_H_
 
-#define MAXDEPTH 6
+#define MAXDEPTH 5
 
 #define WHITE 0xF
 #define BLACK 0x7
@@ -130,7 +130,7 @@
 
 //Hash Macros:
 #define RAND() (rand() & 0x7fff)
-
+//Zobrist
 #define HASH_WHITE_PAWN		0
 #define HASH_WHITE_KNIGHT	1
 #define HASH_WHITE_BISHOP	2
@@ -144,6 +144,10 @@
 #define HASH_BLACK_QUEEN	10
 #define HASH_BLACK_KING		11
 #define EMPTY_HASH			12
+//HT
+#define ALPHA_FLAG			2
+#define BETA_FLAG			4
+#define DEFAULT_FLAG		0
 
 typedef struct {
 	//type includes: color, and the type of piece: 1 = white 0 = black
