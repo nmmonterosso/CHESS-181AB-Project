@@ -19,7 +19,7 @@
 //GLOBALS: HASH TABLE;
 unsigned long long randTable[64][13];
 volatile unsigned long long *zobrist; 
-
+volatile ht_hash_table *ht;
 
 int main()
 {
@@ -31,7 +31,10 @@ int main()
 	MoveTree *movetree = (MoveTree*)malloc(sizeof(MoveTree));
 	MoveList blankMove; // Blank movelist that gets passed up and down during pruning
 	Prunes prunes;
-	ht_hash_table* ht = ht_new(); //create new hash table:
+
+	ht = (ht_hash_table*)malloc(sizeof(ht_hash_table));
+	ht = ht_new();
+
 	zobrist = (unsigned long long *)malloc(sizeof(unsigned long long));
 	*zobrist = 0;
 	blankMove.capturedPiece = -1;

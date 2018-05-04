@@ -57,6 +57,12 @@ typedef struct {
 
 }MoveTree;
 
+
+typedef struct {
+	short int boardVal;
+	MoveList pruneMove;
+} Prunes;
+
 //Transposition Hash Table;
 typedef struct {
 	long zobrist;
@@ -87,15 +93,17 @@ void setWhiteSpaces(Board *board, int number, int row, int col);
 void setColorSpaces(Board *board, Move *move);
 //Hash table functions:
 
-static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, int ancient, MoveList move);
+static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, MoveList move);
 ht_hash_table* ht_new();
 static void ht_del_item(ht_item *i);
 void ht_del_hash_table(ht_hash_table* ht);
 void setMove(MoveList *dest, MoveList source);
 
 //Hash Table Functions:
-ht_item* get_item(ht_hash_table* ht, volatile unsigned long long *zobrist);
-void ht_replace_item(ht_item *item);
+Prunes ht_read(ht_hash_table * ht,  unsigned long long *zobrist, int depth);
+void ht_write(ht_hash_table *ht,  unsigned long long *zobrist, int depth, int flag, int eval, MoveList move);
+ht_item* get_ht_item(ht_hash_table* ht, volatile unsigned long long *zobrist);
+int isInTable(ht_item *item, unsigned long long *zobrist, int depth);
 //Hash Table Zobrist Functions:
 void init_zobrist();
 void set_zobrist_value(Board *board, volatile unsigned long long *zobrist);

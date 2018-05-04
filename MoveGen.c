@@ -6,6 +6,10 @@
 #include "eval.h"
 #include <limits.h>
 
+//SHARED VARIABLES:
+extern volatile unsigned long long *zobrist;
+extern volatile ht_hash_table *ht;
+
 void Addr_Conversion(char boardposition, int Board_Coordinates[2])
 {
 	Board_Coordinates[0] = (boardposition) / 8;
@@ -461,7 +465,13 @@ int checkCastle(Board *board, char castle) {
 Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth, short int alphaVal, short int betaVal, MoveList pruneChoice)
 {	
 	Prunes prunes; //keeps track of alpha beta values and the final move path
-	//MoveGen * prevPath; //keeps track the previously examined movepath
+	//Transposition HASH TABLE READ:
+	prunes = ht_read(ht, zobrist, depth);
+
+	if (prunes.pruneMove.piece != -1)
+		return prunes;
+	//ELSE:
+		
 	//check if position in hash table: if in table, return best move/alpha/beta values:if not continue with function:
 	// Defining Base Case
 	if (depth == MAXDEPTH) {
@@ -469,15 +479,22 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 		//printBoard(board);
 		prunes.boardVal = eval(board, 10, move); //TODO: keep track of turn count
 		prunes.pruneMove = movehistory->Moves[0];
-		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.
+		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.		
 		return prunes;
 	}//end if 
 
 	// after iteration 1 --> depth = depth + 1
-	else {
+	else {	
+
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
 			makeMove(board, movegen->Moves[i], movehistory, move);
+
+			//Transposition Table:
+			/*prunes = Transposition(ht, zobrist, depth, DEFAULT_FLAG, NO_EVALUATION, movehistory->Moves[0]);
+			if (prunes != NULL) {
+				return prunes;
+			}*/
 			//printBoard(board);
 
 			//TODO CHECK LEGALITY OF CASTLING:
@@ -510,6 +527,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					if (prunes.boardVal <= alphaVal) { // If we fail the hard-alpha cutoff, we prune
 						prunes.boardVal = alphaVal; //Pruning: take better alternative beta
 						prunes.pruneMove = pruneChoice; //Pruning: take move path associated with better alternative
+						ht_write(ht, zobrist, MAXDEPTH - depth, ALPHA_FLAG, prunes.boardVal, movehistory->Moves[0]); //HASH TABLE
 						return prunes;
 					}// end if hard-alpha cutoff
 					if (prunes.boardVal < betaVal) { //Found a better alternative, update beta
@@ -528,6 +546,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					if (prunes.boardVal >= betaVal) { // If we fail the hard-alpha cutoff, we prune
 						prunes.boardVal = betaVal; //Pruning: take better alternative beta
 						prunes.pruneMove = pruneChoice; //Pruning: take move path associated with better alternative
+						ht_write(ht, zobrist, MAXDEPTH - depth, BETA_FLAG, prunes.boardVal, movehistory->Moves[0]); // HASH TABLE
 						return prunes;
 					}// end if hard-alpha cutoff
 					if (prunes.boardVal > alphaVal) { //Found a better alternative, update beta
@@ -542,29 +561,17 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					printf("\n");*/
 
 				} // end if maximizer pruning
-				// Pruning is done, return statement outside of the for loop				
-				
+				// Pruning is done, return statement outside of the for loop						
+				ht_write(ht, zobrist, MAXDEPTH - depth, DEFAULT_FLAG, prunes.boardVal, movehistory->Moves[0]); // HASH TABLE
 			//	printBoard(board);
 			}//end if 
-			else {
-			//	printf("BAD:\n");
-			//	printBoard(board);
-				if (movehistory->Moves[movehistory->count - 1].capturedPiece != NO_CAPTURE)
-					board->PerftCaptureCounter--;
-				if (movehistory->Moves[movehistory->count - 1].capturedPiece == EN_PASSANT) {
-					board->PerftEPCapture--;
-					board->PerftCaptureCounter--;
-				}
-				if ((movehistory->Moves[movehistory->count - 1].capturedPiece >= 32) && (movehistory->Moves[movehistory->count - 1].capturedPiece <= 79)) //if promotion
-					board->PerftPromotionCounter--;
-				unMakeMove(board, movehistory, move);
-			//	printf("ENDBAD\n");
-			//	printBoard(board);				
+			else { // ILLEGAL MOVE HERE:
+				undoBadNode(board, movehistory, move);						
 			}
 		}//end for 
 		// Pruning is done, kick back up one level
 		return prunes;
-	}
+	}// end if not maxdepth
 }//makeMoveTree
 
 
@@ -1337,6 +1344,25 @@ void checkBlackCastle(Board *board, MoveGen *movegen) {
 				AddToMoveList(movegen, 60, 58, BLACK_KING, BLACK_CASTLE_QUEENSIDE);
 	//checkQueenside
 }//checkBlackCastle
+
+
+void undoBadNode(Board * board, MoveGen * movehistory, MoveList * move)
+{
+	//	printf("BAD:\n");
+	//	printBoard(board);
+	if (movehistory->Moves[movehistory->count - 1].capturedPiece != NO_CAPTURE)
+		board->PerftCaptureCounter--;
+	if (movehistory->Moves[movehistory->count - 1].capturedPiece == EN_PASSANT) {
+		board->PerftEPCapture--;
+		board->PerftCaptureCounter--;
+	}
+	if ((movehistory->Moves[movehistory->count - 1].capturedPiece >= 32) && (movehistory->Moves[movehistory->count - 1].capturedPiece <= 79)) //if promotion
+		board->PerftPromotionCounter--;
+	unMakeMove(board, movehistory, move);
+	//	printf("ENDBAD\n");
+	//	printBoard(board);	
+}//undoBadNode
+
 
  //MoveGen Move Ordering:
  //Summary: Sorts current movegen by least valuable victim, most valuable attacker:

@@ -321,7 +321,7 @@ void printBoard(Board *board) {
 //HASH TABLE FUNCTIONS:
 
  //Summary: Creates new hash table item index:
-static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, int ancient, MoveList move) {
+static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, MoveList move) {
 	ht_item* i = malloc(sizeof(ht_item));
 	i->zobrist	= zobrist;
 	i->depth	= depth;
@@ -370,15 +370,64 @@ void setMove(MoveList *dest, MoveList source) {
 	dest->capturedPiece = source.capturedPiece;
 }//setMove
 
-ht_item * get_item(ht_hash_table * ht, unsigned long long * zobrist)
+
+//Summary: Checks if the item is inside the hash table and returns the prune value
+//associated with it
+Prunes ht_read(ht_hash_table * ht, unsigned long long * zobrist, int depth)
 {
+	Prunes prunes;
+	ht_item *item = (ht_item *)malloc(sizeof(ht_item));
+	item = get_ht_item(ht, zobrist);
+	if (item) {
+		if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
+			prunes.boardVal = item->eval;
+			prunes.pruneMove = item->move;
+		} // if hit
+
+		else {
+			prunes.boardVal = -1;
+			prunes.pruneMove.piece = -1;
+			prunes.pruneMove.capturedPiece = -1;
+			prunes.pruneMove.startLocation = -1;
+			prunes.pruneMove.endLocation = -1;
+		} // if miss	
+	}
+	free(item);
+	return prunes;
+} // ht_read()
+
+  //Summary: Replace when Hash Table Collisions or Misses:
+void ht_write(ht_hash_table * ht, unsigned long long * zobrist, int depth, int flag, int eval, MoveList move)
+{
+	ht_item * item = get_ht_item(ht, zobrist);
+	if ((item->zobrist != *zobrist) || (item->depth < depth)) {
+		item->zobrist = *zobrist;
+		item->depth = depth;
+		item->flag = flag;
+		item->eval = eval;
+		item->move = move;
+	}//end if 
+}//ht_replace_item
+
+
+
+ht_item * get_ht_item(ht_hash_table * ht, unsigned long long * zobrist){
+
 	return ht->items[*zobrist % ht->size];
 }// get_item
 
 
-void ht_replace_item(ht_item *item) {
 
-}//ht_replace_item
+
+//Returns 0 on false, 1 on true:
+int isInTable(ht_item * item, unsigned long long * zobrist, int depth)
+{
+	if ((item->zobrist == *zobrist) && (item->depth >= depth))
+		return 1;
+	else	
+		return 0;
+}
+//ht_replace_item
 
 //Sets random number table for Hash Function:
 void init_zobrist() {

@@ -148,6 +148,7 @@
 #define ALPHA_FLAG			2
 #define BETA_FLAG			4
 #define DEFAULT_FLAG		0
+#define NO_EVALUATION		-1
 
 typedef struct {
 	//type includes: color, and the type of piece: 1 = white 0 = black
