@@ -65,7 +65,7 @@ typedef struct {
 
 //Transposition Hash Table;
 typedef struct {
-	long zobrist;
+	unsigned long long zobrist;
 	int depth;
 	int flag; //ALPHA PRUNING / BETA PRUNING:
 	int eval; 

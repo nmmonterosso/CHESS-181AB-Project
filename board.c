@@ -6,7 +6,7 @@
 //SEE MACROS IN SPACE.H
 
 extern unsigned long long randTable[64][13];
-
+extern int hitflag;
 
 
 //Summary: Initializes the list of the pieces and the positions they occupy for each piece. 
@@ -338,6 +338,9 @@ ht_hash_table* ht_new() {
 	ht->size = 2097152; //2^21 ~2 million 
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
+	for (int i = 0; i < ht->size; i++) 		
+		ht->items[i] = (ht_item*)malloc(sizeof(ht_item));
+	
 	return ht;
 }//ht_new
 
@@ -376,23 +379,16 @@ void setMove(MoveList *dest, MoveList source) {
 Prunes ht_read(ht_hash_table * ht, unsigned long long * zobrist, int depth)
 {
 	Prunes prunes;
-	ht_item *item = (ht_item *)malloc(sizeof(ht_item));
-	item = get_ht_item(ht, zobrist);
+	ht_item *item = get_ht_item(ht, zobrist);
 	if (item) {
 		if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
 			prunes.boardVal = item->eval;
 			prunes.pruneMove = item->move;
+			hitflag = 1;
 		} // if hit
-
-		else {
-			prunes.boardVal = -1;
-			prunes.pruneMove.piece = -1;
-			prunes.pruneMove.capturedPiece = -1;
-			prunes.pruneMove.startLocation = -1;
-			prunes.pruneMove.endLocation = -1;
-		} // if miss	
-	}
-	free(item);
+		else
+			hitflag = 0;
+	}//end if:
 	return prunes;
 } // ht_read()
 
@@ -400,13 +396,18 @@ Prunes ht_read(ht_hash_table * ht, unsigned long long * zobrist, int depth)
 void ht_write(ht_hash_table * ht, unsigned long long * zobrist, int depth, int flag, int eval, MoveList move)
 {
 	ht_item * item = get_ht_item(ht, zobrist);
-	if ((item->zobrist != *zobrist) || (item->depth < depth)) {
-		item->zobrist = *zobrist;
-		item->depth = depth;
-		item->flag = flag;
-		item->eval = eval;
-		item->move = move;
-	}//end if 
+	if (item) {
+		if ((item->zobrist != *zobrist) || (item->depth < depth)) {
+			item->zobrist = *zobrist;
+			item->depth = depth;
+			item->flag = flag;
+			item->eval = eval;
+			item->move = move;
+		}//end if 
+	}
+	else {
+		item = ht_new_item(*zobrist, depth, flag, eval, move); //should not hit this line
+	}
 }//ht_replace_item
 
 

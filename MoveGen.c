@@ -9,6 +9,7 @@
 //SHARED VARIABLES:
 extern volatile unsigned long long *zobrist;
 extern volatile ht_hash_table *ht;
+int hitflag = 0;
 
 void Addr_Conversion(char boardposition, int Board_Coordinates[2])
 {
@@ -466,9 +467,10 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 {	
 	Prunes prunes; //keeps track of alpha beta values and the final move path
 	//Transposition HASH TABLE READ:
+	hitflag = 0;
 	prunes = ht_read(ht, zobrist, depth);
 
-	if (prunes.pruneMove.piece != -1)
+	if (hitflag)
 		return prunes;
 	//ELSE:
 		
