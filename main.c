@@ -18,6 +18,7 @@
 
 //GLOBALS: HASH TABLE;
 unsigned long long randTable[64][13];
+unsigned long long randTurn;
 volatile unsigned long long *zobrist; 
 volatile ht_hash_table *ht;
 
@@ -93,6 +94,8 @@ int main()
 		printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
 		printf("total # of castling: = [%d]\n", board->PerftCastleCounter);
 		printf("total # of pawn Promotions = [%d]\n", board->PerftPromotionCounter);*/
+		printf("total # of hash Table hits = [%d]\n", board->hashtablehitcounter);
+		printf("total # of hash Table misses = [%d]\n", board->hashtablemisscounter);
 		//printBoard(board);
 
 		//if board's turn: make the move, else wait for xboard

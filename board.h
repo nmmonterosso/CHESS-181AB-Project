@@ -16,6 +16,8 @@ typedef struct {
 	int   PerftCastleCounter; //used to figure out # of castling:
 	int   PerftEPCapture;		// Used for perft Debugging # of En passants
 	int	  PerftPromotionCounter;
+	int	  hashtablehitcounter;
+	int   hashtablemisscounter;
 	int   whiteKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly
 	int   blackKingCoordinates[2]; //used for checking when moving other pieces results in check inadvertantly for illegal moves.
 }Board;
@@ -100,10 +102,10 @@ void ht_del_hash_table(ht_hash_table* ht);
 void setMove(MoveList *dest, MoveList source);
 
 //Hash Table Functions:
-Prunes ht_read(ht_hash_table * ht,  unsigned long long *zobrist, int depth);
-void ht_write(ht_hash_table *ht,  unsigned long long *zobrist, int depth, int flag, int eval, MoveList move);
+Prunes ht_read(ht_hash_table * ht,  volatile unsigned long long *zobrist, int depth);
+void ht_write(ht_hash_table *ht,  volatile unsigned long long *zobrist, int depth, int flag, int eval, MoveList move);
 ht_item* get_ht_item(ht_hash_table* ht, volatile unsigned long long *zobrist);
-int isInTable(ht_item *item, unsigned long long *zobrist, int depth);
+int isInTable(ht_item *item, volatile unsigned long long *zobrist, int depth);
 //Hash Table Zobrist Functions:
 void init_zobrist();
 void set_zobrist_value(Board *board, volatile unsigned long long *zobrist);

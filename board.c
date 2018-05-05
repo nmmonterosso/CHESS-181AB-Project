@@ -6,6 +6,7 @@
 //SEE MACROS IN SPACE.H
 
 extern unsigned long long randTable[64][13];
+extern unsigned long long randTurn;
 extern int hitflag;
 
 
@@ -84,6 +85,8 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 	board->PerftCastleCounter = 0;
 	board->PerftEPCapture = 0;
 	board->PerftPromotionCounter = 0;
+	board->hashtablehitcounter = 0;
+	board->hashtablemisscounter = 0;
 	board->epSquare = NO_EN_PASSANT;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -179,6 +182,8 @@ void resetDebugCounters(Board *board)
 	board->PerftEPCapture = 0;
 	board->PerftNodeCounter = 0;
 	board->PerftPromotionCounter = 0;
+	board->hashtablehitcounter = 0;
+	board->hashtablemisscounter = 0;
 }//resetDebug Counters
 
 
@@ -244,10 +249,10 @@ void setWhiteSpaces(Board *board, int number, int row, int col) {
  //Sets board based on FEN notation string input:
 void setBoard(Board * board, Move *move, char command[])
 {
-	char  * token = (char *)malloc(sizeof(char *));
+	char  *token = (char *)malloc(sizeof(char *));
 	int i = 0;
 	printf("Splitting %s into tokens\n", command);
-	token = strtok(command, "/");
+	token = (char *)strtok(command, "/");
 	while (token != NULL) {
 		printf("Token [%d] = [%s]\n", i, token);
 		if (i > 7) { //BOARD RIGHTS
@@ -333,7 +338,7 @@ static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int fla
 
   //Summary: Creates new hash table
 ht_hash_table* ht_new() {
-	ht_hash_table* ht = malloc(sizeof(ht_hash_table));
+	ht_hash_table* ht = (ht_hash_table *)malloc(sizeof(ht_hash_table));
 
 	ht->size = 2097152; //2^21 ~2 million 
 	ht->count = 0;
@@ -376,7 +381,7 @@ void setMove(MoveList *dest, MoveList source) {
 
 //Summary: Checks if the item is inside the hash table and returns the prune value
 //associated with it
-Prunes ht_read(ht_hash_table * ht, unsigned long long * zobrist, int depth)
+Prunes ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth)
 {
 	Prunes prunes;
 	ht_item *item = get_ht_item(ht, zobrist);
@@ -386,14 +391,20 @@ Prunes ht_read(ht_hash_table * ht, unsigned long long * zobrist, int depth)
 			prunes.pruneMove = item->move;
 			hitflag = 1;
 		} // if hit
-		else
+		else {
+			prunes.boardVal = 0;
+			prunes.pruneMove.piece = -1;
+			prunes.pruneMove.startLocation = -1;
+			prunes.pruneMove.endLocation = -1;
+			prunes.pruneMove.capturedPiece = -1;
 			hitflag = 0;
+		}
 	}//end if:
 	return prunes;
 } // ht_read()
 
   //Summary: Replace when Hash Table Collisions or Misses:
-void ht_write(ht_hash_table * ht, unsigned long long * zobrist, int depth, int flag, int eval, MoveList move)
+void ht_write(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth, int flag, int eval, MoveList move)
 {
 	ht_item * item = get_ht_item(ht, zobrist);
 	if (item) {
@@ -412,7 +423,7 @@ void ht_write(ht_hash_table * ht, unsigned long long * zobrist, int depth, int f
 
 
 
-ht_item * get_ht_item(ht_hash_table * ht, unsigned long long * zobrist){
+ht_item * get_ht_item(ht_hash_table * ht, volatile unsigned long long * zobrist){
 
 	return ht->items[*zobrist % ht->size];
 }// get_item
@@ -421,7 +432,7 @@ ht_item * get_ht_item(ht_hash_table * ht, unsigned long long * zobrist){
 
 
 //Returns 0 on false, 1 on true:
-int isInTable(ht_item * item, unsigned long long * zobrist, int depth)
+int isInTable(ht_item * item, volatile unsigned long long * zobrist, int depth)
 {
 	if ((item->zobrist == *zobrist) && (item->depth >= depth))
 		return 1;
@@ -441,8 +452,13 @@ void init_zobrist() {
 							  ((unsigned long long)RAND() << 9)  ^
 							  ((unsigned long long)RAND() >> 4);
 		}//end for j
-
-	}//end if 
+	}//end for i
+	randTurn =  ((unsigned long long)RAND() << 48) ^
+				((unsigned long long)RAND() << 35) ^
+				((unsigned long long)RAND() << 22) ^
+				((unsigned long long)RAND() << 9) ^
+				((unsigned long long)RAND() >> 4);
+	
 }// init_zobrist()
 
 void set_zobrist_value(Board *board, volatile unsigned long long *zobrist) {
@@ -464,7 +480,8 @@ void set_zobrist_value(Board *board, volatile unsigned long long *zobrist) {
 			default:			*zobrist = (*zobrist ^ randTable[8 * i + j][EMPTY_HASH]);		break;
 			}//end switch				
 		} // for j
-	} // for i
+	} // for i	
+	*zobrist = *zobrist ^ randTurn; //Last Step for zobrist number for current turn:
 } //set_zobrist_value
 
 
@@ -534,7 +551,10 @@ void update_zobrist(MoveList move, volatile unsigned long long *zobrist) {
 		update_zobrist_castling(move, zobrist);	
 	// If Promotion:
 	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece >= 32 && (move.capturedPiece <= 79))) 
-		update_zobrist_promotion(move, zobrist);			
+		update_zobrist_promotion(move, zobrist);
+
+	//update_zobrist_turn:
+	*zobrist = *zobrist ^ randTurn;
 }// updates_zobrist()
 
 

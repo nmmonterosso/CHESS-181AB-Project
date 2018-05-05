@@ -473,7 +473,7 @@ void updatePrevEPSquare(Board *board, MoveList prevmove) {
 	}//end if previous move was en passant move
 
 	else if ((prevmove.piece == WHITE_PAWN || prevmove.piece == BLACK_PAWN) &&
-		(((start == 1) && (end == 3)) || ((start == 6) && (start == 4)))) {
+		(((start == 1) && (end == 3)) || ((start == 6) && (end == 4)))) {
 		if (prevmove.piece == WHITE_PAWN)
 			board->epSquare = board->boardSpaces[2][file].boardposition;
 		else if (prevmove.piece == BLACK_PAWN)
@@ -818,7 +818,7 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 	int x = 0;
 	int y = 0;
 
-	for (int i = 0; i <= 100; i++) {
+	for (int i = 0; i < 100; i++) {
 		//Initialize MoveGen List to -1:
 		movegen->Moves[i].piece = -1;
 		movegen->Moves[i].startLocation = -1;

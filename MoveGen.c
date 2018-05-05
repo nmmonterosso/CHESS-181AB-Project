@@ -10,6 +10,7 @@
 extern volatile unsigned long long *zobrist;
 extern volatile ht_hash_table *ht;
 int hitflag = 0;
+static int pruneflag = DEFAULT_FLAG;
 
 void Addr_Conversion(char boardposition, int Board_Coordinates[2])
 {
@@ -27,7 +28,7 @@ void AddToMoveList(MoveGen *movegen, char Start_Location, char End_Location, cha
 }//addToMoveList
 
 void initializeMoveGen(MoveGen *movegen) {
-	for (int i = 0; i <= 100; i++) {
+	for (int i = 0; i < 100; i++) {
 		//Initialize MoveGen List to -1:
 		movegen->Moves[i].piece = -1;
 		movegen->Moves[i].startLocation = -1;
@@ -467,11 +468,17 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 {	
 	Prunes prunes; //keeps track of alpha beta values and the final move path
 	//Transposition HASH TABLE READ:
+	
 	hitflag = 0;
-	prunes = ht_read(ht, zobrist, depth);
+	pruneflag = DEFAULT_FLAG;
+	prunes = ht_read(ht, zobrist, MAXDEPTH - depth);
 
-	if (hitflag)
+	if (hitflag) {
+		board->hashtablehitcounter++;
 		return prunes;
+	}
+	else
+		board->hashtablemisscounter++;
 	//ELSE:
 		
 	//check if position in hash table: if in table, return best move/alpha/beta values:if not continue with function:
@@ -529,7 +536,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					if (prunes.boardVal <= alphaVal) { // If we fail the hard-alpha cutoff, we prune
 						prunes.boardVal = alphaVal; //Pruning: take better alternative beta
 						prunes.pruneMove = pruneChoice; //Pruning: take move path associated with better alternative
-						ht_write(ht, zobrist, MAXDEPTH - depth, ALPHA_FLAG, prunes.boardVal, movehistory->Moves[0]); //HASH TABLE
+						pruneflag = ALPHA_FLAG; //for transposition						
 						return prunes;
 					}// end if hard-alpha cutoff
 					if (prunes.boardVal < betaVal) { //Found a better alternative, update beta
@@ -548,7 +555,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					if (prunes.boardVal >= betaVal) { // If we fail the hard-alpha cutoff, we prune
 						prunes.boardVal = betaVal; //Pruning: take better alternative beta
 						prunes.pruneMove = pruneChoice; //Pruning: take move path associated with better alternative
-						ht_write(ht, zobrist, MAXDEPTH - depth, BETA_FLAG, prunes.boardVal, movehistory->Moves[0]); // HASH TABLE
+						pruneflag = BETA_FLAG; // for transposition:						
 						return prunes;
 					}// end if hard-alpha cutoff
 					if (prunes.boardVal > alphaVal) { //Found a better alternative, update beta
@@ -564,7 +571,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 
 				} // end if maximizer pruning
 				// Pruning is done, return statement outside of the for loop						
-				ht_write(ht, zobrist, MAXDEPTH - depth, DEFAULT_FLAG, prunes.boardVal, movehistory->Moves[0]); // HASH TABLE
+				ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, prunes.boardVal, movehistory->Moves[0]); // HASH TABLE
 			//	printBoard(board);
 			}//end if 
 			else { // ILLEGAL MOVE HERE:
@@ -614,7 +621,7 @@ void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 			}
 		}//end for
 	}//end else (BLACK TURN)
-	quickSortMoveGen(movegen, 0, movegen->count - 1);
+	//quickSortMoveGen(movegen, 0, movegen->count - 1); //POSSIBLY TAKING A LONG TIME HERE:
 }//MoveGenFunction
 
 void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
@@ -1348,7 +1355,7 @@ void checkBlackCastle(Board *board, MoveGen *movegen) {
 }//checkBlackCastle
 
 
-void undoBadNode(Board * board, MoveGen * movehistory, MoveList * move)
+void undoBadNode(Board * board, MoveGen * movehistory, Move * move)
 {
 	//	printf("BAD:\n");
 	//	printBoard(board);
