@@ -621,7 +621,7 @@ void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 			}
 		}//end for
 	}//end else (BLACK TURN)
-	//quickSortMoveGen(movegen, 0, movegen->count - 1); //POSSIBLY TAKING A LONG TIME HERE:
+	mergeSortMoveGen(movegen, 0, movegen->count - 1); //POSSIBLY TAKING A LONG TIME HERE:
 }//MoveGenFunction
 
 void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
@@ -1371,6 +1371,98 @@ void undoBadNode(Board * board, MoveGen * movehistory, Move * move)
 	//	printf("ENDBAD\n");
 	//	printBoard(board);	
 }//undoBadNode
+
+
+void mergeSortMoveGen(MoveGen *movegen, int l, int r) {
+
+	if (l < r) {
+		int m = l + (r - l) / 2;
+		mergeSortMoveGen(movegen, l, m);
+		mergeSortMoveGen(movegen, m + 1, r);
+		merge(movegen, l, m, r);
+	}
+}//mergeSortMoveGen:
+
+void merge(MoveGen *movegen, int l, int m, int r) {
+	int i, j, k;
+	const int n1 = m - l + 1;
+	const int n2 = r - m;
+
+	//Temp arrays of movegen:
+	MoveList Left[100];
+	MoveList Right[100];
+		//repeat
+
+	 
+	//MoveList Left[n1];
+	//MoveList Right[n2];
+
+	for (i = 0; i < n1; i++) {
+		Left[i].piece = movegen->Moves[l + i].piece;
+		Left[i].startLocation = movegen->Moves[l + i].startLocation;
+		Left[i].endLocation = movegen->Moves[l + i].endLocation;
+		Left[i].capturedPiece = movegen->Moves[l + i].capturedPiece;
+	}
+
+	for (j = 0; j < n2; j++) {
+		Right[j].piece = movegen->Moves[m + 1 + j].piece;
+		Right[j].startLocation = movegen->Moves[m + 1 + j].startLocation;
+		Right[j].endLocation = movegen->Moves[m + 1 + j].endLocation;
+		Right[j].capturedPiece = movegen->Moves[m + 1 + j].capturedPiece;
+	}
+
+	i = 0;
+	j = 0;
+	k = l;
+	while ((i < n1) && (j < n2)) {
+		
+		if (getSortValue(&Left[i]) < getSortValue(&Right[j])) {
+			movegen->Moves[k].piece = Left[i].piece;
+			movegen->Moves[k].startLocation = Left[i].startLocation;
+			movegen->Moves[k].endLocation = Left[i].endLocation;
+			movegen->Moves[k].capturedPiece = Left[i].capturedPiece;
+			i++;
+		}//end if 
+		else {
+			movegen->Moves[k].piece = Right[j].piece;
+			movegen->Moves[k].startLocation = Right[j].startLocation;
+			movegen->Moves[k].endLocation = Right[j].endLocation;
+			movegen->Moves[k].capturedPiece = Right[j].capturedPiece;
+			j++;
+		}//end else
+		k++;
+	} // end while:
+
+	while (i < n1) {
+		movegen->Moves[k].piece = Left[i].piece;
+		movegen->Moves[k].startLocation = Left[i].startLocation;
+		movegen->Moves[k].endLocation = Left[i].endLocation;
+		movegen->Moves[k].capturedPiece = Left[i].capturedPiece;
+		i++;
+		k++;
+	} // end while
+
+	while (j < n2) {
+		movegen->Moves[k].piece = Right[j].piece;
+		movegen->Moves[k].startLocation = Right[j].startLocation;
+		movegen->Moves[k].endLocation = Right[j].endLocation;
+		movegen->Moves[k].capturedPiece = Right[j].capturedPiece;
+		j++;
+		k++;
+	} // end while		
+}//merge
+
+
+
+
+
+
+
+
+
+
+
+
 
 
  //MoveGen Move Ordering:

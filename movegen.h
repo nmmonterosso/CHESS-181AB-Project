@@ -28,6 +28,8 @@ void undoBadNode(Board *board, MoveGen *movehistory, MoveList *move);
 
 //Move Ordering
 void quickSortMoveGen(MoveGen *movegen, int frontPivot, int backPivot);
+void mergeSortMoveGen(MoveGen *movegen, int l, int r);
+void merge(MoveGen *movegen, int l, int m, int r);
 void swapMoves(MoveGen *movegen, int leftPivot, int rightPivot);
 int getSortValue(MoveList *move);
 int partition(MoveGen *movegen, int frontPivot, int backPivot);

@@ -340,7 +340,7 @@ static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int fla
 ht_hash_table* ht_new() {
 	ht_hash_table* ht = (ht_hash_table *)malloc(sizeof(ht_hash_table));
 
-	ht->size = 2097152; //2^21 ~2 million 
+	ht->size = 16777216; //2^24 ~16.8 Million
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
 	for (int i = 0; i < ht->size; i++) 		
