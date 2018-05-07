@@ -351,11 +351,11 @@ ht_hash_table* ht_new() {
 
  //Summary: Deletes item from hash table:
 static void ht_del_item(ht_item* i) {
-	free(i->zobrist);
-	free(i->depth);
-	free(i->flag);
-	free(i->eval);	
-	free(i->move);
+	/*free(i.zobrist);
+	free(i.depth);
+	free(i.flag);
+	free(i.eval);	
+	free(i.move);*/
 	free(i);
 }//ht_del_item
 
@@ -385,21 +385,20 @@ Prunes ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int de
 {
 	Prunes prunes;
 	ht_item *item = get_ht_item(ht, zobrist);
-	if (item) {
-		if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
-			prunes.boardVal = item->eval;
-			prunes.pruneMove = item->move;
-			hitflag = 1;
-		} // if hit
-		else {
-			prunes.boardVal = 0;
-			prunes.pruneMove.piece = -1;
-			prunes.pruneMove.startLocation = -1;
-			prunes.pruneMove.endLocation = -1;
-			prunes.pruneMove.capturedPiece = -1;
-			hitflag = 0;
-		}
-	}//end if:
+	if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
+		prunes.boardVal = item->eval;
+		prunes.pruneMove = item->move;
+		hitflag = 1;
+	} // if hit
+	else {
+		prunes.boardVal = 0;
+		prunes.pruneMove.piece = -1;
+		prunes.pruneMove.startLocation = -1;
+		prunes.pruneMove.endLocation = -1;
+		prunes.pruneMove.capturedPiece = -1;
+		hitflag = 0;
+	}
+	
 	return prunes;
 } // ht_read()
 
