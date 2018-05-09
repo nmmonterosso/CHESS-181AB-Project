@@ -2,7 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "xboard.h"
+#include "move.h"
 
+//GLOBAL Variable for flag
+int xboard_flag = 0;
+int xMove_flag = 0;
+
+extern volatile unsigned long long *zobrist;
 
 static int getline(char *buff, size_t size)
 {
@@ -32,12 +38,12 @@ void rmSubstr(char *str, const char *toRemove)
 		memmove(str, str + strlen(toRemove), 1 + strlen(str + strlen(toRemove)));
 }
 
-void xboard(Board *board)
+void xboard(Board *board, Move *movespace, MoveList *move)
 {
 	/*xboard() -- this will read info given by xboard and will determine functions being sent to chess engine*/
 	int startPosition[2], endPosition[2]; // store starting location and end location of xboard moves
 	char extra[5]; // stores extra content from xboard move string... used to indicate pawn promotion
-
+	//MoveList temp; //temporary move to update zobrist/colorspaces
 	int read; // used for value of how many bytes read by getline()
 			  //size_t nbytes = 32; // initial allocation for xboard string
 	char xboard_string[32];// stores line given by xboard/winBoard
@@ -45,7 +51,7 @@ void xboard(Board *board)
 	read = getline(xboard_string, sizeof(xboard_string));
 	if (read == NO_INPUT)
 	{
-		printf("No Input\n");
+		//printf("No Input\n");
 	}
 
 	if (read == TOO_LONG) // input is too long for allocation of xboard_string
@@ -53,7 +59,7 @@ void xboard(Board *board)
 		// if string is TOO_LONG then we need to reallocate memory
 
 		//	xboard_string = (char*)realloc(xboard_string, 64 * sizeof(char)); //reallocate memory
-		printf("Input too long [%s]\n", xboard_string);
+		//printf("Input too long [%s]\n", xboard_string);
 	}
 
 	if (read == OK) //xboard_string fits input
@@ -67,30 +73,28 @@ void xboard(Board *board)
 
 		if (strcmp(xboard_string, "protover 2") == 0) // when protover 2 is received, present features
 		{
-			fprintf(stdout, "feature myname=\"JaeDong\"\n"); //set chess engine name
-			fflush(stdout);
-
-			fprintf(stdout, "feature san=0\n");	// moves in e2e4 notation... if san=1 then it would be Nf3 notation
-			fflush(stdout);
-
-			fprintf(stdout, "usermove=1\n");	// display for xboard sending moves is "usermove MOVE"
-			fflush(stdout);
-
-			fprintf(stdout, "sigint=0\n");		// turn off interruptinf signals sent by xboard
-			fflush(stdout);
-
-			fprintf(stdout, "sigterm=0\n");		// turn off termination signal
-
-			fprintf(stdout, "pause=0\n");		// not using pause command
-			fflush(stdout);
-
-			fprintf(stdout, "nps=0\n");			// not using nps command (nodes per second)
-			fflush(stdout);
-
-			fprintf(stdout, "variant=normal\n"); // no variant used, playing normal chess
-			fflush(stdout);
-
-			fprintf(stdout, "done=1\n");		 // done with setting features... no more feature commands
+			fprintf(stdout,
+				"feature myname=\"Super Chess\""	//set chess engine name
+				" name=0"
+				" san=0"					// xboard sends move in coordinate notation g1g3
+				" usermove=1"			// display for xboard sending moves is "usermove MOVE"
+				" sigint=0"				// turn off interruptinf signals sent by xboard
+				" sigterm=0"				// turn off termination signal
+				" pause=0"				// not using pause command
+				" nps=0"					// not using nps command (nodes per second)
+				" variant=normal"		// no variant used, playing normal chess
+				" ping=0"				// turn off ping protocol
+				" setboard=0"			// turn off setboard protocol (***Look Up***)
+				" playother=0"			// turn off playother protocol
+				" time=0"				// stop xbord from sending time to engine MIGHT NEED IN FUTUR
+				" draw=0"				// turn off draw protocol -- user cannot send dra
+				" reuse=0"				// xboard will kill engine process after every game and start fresh process
+				" analyze=0"				// turn off analysis mode protocol
+				" debug=0"				// turn off debug protocol
+				" highlight=0"			// turn off highlight protocol
+				" ics=0"					// turn off ics command
+				" done=1\n"						// done with setting features... no more feature commands
+			); 
 			fflush(stdout);
 		}
 
@@ -109,56 +113,7 @@ void xboard(Board *board)
 		{
 			exit(); //exit program
 		}
-
-		//random --> can be ignored (for random mode)
-
-		//if (strcmp(xboard_string, "force") == 0) // set engine to force mode
-		//{
-		//	//stop clocks
-		//	//play neither color
-		//	//engine should not think, ponder, or make moves of its own
-		//}
-		//
-		//if (strcmp(xboard_string, "go") == 0) // will be sent to exit force mode
-		//{
-		//	//leave force mode
-		//	//start clock
-		//}
-		//
-		//if (strcmp(xboard_string, "draw") == 0) // opponent offers draw
-		//{
-		//	fprintf(stdout, "offer draw\n");
-		//	fflush(stdout);
-		//}
-		//
-		//if (strcmp(xboard_string, "hint") == 0) // user asks for hint
-		//{
-		//	//should have access from MoveList???
-		//	fprintf(stdout, "Hint: xxx\n"); // xxx is the suggested move
-		//	fflush(stdout);
-		//}
-		//
-		//if (strcmp(xboard_string, "bk") == 0) // user selects "Book" from xboard menu
-		//{
-		//	fprintf(stdout, "\tBooking\n"); //we can send any text as long as each line begins with \t
-		//	fflush(stdout);
-		//}
-		//
-		//if (strcmp(xboard_string, "undo") == 0) // user wants to undo move
-		//{
-		//	//set current board state to previous board state
-		//
-		//}
-		//
-		// we can use result RESULT {COMMENT} to store result of match
-		//
-		//need to check time controls
-		// st TIME and sd DEPTH
-		// nps NODE_RATE <-- engine limitted to certain num of nodes
-		//
-		// setting time for engine
-
-
+		
 		/*----- Checking for User Moves -----*/
 		if (strncmp(xboard_string, "usermove", 8) == 0)
 		{
@@ -194,23 +149,48 @@ void xboard(Board *board)
 			case 'h': endPosition[0] = 7; break;
 			default: break;
 			}
+			
 
 			if (strlen(xboard_string) == 4) // normal moves
 			{
+				//MoveList temp;
+				move->startLocation = 8 * startPosition[1] + startPosition[0];
+				move->endLocation = 8 * endPosition[1] + endPosition[0];
+				move->piece = board->boardSpaces[startPosition[1]][startPosition[0]].pieceType;
+				if (board->boardSpaces[endPosition[1]][endPosition[0]].isOccupied)
+					move->capturedPiece = board->boardSpaces[endPosition[1]][endPosition[0]].pieceType; // check this
+				else
+					move->capturedPiece = NO_CAPTURE;
+				//CASTLING START:
+				if (board->castlingRights > 0x0) {
+					if ((strncmp(xboard_string, "e1c1", 4) == 0) && ((board->castlingRights & CHECK_WHITE_CASTLE_QUEENSIDE) == 0x4)) {
+						move->piece = WHITE_KING;
+						move->startLocation = 4;
+						move->endLocation = 2;
+						move->capturedPiece = WHITE_CASTLE_QUEENSIDE;
+					}
+					else if ((strncmp(xboard_string, "e8c8", 4) == 0) && ((board->castlingRights & CHECK_BLACK_CASTLE_QUEENSIDE) == 0x1)) {
+						move->piece = BLACK_KING;
+						move->startLocation = 60;
+						move->endLocation = 58;
+						move->capturedPiece = BLACK_CASTLE_QUEENSIDE;
+					}
 
-				/* Might Need to check if Move is VALID */
+					else if ((strncmp(xboard_string, "e1g1", 4) == 0) && ((board->castlingRights & CHECK_WHITE_CASTLE_KINGSIDE) == 0x8)) {
+						move->piece = WHITE_KING;
+						move->startLocation = 4;
+						move->endLocation = 6;
+						move->capturedPiece = WHITE_CASTLE_KINGSIDE;
 
-				// updating new space (endPosition)
-				board->boardSpaces[endPosition[1]][endPosition[0]].isOccupied = IS_OCCUPIED; // space is now Occupied
-				board->boardSpaces[endPosition[1]][endPosition[0]].pieceType = board->boardSpaces[startPosition[1]][startPosition[0]].pieceType; // new space has startPosition pieceType
+					}
 
-																																				 // updating old space (startPosition)
-				board->boardSpaces[startPosition[1]][startPosition[0]].isOccupied = NOT_OCCUPIED; // space now unOccupied 
-				board->boardSpaces[startPosition[1]][startPosition[0]].pieceType = EMPTY;		// space EMPTY
-
-				board->turn = !(board->turn); //switch turn
-											  //printBoard(board);
-
+					else if ((strncmp(xboard_string, "e8g8", 4) == 0) && ((board->castlingRights & CHECK_BLACK_CASTLE_KINGSIDE) == 0x2)) {
+						move->piece = BLACK_KING;
+						move->startLocation = 60;
+						move->endLocation = 62;
+						move->capturedPiece = BLACK_CASTLE_KINGSIDE;
+					}
+				}// end castling
 			} // normal move
 
 			else //possibly castling or promotion...etc.
@@ -220,48 +200,64 @@ void xboard(Board *board)
 				{
 					/*Check if valid move*/
 					//updating new space
-					board->boardSpaces[endPosition[1]][endPosition[0]].isOccupied = IS_OCCUPIED; // space is now Occupied
-																								 // set pawn pieceType to new promotion pieceType
+					
 					switch (xboard_string[4]) {
-					case 'q': board->boardSpaces[endPosition[1]][endPosition[0]].pieceType = QUEEN;
-					case 'r': board->boardSpaces[endPosition[1]][endPosition[0]].pieceType = ROOK;
-					case 'n': board->boardSpaces[endPosition[1]][endPosition[0]].pieceType = KNIGHT;
-					case 'b': board->boardSpaces[endPosition[1]][endPosition[0]].pieceType = BISHOP;
-					}
+					case 'q': if (startPosition[0] == endPosition[0]) {
+								move->startLocation = board->boardSpaces[startPosition[1]][startPosition[0]].boardposition;
+								move->endLocation = board->boardSpaces[endPosition[1]][endPosition[0]].boardposition;
+								move->piece = ((board->turn == WHITE_TURN) ? WHITE_PAWN : BLACK_PAWN);
+								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_QUEEN_NO_CAPTURE : BLACK_PROMOTE_QUEEN_NO_CAPTURE);
+							  }
+							  else {} //TODO: ugly shit for captured pieces here:
+							  break;
+								
 
-					// updating old space (startPosition)
-					board->boardSpaces[startPosition[1]][startPosition[0]].isOccupied = NOT_OCCUPIED; // space now unOccupied 
-					board->boardSpaces[startPosition[1]][startPosition[0]].pieceType = EMPTY;		// space EMPTY
 
-					board->turn = !(board->turn); //switch turn
 
+						
+					case 'r': if (startPosition[0] == endPosition[0]) {
+								move->startLocation = board->boardSpaces[startPosition[1]][startPosition[0]].boardposition;
+								move->endLocation = board->boardSpaces[endPosition[1]][endPosition[0]].boardposition;
+								move->piece = ((board->turn == WHITE_TURN) ? WHITE_PAWN : BLACK_PAWN);
+								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_ROOK_NO_CAPTURE : BLACK_PROMOTE_ROOK_NO_CAPTURE);
+							  }
+							  else {} //ugly shit for captured pieces here:
+							  break;
+
+					case 'n': if (startPosition[0] == endPosition[0]) {
+								move->startLocation = board->boardSpaces[startPosition[1]][startPosition[0]].boardposition;
+								move->endLocation = board->boardSpaces[endPosition[1]][endPosition[0]].boardposition;
+								move->piece = ((board->turn == WHITE_TURN) ? WHITE_PAWN : BLACK_PAWN);
+								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_KNIGHT_NO_CAPTURE : BLACK_PROMOTE_KNIGHT_NO_CAPTURE);
+							  } // end if
+							  else {} //ugly shit for captured pieces here:
+							  break;
+
+					case 'b': if (startPosition[0] == endPosition[0]) {
+								move->startLocation = board->boardSpaces[startPosition[1]][startPosition[0]].boardposition;
+								move->endLocation = board->boardSpaces[endPosition[1]][endPosition[0]].boardposition;
+								move->piece = ((board->turn == WHITE_TURN) ? WHITE_PAWN : BLACK_PAWN);
+								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_BISHOP_NO_CAPTURE : BLACK_PROMOTE_BISHOP_NO_CAPTURE);
+							}//end if
+							  else {} //ugly shit for captured pieces here:
+							  break;
+					}//end switch
 				} // pawn promotion
 
 				  // *** need to check en passant moves ***
 
 				  //castling e1g1, e1c1, e8g8, e8c8
 				  // *** need to check castling rights ***
-				if ((strlen(xboard_string) == 4) &&
-					(((strncmp(xboard_string, 'e1', 2) == 0) && (board->boardSpaces[xboard_string[1]][xboard_string[0]].pieceType == KING))
-						|| (((strncmp(xboard_string, 'e8', 2) == 0) && (board->boardSpaces[xboard_string[1]][xboard_string[0]].pieceType == KING)))))
-				{
-					if ((strncmp(xboard_string, 'e1c1', 4) == 0) || (strncmp(xboard_string, 'e8c8', 4) == 0))
-					{
-						board->boardSpaces[startPosition[1]][startPosition[0] - 2].pieceType = KING;
-						board->boardSpaces[endPosition[1]][endPosition[0] + 1].pieceType = ROOK;
-					}
-
-					else if ((strncmp(xboard_string, 'e1g1', 4) == 0) || (strncmp(xboard_string, 'e8g8', 4) == 0))
-					{
-						board->boardSpaces[startPosition[1]][startPosition[0] + 2].pieceType = KING;
-						board->boardSpaces[endPosition[1]][endPosition[0] - 1].pieceType = ROOK;
-					}
-
-					board->turn = !(board->turn); // switch turn
-				} // castling
-
-
+				
 			} // usermove != normal move
+
+			xMove_flag = 1; // done receiving move
+
 		} // usermove check
+		  // update color spaces
+		//updateColorSpaces(board, temp, move, 0);
+		//update_zobrist(temp, zobrist);
 	} // if (read == OK)
+
+	xboard_flag = 1; // xboard is done
 } //xboard

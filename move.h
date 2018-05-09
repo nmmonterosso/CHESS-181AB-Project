@@ -10,6 +10,7 @@ void updateColorSpaces(Board *board, MoveList move, Move *movespace, int undo);
 void updateEPSquare(Board *board, MoveList move);
 void updatePrevEPSquare(Board *board, MoveList prevmove);
 void updateKingCoordinates(Board *board, char piece, int i, int j);
+void clearMoveList(MoveList *movelist);
 
 void demoteWhitePiece(Board *board, MoveList move);
 void demoteBlackPiece(Board *board, MoveList move);

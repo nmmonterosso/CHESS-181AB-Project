@@ -188,9 +188,9 @@ void resetDebugCounters(Board *board)
 
 
 void clearMoveTree(MoveTree * movetree)
-{	
-	for (int i = 0; i < MAXDEPTH; i++) 
-		clearMoveGen(&movetree->MoveTreeNode[i]);	
+{
+	for (int i = 0; i < MAXDEPTH; i++)
+		clearMoveGen(&movetree->MoveTreeNode[i]);
 }
 
 void clearMoveGen(MoveGen * movegen)
@@ -198,8 +198,8 @@ void clearMoveGen(MoveGen * movegen)
 	for (int i = 0; i < 80; i++) {
 
 		movegen->Moves[i].startLocation = -1;
-		movegen->Moves[i].endLocation	= -1;
-		movegen->Moves[i].piece			= -1;
+		movegen->Moves[i].endLocation = -1;
+		movegen->Moves[i].piece = -1;
 		movegen->Moves[i].capturedPiece = -1;
 	}//end for
 	movegen->count = 0;
@@ -251,10 +251,10 @@ void setBoard(Board * board, Move *move, char command[])
 {
 	char  *token = (char *)malloc(sizeof(char *));
 	int i = 0;
-	printf("Splitting %s into tokens\n", command);
+	//printf("Splitting %s into tokens\n", command);
 	token = (char *)strtok(command, "/");
 	while (token != NULL) {
-		printf("Token [%d] = [%s]\n", i, token);
+		//printf("Token [%d] = [%s]\n", i, token);
 		if (i > 7) { //BOARD RIGHTS
 			if (i == 9) {
 				if (token[0] == '-')
@@ -277,8 +277,8 @@ void setBoard(Board * board, Move *move, char command[])
 					j++;
 				}//end else, setting piece since no whitespace				
 			}//end for
-			if (i >= 6) 				
-				token = strtok(NULL, " ");			
+			if (i >= 6)
+				token = strtok(NULL, " ");
 			else
 				token = strtok(NULL, "/");
 		}//end else
@@ -323,15 +323,15 @@ void printBoard(Board *board) {
 }//printBoard();
 
 
-//HASH TABLE FUNCTIONS:
+ //HASH TABLE FUNCTIONS:
 
  //Summary: Creates new hash table item index:
 static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, MoveList move) {
 	ht_item* i = malloc(sizeof(ht_item));
-	i->zobrist	= zobrist;
-	i->depth	= depth;
-	i->flag		= flag;
-	i->eval		= eval;	
+	i->zobrist = zobrist;
+	i->depth = depth;
+	i->flag = flag;
+	i->eval = eval;
 	setMove(&i->move, move);
 	return i;
 } //ht_new_item
@@ -340,22 +340,22 @@ static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int fla
 ht_hash_table* ht_new() {
 	ht_hash_table* ht = (ht_hash_table *)malloc(sizeof(ht_hash_table));
 
-	ht->size = 16777216; //2^24 ~16.8 Million
+	ht->size = 2097152; //2^21 ~2 million 
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
-	for (int i = 0; i < ht->size; i++) 		
+	for (int i = 0; i < ht->size; i++)
 		ht->items[i] = (ht_item*)malloc(sizeof(ht_item));
-	
+
 	return ht;
 }//ht_new
 
  //Summary: Deletes item from hash table:
 static void ht_del_item(ht_item* i) {
-	/*free(i.zobrist);
-	free(i.depth);
-	free(i.flag);
-	free(i.eval);	
-	free(i.move);*/
+	free(i->zobrist);
+	free(i->depth);
+	free(i->flag);
+	free(i->eval);
+	free(i->move);
 	free(i);
 }//ht_del_item
 
@@ -379,26 +379,27 @@ void setMove(MoveList *dest, MoveList source) {
 }//setMove
 
 
-//Summary: Checks if the item is inside the hash table and returns the prune value
-//associated with it
+ //Summary: Checks if the item is inside the hash table and returns the prune value
+ //associated with it
 Prunes ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth)
 {
 	Prunes prunes;
 	ht_item *item = get_ht_item(ht, zobrist);
-	if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
-		prunes.boardVal = item->eval;
-		prunes.pruneMove = item->move;
-		hitflag = 1;
-	} // if hit
-	else {
-		prunes.boardVal = 0;
-		prunes.pruneMove.piece = -1;
-		prunes.pruneMove.startLocation = -1;
-		prunes.pruneMove.endLocation = -1;
-		prunes.pruneMove.capturedPiece = -1;
-		hitflag = 0;
-	}
-	
+	if (item) {
+		if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
+			prunes.boardVal = item->eval;
+			prunes.pruneMove = item->move;
+			hitflag = 1;
+		} // if hit
+		else {
+			prunes.boardVal = 0;
+			prunes.pruneMove.piece = -1;
+			prunes.pruneMove.startLocation = -1;
+			prunes.pruneMove.endLocation = -1;
+			prunes.pruneMove.capturedPiece = -1;
+			hitflag = 0;
+		}
+	}//end if:
 	return prunes;
 } // ht_read()
 
@@ -422,20 +423,17 @@ void ht_write(ht_hash_table * ht, volatile unsigned long long * zobrist, int dep
 
 
 
-ht_item * get_ht_item(ht_hash_table * ht, volatile unsigned long long * zobrist){
-
+ht_item * get_ht_item(ht_hash_table * ht, volatile unsigned long long * zobrist) {
 	return ht->items[*zobrist % ht->size];
 }// get_item
 
 
-
-
-//Returns 0 on false, 1 on true:
+ //Returns 0 on false, 1 on true:
 int isInTable(ht_item * item, volatile unsigned long long * zobrist, int depth)
 {
 	if ((item->zobrist == *zobrist) && (item->depth >= depth))
 		return 1;
-	else	
+	else
 		return 0;
 }
 //ht_replace_item
@@ -446,18 +444,18 @@ void init_zobrist() {
 	for (int i = 0; i < 64; i++) {
 		for (int j = 0; j < 13; j++) {
 			randTable[i][j] = ((unsigned long long)RAND() << 48) ^
-							  ((unsigned long long)RAND() << 35) ^
-							  ((unsigned long long)RAND() << 22) ^
-							  ((unsigned long long)RAND() << 9)  ^
-							  ((unsigned long long)RAND() >> 4);
-		}//end for j
-	}//end for i
-	randTurn =  ((unsigned long long)RAND() << 48) ^
 				((unsigned long long)RAND() << 35) ^
 				((unsigned long long)RAND() << 22) ^
 				((unsigned long long)RAND() << 9) ^
 				((unsigned long long)RAND() >> 4);
-	
+		}//end for j
+	}//end for i
+	randTurn = ((unsigned long long)RAND() << 48) ^
+		((unsigned long long)RAND() << 35) ^
+		((unsigned long long)RAND() << 22) ^
+		((unsigned long long)RAND() << 9) ^
+		((unsigned long long)RAND() >> 4);
+
 }// init_zobrist()
 
 void set_zobrist_value(Board *board, volatile unsigned long long *zobrist) {
@@ -484,50 +482,50 @@ void set_zobrist_value(Board *board, volatile unsigned long long *zobrist) {
 } //set_zobrist_value
 
 
-//Summary: Updates on makemove and unmake move regardless of 
+  //Summary: Updates on makemove and unmake move regardless of 
 void update_zobrist(MoveList move, volatile unsigned long long *zobrist) {
-	
+
 	switch (move.piece) {
 	case(WHITE_PAWN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_PAWN]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_PAWN]); 
-						break;
-	case(WHITE_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KNIGHT]); 
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_KNIGHT]); 
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_PAWN]);
+		break;
+	case(WHITE_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KNIGHT]);
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_KNIGHT]);
+		break;
 	case(WHITE_BISHOP):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_BISHOP]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_BISHOP]); 
-						break;
-	case(WHITE_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_ROOK]);	
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_ROOK]); 
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_BISHOP]);
+		break;
+	case(WHITE_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_ROOK]);
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_ROOK]);
+		break;
 	case(WHITE_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_QUEEN]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_QUEEN]); 
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_QUEEN]);
+		break;
 	case(WHITE_KING):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_WHITE_KING]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_KING]); 
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_KING]);
+		break;
 	case(BLACK_PAWN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_PAWN]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_PAWN]); 
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_PAWN]);
+		break;
 	case(BLACK_KNIGHT):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_KNIGHT]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KNIGHT]); 
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KNIGHT]);
+		break;
 	case(BLACK_BISHOP):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_BISHOP]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_BISHOP]); 
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_BISHOP]);
+		break;
 	case(BLACK_ROOK):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_ROOK]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_ROOK]); 
-						break;
-	case(BLACK_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_QUEEN]);	
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]); 
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_ROOK]);
+		break;
+	case(BLACK_QUEEN):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_QUEEN]);
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_QUEEN]);
+		break;
 	case(BLACK_KING):	*zobrist = (*zobrist ^ randTable[move.startLocation][HASH_BLACK_KING]);
-						*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KING]);
-						break;
+		*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_BLACK_KING]);
+		break;
 	default:			fprintf(stderr, "ERROR in update_zobrist:\n");		break; //should not reach this
 	}//end switch
 
-	//normal capture:
+	 //normal capture:
 	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece >= 0) && (move.capturedPiece <= 13)) {
 		switch (move.capturedPiece) {
 		case(WHITE_PAWN):	*zobrist = (*zobrist ^ randTable[move.endLocation][HASH_WHITE_PAWN]);	break;
@@ -545,11 +543,11 @@ void update_zobrist(MoveList move, volatile unsigned long long *zobrist) {
 		default:			fprintf(stderr, "ERROR in update_zobrist:\n");		break; //should not reach this
 		}//end switch
 	}// end if 
-	//Castling: XOR ROOKS:
+	 //Castling: XOR ROOKS:
 	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece >= 82) && (move.capturedPiece <= 85))
-		update_zobrist_castling(move, zobrist);	
+		update_zobrist_castling(move, zobrist);
 	// If Promotion:
-	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece >= 32 && (move.capturedPiece <= 79))) 
+	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece >= 32 && (move.capturedPiece <= 79)))
 		update_zobrist_promotion(move, zobrist);
 
 	//update_zobrist_turn:
@@ -560,27 +558,27 @@ void update_zobrist(MoveList move, volatile unsigned long long *zobrist) {
 void update_zobrist_castling(MoveList move, volatile unsigned long long *zobrist) {
 	switch (move.capturedPiece) {
 	case(WHITE_CASTLE_KINGSIDE): *zobrist = (*zobrist ^ randTable[7][HASH_WHITE_ROOK]);
-								 *zobrist = (*zobrist ^ randTable[5][HASH_WHITE_ROOK]);
-							     break;
+		*zobrist = (*zobrist ^ randTable[5][HASH_WHITE_ROOK]);
+		break;
 
 	case(WHITE_CASTLE_QUEENSIDE): *zobrist = (*zobrist ^ randTable[0][HASH_WHITE_ROOK]);
-								  *zobrist = (*zobrist ^ randTable[3][HASH_WHITE_ROOK]);
-								  break;
+		*zobrist = (*zobrist ^ randTable[3][HASH_WHITE_ROOK]);
+		break;
 
 	case(BLACK_CASTLE_KINGSIDE): *zobrist = (*zobrist ^ randTable[63][HASH_BLACK_ROOK]);
-								 *zobrist = (*zobrist ^ randTable[61][HASH_BLACK_ROOK]);
-								 break;
+		*zobrist = (*zobrist ^ randTable[61][HASH_BLACK_ROOK]);
+		break;
 
 	case(BLACK_CASTLE_QUEENSIDE): *zobrist = (*zobrist ^ randTable[56][HASH_BLACK_ROOK]);
-								  *zobrist = (*zobrist ^ randTable[59][HASH_BLACK_ROOK]);
-								  break;
+		*zobrist = (*zobrist ^ randTable[59][HASH_BLACK_ROOK]);
+		break;
 	}//end switch
 
 }//update_zobrist_castling()
 
 
 void update_zobrist_promotion(MoveList move, volatile unsigned long long *zobrist) {
-	
+
 	//HASH IN PROMOTED PIECE
 	*zobrist = (*zobrist ^ randTable[move.endLocation][(((move.endLocation / 8) == 7) ? HASH_WHITE_PAWN : HASH_BLACK_PAWN)]);
 	if (((move.capturedPiece >= 32) && (move.capturedPiece <= 37)) || ((move.capturedPiece >= 56) && (move.capturedPiece <= 61)))

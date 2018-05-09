@@ -15,14 +15,14 @@ This function will be multiple times in a serach tree funciton
 // Direct comments on the table should be read bottom to top
 // Pawns are encourgaed to press forward and control the center. Pawn structure will be implemented later
 char pawnPlaceTable[8][8] = {
-{  0,  0,  0,  0,  0,  0,  0,  0 },
+{ 0,  0,  0,  0,  0,  0,  0,  0 },
 { 50, 50, 50, 50, 50, 50, 50, 50 }, // Promoting pawns is good and you should feel good
 { 10, 10, 20, 30, 30, 20, 10, 10 },
-{  5,  5, 10, 25, 25, 10,  5,  5 },
-{  0,  0,  0, 20, 20,  0,  0,  0 },
-{  5, -5,-10,  0,  0,-10, -5,  5 },
-{  5, 10, 10,-20,-20, 10, 10,  5 },
-{  0,  0,  0,  0,  0,  0,  0,  0 }  // Panws don't exist down here
+{ 5,  5, 10, 25, 25, 10,  5,  5 },
+{ 0,  0,  0, 20, 20,  0,  0,  0 },
+{ 5, -5,-10,  0,  0,-10, -5,  5 },
+{ 5, 10, 10,-20,-20, 10, 10,  5 },
+{ 0,  0,  0,  0,  0,  0,  0,  0 }  // Panws don't exist down here
 };
 
 // Knights are encouraged to control the center and stay away from corners and edges, but are less harshly penalized for advancing to the other side
@@ -39,7 +39,7 @@ char knightPlaceTable[8][8] = {
 
 // Bishops are also encoruaged to control the center and stay away from corners and edges
 char bishopPlaceTable[8][8] = {
-{ -20,-10,-10,-10,-10,-10,-10,-20 },
+	{ -20,-10,-10,-10,-10,-10,-10,-20 },
 { -10,  0,  0,  0,  0,  0,  0,-10 },
 { -10,  0,  5, 10, 10,  5,  0,-10 },
 { -10,  5,  5, 10, 10,  5,  5,-10 },
@@ -51,14 +51,14 @@ char bishopPlaceTable[8][8] = {
 
 // Rooks should stay put if it is still possible to castlize, and should remain on the center files
 char rookPlaceTable[8][8] = {
-{  0,  0,  0,  0,  0,  0,  0,  0 },
-{  5, 10, 10, 10, 10, 10, 10,  5 }, // Congrats on advancing, +5 (except on the edges. Edges are bad)
+	{ 0,  0,  0,  0,  0,  0,  0,  0 },
+{ 5, 10, 10, 10, 10, 10, 10,  5 }, // Congrats on advancing, +5 (except on the edges. Edges are bad)
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 { -5,  0,  0,  0,  0,  0,  0, -5 },
-{  0,  0,  0,  5,  5,  0,  0,  0 }  // Starting corners are good. Castling moves the rook to an equally favorable spot
+{ 0,  0,  0,  5,  5,  0,  0,  0 }  // Starting corners are good. Castling moves the rook to an equally favorable spot
 };
 
 // Queens act similarly to rooks, with a litle bonus here and there thanks to their extra mobility
@@ -66,8 +66,8 @@ char queenPlaceTable[8][8] = {
 { -20, -10, -10, -5, -5, -10, -10, -20 }, // Corners aren't as bad for Queens, but are still bad
 { -10,   0,   0,  0,  0,   0,   0, -10 }, // Congrats on advancing, you get nothing
 { -10,   0,   5,  5,  5,   5,   0, -10 }, // Edges aren't as bad either. In fact they may be good in some cases
-{  -5,   0,   5,  5,  5,   5,   0,  -5 },
-{   0,   0,   5,  5,  5,   5,   0,  -5 }, // That sweet sweet center control
+{ -5,   0,   5,  5,  5,   5,   0,  -5 },
+{ 0,   0,   5,  5,  5,   5,   0,  -5 }, // That sweet sweet center control
 { -10,   5,   5,  5,  5,   5,   0, -10 },
 { -10,   0,   5,  0,  0,   0,   0, -10 },
 { -20, -10, -10, -5, -5, -10, -10, -20 }
@@ -75,19 +75,19 @@ char queenPlaceTable[8][8] = {
 
 // Kings should hide in their corners until the endgame, then they should head toward the center
 char kingPlaceTable[8][8] = {
-{ -30,-40,-40,-50,-50,-40,-40,-30 }, // How would you even get this far?
+	{ -30,-40,-40,-50,-50,-40,-40,-30 }, // How would you even get this far?
 { -30,-40,-40,-50,-50,-40,-40,-30 }, // Please stop
 { -30,-40,-40,-50,-50,-40,-40,-30, }, // WHY?
 { -30,-40,-40,-50,-50,-40,-40,-30, }, // No
 { -20,-30,-30,-40,-40,-30,-30,-20, }, // No
 { -10,-20,-20,-20,-20,-20,-20,-10, }, // Don't you dare
-{  20, 20,  0,  0,  0,  0, 20, 20, }, // Could be better
-{  20, 30, 10,  0,  0, 10, 30, 20 }  // Safe
+{ 20, 20,  0,  0,  0,  0, 20, 20, }, // Could be better
+{ 20, 30, 10,  0,  0, 10, 30, 20 }  // Safe
 };
 
 // For the endgame, kings should move towards the center
 char kingPlaceTableEnd[8][8] = {
-{ -50,-40,-30,-20,-20,-30,-40,-50, }, // Bad
+	{ -50,-40,-30,-20,-20,-30,-40,-50, }, // Bad
 { -30,-20,-10,  0,  0,-10,-20,-30, }, // Wait
 { -30,-10, 20, 30, 30, 20,-10,-30, }, // Okay
 { -30,-10, 30, 40, 40, 30,-10,-30, }, // Nice
@@ -122,7 +122,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
  // General Variable Declarations
 	short int boardVal = 0; // Value of current board state
 	char i, j, x, y; // Indexers: x = file, y = rank, j = whiteSPaces/blackSpaces index
-	// char cal, car; // Values in the corners of the rook placement table. Depends on castling rights. We'll use these later
+					 // char cal, car; // Values in the corners of the rook placement table. Depends on castling rights. We'll use these later
 	int end = 0; //initialize flag for end of whiteSpaces/blackSpaces
 	for (j = 0; j < 16; j++)
 	{
@@ -130,10 +130,10 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		y = move->whiteSpaces[j][0] / 8; // Get the piece's file index
 		x = move->whiteSpaces[j][0] % 8; // Get the piece's rank index
 
-		/*printf("White Space Y == %d\n", y);
-		printf("White Space X == %d\n", x);*/
+										 /*printf("White Space Y == %d\n", y);
+										 printf("White Space X == %d\n", x);*/
 
-		// Condition on piece's type, and add its material value and placeTable value to boardVal
+										 // Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->whiteSpaces[j][1])
 		{
 		case(WHITE_KING):	boardVal = boardVal + 20000 + kingPlaceTable[7 - y][x];			break;
@@ -158,10 +158,10 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		y = move->blackSpaces[j][0] / 8; // Get the piece's file index
 		x = move->blackSpaces[j][0] % 8; // Get the piece's rank index
 
-		/*printf("Black Space Y == %d\n", y);
-		printf("Black Space X == %d\n", x);*/
+										 /*printf("Black Space Y == %d\n", y);
+										 printf("Black Space X == %d\n", x);*/
 
-		// Condition on piece's type, and add its material value and placeTable value to boardVal
+										 // Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->blackSpaces[j][1])
 		{
 		case(BLACK_PAWN):	boardVal = boardVal - 100 - pawnPlaceTable[y][7 - x];	break;

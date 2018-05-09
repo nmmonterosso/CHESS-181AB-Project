@@ -70,7 +70,7 @@ typedef struct {
 	unsigned long long zobrist;
 	int depth;
 	int flag; //ALPHA PRUNING / BETA PRUNING:
-	int eval; 
+	int eval;
 	MoveList move; //BEST MOVE: 
 }ht_item;
 
@@ -102,8 +102,8 @@ void ht_del_hash_table(ht_hash_table* ht);
 void setMove(MoveList *dest, MoveList source);
 
 //Hash Table Functions:
-Prunes ht_read(ht_hash_table * ht,  volatile unsigned long long *zobrist, int depth);
-void ht_write(ht_hash_table *ht,  volatile unsigned long long *zobrist, int depth, int flag, int eval, MoveList move);
+Prunes ht_read(ht_hash_table * ht, volatile unsigned long long *zobrist, int depth);
+void ht_write(ht_hash_table *ht, volatile unsigned long long *zobrist, int depth, int flag, int eval, MoveList move);
 ht_item* get_ht_item(ht_hash_table* ht, volatile unsigned long long *zobrist);
 int isInTable(ht_item *item, volatile unsigned long long *zobrist, int depth);
 //Hash Table Zobrist Functions:

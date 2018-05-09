@@ -28,10 +28,10 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 
 	moveHistory->Moves[moveHistory->count] = move; //Assigns the move to the move history
 	moveHistory->count++;							//Appends move history
-													
-	//TODO: CASTLING:
+
+													//TODO: CASTLING:
 	if ((move.capturedPiece >= 82) && (move.capturedPiece <= 85)) {
-		switch (move.capturedPiece){
+		switch (move.capturedPiece) {
 		case (WHITE_CASTLE_KINGSIDE):	whiteCastleKingSide(board);		break;
 		case (WHITE_CASTLE_QUEENSIDE):	whiteCastleQueenSide(board);	break;
 		case (BLACK_CASTLE_KINGSIDE):	blackCastleKingSide(board);		break;
@@ -40,8 +40,8 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 		}//end switch
 		board->PerftCastleCounter++;
 	}//if castling
-		
-	//END CASTLING
+
+	 //END CASTLING
 	if ((move.capturedPiece >= 32) && (move.capturedPiece <= 79)) {
 		promotePawn(board, move);
 		board->PerftPromotionCounter++;
@@ -61,13 +61,13 @@ void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace
 			board->boardSpaces[k + 1][l].pieceType = EMPTY;
 		}//end if BLACK_TURN
 	}//end if	
-	
+
 	update_zobrist(move, zobrist);
 	updateEPSquare(board, move);
 	updateColorSpaces(board, move, moveSpace, 0);
 	board->turn = ((board->turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
 	if ((move.capturedPiece != NO_CAPTURE) && (move.capturedPiece != 32) && (move.capturedPiece != 38) && (move.capturedPiece != 44) &&
-		(move.capturedPiece != 50) && (move.capturedPiece != 56) && (move.capturedPiece != 62) && (move.capturedPiece != 68) && 
+		(move.capturedPiece != 50) && (move.capturedPiece != 56) && (move.capturedPiece != 62) && (move.capturedPiece != 68) &&
 		(move.capturedPiece != 74) && (move.capturedPiece != 82) && (move.capturedPiece != 83) && (move.capturedPiece != 84) && (move.capturedPiece != 85))//update to make sure castling and capture doesn't increment capture counter
 		board->PerftCaptureCounter++;
 	if ((move.piece == WHITE_KING) || (move.piece == BLACK_KING))
@@ -96,19 +96,19 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 				board->boardSpaces[4][j].isOccupied = IS_OCCUPIED;
 				board->boardSpaces[4][j].pieceType = BLACK_PAWN;
 				board->boardSpaces[5][j].isOccupied = NOT_OCCUPIED;
-				board->boardSpaces[5][j].pieceType = EMPTY;				
+				board->boardSpaces[5][j].pieceType = EMPTY;
 			}//end if white piece moved
 			else if (moveHistory->Moves[moveHistory->count - 1].piece == BLACK_PAWN) {
 				board->boardSpaces[3][j].isOccupied = IS_OCCUPIED;
 				board->boardSpaces[3][j].pieceType = WHITE_PAWN;
 				board->boardSpaces[2][j].isOccupied = NOT_OCCUPIED;
-				board->boardSpaces[2][j].pieceType = EMPTY;				
+				board->boardSpaces[2][j].pieceType = EMPTY;
 			}//end else if black pawn moved:	
 
 			board->boardSpaces[i][j].isOccupied = NOT_OCCUPIED;
-			board->boardSpaces[i][j].pieceType = EMPTY;			
+			board->boardSpaces[i][j].pieceType = EMPTY;
 		}// end if 
-		//IF CASTLING, UNDO CASTLING:
+		 //IF CASTLING, UNDO CASTLING:
 		else if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 82) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 85)) {
 			switch (moveHistory->Moves[moveHistory->count - 1].capturedPiece) {
 			case (WHITE_CASTLE_KINGSIDE):	unmakeWhiteCastleKingSide(board);	break;
@@ -122,9 +122,9 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 			board->boardSpaces[i][j].isOccupied = IS_OCCUPIED;
 			board->boardSpaces[i][j].pieceType = moveHistory->Moves[moveHistory->count - 1].capturedPiece;
 		}//else normal capture, no EP:
-		//END EP UNDO
+		 //END EP UNDO
 
-		//If promotion occurred, undo promotion:
+		 //If promotion occurred, undo promotion:
 		if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 32) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 79)) {
 			if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 32) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 55)) // WHITE PROMOTION
 				demoteWhitePiece(board, moveHistory->Moves[moveHistory->count - 1]);
@@ -132,8 +132,8 @@ void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace)
 			else if ((moveHistory->Moves[moveHistory->count - 1].capturedPiece >= 56) && (moveHistory->Moves[moveHistory->count - 1].capturedPiece <= 79)) //BLACK PROMOTION
 				demoteBlackPiece(board, moveHistory->Moves[moveHistory->count - 1]);
 		}//end undo promotion
-		
-		//TODO: UNDO CASTLING
+
+		 //TODO: UNDO CASTLING
 
 	}//end if Captured piece
 
@@ -433,6 +433,16 @@ void updateKingCoordinates(Board *board, char piece, int i, int j) {
 }//updateKingCoordiates
 
 
+void clearMoveList(MoveList * movelist)
+{
+	movelist->piece = -1;
+	movelist->startLocation = -1;
+	movelist->endLocation = -1;
+	movelist->capturedPiece = -1;
+}//clearMoveList
+
+
+
 
 
  //Summary: Checks if current move moved pawn, if it did then check if moved 2 places. then update the EP Square
@@ -520,7 +530,7 @@ void promotePawn(Board *board, MoveList move) {
 	}// end if black turn
 }//promotePawn
 
-//CASTLING
+ //CASTLING
 void whiteCastleKingSide(Board *board) {
 	//set pieces starting locations empty.
 	board->boardSpaces[0][4].isOccupied = NOT_OCCUPIED;
@@ -588,9 +598,9 @@ void blackCastleQueenSide(Board *board) {
 	//change castling rights
 	board->castlingRights -= (board->castlingRights & 0x3); //-(0011) -((3) |(2) |(1)) 
 }//blackCastleQueenSide
-//END CASTLING:
+ //END CASTLING:
 
-//START UNMAKE CASTLING:
+ //START UNMAKE CASTLING:
 void unmakeWhiteCastleKingSide(Board *board) {
 	//set pieces starting locations empty.
 	board->boardSpaces[0][6].isOccupied = NOT_OCCUPIED;
@@ -661,7 +671,7 @@ void unmakeBlackCastleQueenSide(Board *board) {
 	board->castlingRights += (board->castlingRights & 0x3); //-(0011) -((3) |(2) |(1)) 
 }//unmakeBlackCastleQueenSide
 
-//END UNMAKE CASTLING
+ //END UNMAKE CASTLING
 
 
  //Summary: Calculates each possible move a bishop can move to when given a starting space
@@ -849,7 +859,7 @@ void setMoves(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory) 
 				//move->blackMoves[y] = board->boardSpaces[i][j].boardposition;
 				y++;
 			}//end else
-			 
+
 		}//end for j
 	}//end for i	
 }
