@@ -51,7 +51,7 @@ char bishopPlaceTable[8][8] = {
 };
 
 // Rooks should stay put if it is still possible to castlize, and should remain on the center files
-char rookPlaceTable[8][8] = {
+/*char rookPlaceTable[8][8] = {
 { 0,  0,  0,  0,  0,  0,  0,  0 },
 { 5, 10, 10, 10, 10, 10, 10,  5 }, // Congrats on advancing, +5 (except on the edges. Edges are bad)
 { -5,  0,  0,  0,  0,  0,  0, -5 },
@@ -61,7 +61,7 @@ char rookPlaceTable[8][8] = {
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 {  0,  0,  0,  5,  5,  0,  0,  0 }  // Starting corners are good. Castling moves the rook to an equally favorable spot
 };
-
+*/
 /*
 // Queens act similarly to rooks, with a litle bonus here and there thanks to their extra mobility
 char queenPlaceTable[8][8] = {
@@ -96,9 +96,8 @@ char kingPlaceTableEnd[8][8] = {
 { -30,-10, 30, 40, 40, 30,-10,-30, }, // 4
 { -30,-10, 20, 30, 30, 20,-10,-30, }, // 5
 { -30,-30,  0,  0,  0,  0,-30,-30, }, // 6
-{ -50,-30,-30,-30,-30,-30,-30,-50  }   // 7
+{ -50,-30,-30,-30,-30,-30,-30,-50  }  // 7
 };
-
 
 // Function Declaration
 short int eval(Board *board, unsigned char turnCount, Move *move)
@@ -123,140 +122,122 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
  // Material Consideration. Loop through the pieces still on the board via whiteSpaces/blackSpaces, and assign values based on each piece and its position.
  // General Variable Declarations
 	short int boardVal = 0; // Value of current board state
-	char j, x, y; // Indexers: x = file, y = rank, j = whiteSPaces/blackSpaces index
-	int bishopCount = 0;				 // char cal, car; // Values in the corners of the rook placement table. Depends on castling rights. We'll use these later
-	int connectedPawnCount = 0;
+	short int materialVal = 0; // Material value of the current piece being examined
+	short int pawnStructVal = 0; // Value of the pawn structure for a player
+	char currSpace; // The current numeric space
+	char j, x, y; // Indexers: x = file, y = rank, j = whiteSPaces/blackSpaces index, i,p = pawn array index
+	short int ldBonus, lBonus, luBonus; // Flags marking if a pawn is left up, left down, or left adjacent
+	int bishopCount = 0;
+										// char cal, car; // Values in the corners of the rook placement table. Depends on castling rights. We'll use these later
 	int end = 0; //initialize flag for end of whiteSpaces/blackSpaces
+
+				 // White pieces consideration
 	for (j = 0; j < 16; j++)
 	{
-		// White pieces
-		y = move->whiteSpaces[j][0] / 8; // Get the piece's file index
-		x = move->whiteSpaces[j][0] % 8; // Get the piece's rank index
+		currSpace = move->whiteSpaces[j][0];
+		y = currSpace / 8; // Get the piece's file index
+		x = currSpace % 8; // Get the piece's rank index
 
-										 /*printf("White Space Y == %d\n", y);
-										 printf("White Space X == %d\n", x);*/
+		//printf("White Space Y == %d\n", y);
+		//printf("White Space X == %d\n", x);
 
-										 // Condition on piece's type, and add its material value and placeTable value to boardVal
+		// Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->whiteSpaces[j][1])
 		{
-		case(WHITE_KING):	boardVal = boardVal + 5000 + kingPlaceTable[7 - y][x];
+		case(WHITE_KING):	materialVal = kingPlaceTable[7 - y][x];
+							boardVal = boardVal + materialVal;
 							break;
-		case(WHITE_QUEEN):	boardVal = boardVal + 900;// +queenPlaceTable[7 - y][x]; NO QUEEN MOBILITY
-							if (!checkKingSafety(board, y, x)) //Check if queen is under attack, if queen under attack, take massive penalty
-								boardVal -= 900;								
+		case(WHITE_QUEEN):	materialVal = 900;
+							boardVal = boardVal + materialVal;
+							//if (checkKingSafety(board, y, x) == 0)
+							//	boardVal = boardVal - 1800; //queen penalty
+							break; //+queenPlaceTable[7 - y][x];	boardVal = boardVal + materialVal;	break;
+		case(WHITE_ROOK):	materialVal = 500;// +rookPlaceTable[7 - y][x];
+							boardVal = boardVal + materialVal;
 							break;
-		case(WHITE_ROOK):	boardVal = boardVal + 600 + rookPlaceTable[7 - y][x];
-							break;
-		case(WHITE_BISHOP):	boardVal = boardVal + 350 + bishopPlaceTable[7 - y][x];
-							bishopCount++; 
-							break;
-		case(WHITE_KNIGHT):	boardVal = boardVal + 325 + knightPlaceTable[7 - y][x];	
-							break;
-
-		case(WHITE_PAWN):	boardVal = boardVal + 100 + pawnPlaceTable[7 - y][x];
-							connectedPawnCount = checkConnectedPawns(board, y, x);
-							if (connectedPawnCount)
-								boardVal += 15 * checkConnectedPawns(board, y, x);
-							
-							break;
-		default:			end = 1;  break;
-		}
-		//printf("%d\n", boardVal);
-		if (end == 1)
-			break;
-	}
-	if (bishopCount >= 2)
-		boardVal += 50;
-
-	end = 0; //reset flag
-
-	for (j = 0; j < 16; j++)
-	{
-		// Black pieces
-		y = move->blackSpaces[j][0] / 8; // Get the piece's file index
-		x = move->blackSpaces[j][0] % 8; // Get the piece's rank index
-
-										 /*printf("Black Space Y == %d\n", y);
-										 printf("Black Space X == %d\n", x);*/
-
-										 // Condition on piece's type, and add its material value and placeTable value to boardVal
-		switch (move->blackSpaces[j][1])
-		{
-		case(BLACK_PAWN):	boardVal = boardVal - 100 - pawnPlaceTable[y][x];
-							connectedPawnCount = checkConnectedPawns(board, y, x);
-							if (connectedPawnCount)
-								boardVal -= 15 * connectedPawnCount;
-							
-							break;
-		case(BLACK_KNIGHT):	boardVal = boardVal - 325 - knightPlaceTable[y][x];	
-							break;
-		case(BLACK_BISHOP):	boardVal = boardVal - 350 - bishopPlaceTable[y][x];	
+		case(WHITE_BISHOP):	materialVal = 350 + bishopPlaceTable[7 - y][x];
+							boardVal = boardVal + materialVal;
 							bishopCount++;
 							break;
-		case(BLACK_ROOK):	boardVal = boardVal - 600 - rookPlaceTable[y][x];
+		case(WHITE_KNIGHT):	materialVal = 325 + knightPlaceTable[7 - y][x];
+							boardVal = boardVal + materialVal;
 							break;
-		case(BLACK_QUEEN):	boardVal = boardVal - 900;
-							if (!checkKingSafety(board, y, x))
-								boardVal += 900;
-							break; //- queenPlaceTable[y][7 - x];	NO QUEEN MOBILITY BONUS
-		case(BLACK_KING):	boardVal = boardVal - 5000 - kingPlaceTable[y][x];
+		case(WHITE_PAWN):	materialVal = 100 + pawnPlaceTable[7 - y][x];
+			// Check spaces to the left for pawns
+							ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == WHITE_PAWN)) ? 40 : 0;
+							lBonus = ((x > 0) & (board->boardSpaces[y][x - 1].isOccupied) & (board->boardSpaces[y][x - 1].pieceType == WHITE_PAWN)) ? 20 : 0;
+							luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == WHITE_PAWN)) ? 40 : 0;
+							// Determine pawn strcuture bonus
+							pawnStructVal = ldBonus + lBonus + luBonus;
+						//	printf("Pawn bonus %d\n", pawnStructVal);
+							boardVal = boardVal + materialVal + pawnStructVal;
 							break;
-		default:			end = 1; break;
+		default:	 break;
 		}
 
 		//printf("%d\n", boardVal);
-		if (end == 1)
-			break;
+		//if (end == 1)
+		//	break;
 	}
+	//end = 0; //reset flag
 	if (bishopCount >= 2)
-			boardVal -= 50;
-	//printf("%d\n", boardVal);
+		boardVal = boardVal + 50;
+	bishopCount = 0;
+			 // Black piece consideration
+	for (j = 0; j < 16; j++)
+	{
+		currSpace = move->blackSpaces[j][0];
+		y = currSpace / 8; // Get the piece's file index
+		x = currSpace % 8; // Get the piece's rank index
 
+		//printf("Black Space Y == %d\n", y);
+		//printf("Black Space X == %d\n", x);
+
+		// Condition on piece's type, and add its material value and placeTable value to boardVal
+		switch (move->blackSpaces[j][1])
+		{
+		case(BLACK_PAWN):
+			materialVal = 100 + pawnPlaceTable[y][7 - x];
+			// Check spaces to the left for pawns
+			ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == BLACK_PAWN)) ? 40 : 0;
+			lBonus = ((x > 0) & (board->boardSpaces[y][x - 1].isOccupied) & (board->boardSpaces[y][x - 1].pieceType == BLACK_PAWN)) ? 20 : 0;
+			luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == BLACK_PAWN)) ? 40 : 0;
+			// Determine pawn strcuture bonus
+			pawnStructVal = ldBonus + lBonus + luBonus;
+			//printf("Pawn bonus %d\n", pawnStructVal);
+			boardVal = boardVal - materialVal - pawnStructVal;
+			break;
+		case(BLACK_KNIGHT):	materialVal = 325 + knightPlaceTable[y][7 - x];
+							boardVal = boardVal - materialVal;
+							break;
+		case(BLACK_BISHOP):	materialVal = 350 + bishopPlaceTable[y][7 - x];
+							boardVal = boardVal - materialVal;
+							bishopCount++;
+							break;
+		case(BLACK_ROOK):	materialVal = 500;// +rookPlaceTable[y][7 - x];
+							boardVal = boardVal - materialVal;
+							break;
+		case(BLACK_QUEEN):	materialVal = 900;
+							boardVal = boardVal - materialVal;
+							//DANGEROUS CODE
+							//board->turn = !board->turn;
+							//if (checkKingSafety(board, y, x) == 0)
+							//	boardVal = boardVal + 1800; //unsafe queen penalty
+							//board->turn = !board->turn;
+							break;// +queenPlaceTable[y][7 - x];	boardVal = boardVal - materialVal;	break;
+		case(BLACK_KING):	materialVal = kingPlaceTable[y][7 - x];
+							boardVal = boardVal - materialVal;
+							break;
+		default:	break;// end = 1; break;
+		}
+
+		//printf("%d\n", boardVal);
+		//if (end == 1)
+		//	break;
+	}
+	//printf("%d\n", boardVal);
+	if (bishopCount >= 2)
+		boardVal = boardVal - 50;
 	//All done! Return the board value
 	return(boardVal);
-}
-
-int checkConnectedPawns(Board * board, int y, int x)
-{
-	int count = 0;
-	
-	if (board->boardSpaces[y][x].pieceType == WHITE_PAWN) {
-		if (x < 7 && y < 7) {
-			if (board->boardSpaces[y + 1][x + 1].pieceType == WHITE_PAWN)
-				count++;
-		}
-		if (x < 7 && y > 0) {
-			if (board->boardSpaces[y - 1][x + 1].pieceType == WHITE_PAWN)
-				count++;
-		}
-		if (x > 0 && y > 0) {
-			if (board->boardSpaces[y - 1][x - 1].pieceType == WHITE_PAWN)
-				count++;
-		}
-		if (x < 7 && y > 0) {
-			if (board->boardSpaces[y - 1][x + 1].pieceType == WHITE_PAWN)
-				count++;
-		}
-	}
-
-	else if (board->boardSpaces[y][x].pieceType == BLACK_PAWN) {
-		if (y < 7 && x < 7) {
-			if (board->boardSpaces[y + 1][x + 1].pieceType == BLACK_PAWN)
-				count++;
-		}
-		if (y > 0 && x < 7) {
-			if (board->boardSpaces[y - 1][x + 1].pieceType == BLACK_PAWN)
-				count++;
-		}
-		if (y > 0 && x > 0) {
-			if (board->boardSpaces[y - 1][x - 1].pieceType == BLACK_PAWN)
-				count++;
-		}
-		if (y > 0 && x < 7) {
-			if (board->boardSpaces[y - 1][x + 1].pieceType == BLACK_PAWN)
-				count++;
-		}
-	}
-	
-	return count;
 }

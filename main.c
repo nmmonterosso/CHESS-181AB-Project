@@ -12,6 +12,7 @@
 #include "move.h"
 #include "movegen.h"
 #include "xboard.h"
+#include "eval.h"
 #include <limits.h>
 //void makeBoard(space *board[8][8]);
 //MACROS IN SPACE.H
@@ -67,6 +68,7 @@ int main()
 	char position8[] = "k7/8/8/8/8/1n6/P7/7K w - - 0 10";
 	*/
 	char startingPosition[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
+	char debugPosition1[] = "rnb1Nb2/p2p1p1r/1pk3p1/3Bp1Bp/4P3/3P1N1P/PPP2PP1/R2QR1K1/ b - - 0 0";
 	
 	//END DEBUGGING POSITIONS//
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
@@ -77,7 +79,8 @@ int main()
 	setBoard(board, move, startingPosition);
 	init_zobrist();
 	set_zobrist_value(board, zobrist);
-
+	int evaluation = eval(board, board->turnCount, move);
+	printf("starting Eval = [%d]\n", evaluation);
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;
@@ -104,6 +107,8 @@ int main()
 				printf("MOVE SENT BY XBOARD->ENGINE\n");
 				printBoard(board);
 				//board->turn = !(board->turn); // no longer xBoard turn
+				evaluation = eval(board, board->turnCount, move);
+				printf("Eval from XBOARD->Engine = : [%d]\n", prunes.boardVal);
 				clearMoveGen(movegen);
 				clearMoveGen(movehistory);
 				MoveGenFunction(board, move, movegen);
@@ -151,7 +156,8 @@ int main()
 
 					printf("MOVE SENT BY ENGINE->XBOARD\n");
 					printBoard(board);
-
+					evaluation = eval(board, board->turnCount, move);
+					printf("Eval from engine->XBOARD = [%d]\n", prunes.boardVal);
 					resetDebugCounters(board);
 					resetPrunes(&prunes);	
 					resetPruneChoice(&blankMove);

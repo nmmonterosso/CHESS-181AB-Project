@@ -584,7 +584,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
 		//printBoard(board);
-		prunes.boardVal = eval(board, 10, move); //TODO: keep track of turn count
+		prunes.boardVal = eval(board, board->turnCount, move); //TODO: keep track of turn count
 		prunes.pruneMove = movehistory->Moves[0];
 		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.		
 		return prunes;
