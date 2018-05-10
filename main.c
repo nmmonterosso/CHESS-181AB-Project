@@ -21,6 +21,8 @@ unsigned long long randTable[64][13];
 unsigned long long randTurn;
 volatile unsigned long long *zobrist;
 volatile ht_hash_table *ht;
+MoveGen PrunePath;
+
 
 
 
@@ -107,10 +109,10 @@ int main()
 				MoveGenFunction(board, move, movegen);
 
 				prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, blankMove); //creates move tree based on all possible moves, calls board evaluation function, and makes move
-				//printf("Number of Hash Table hits = [%d]\n", board->hashtablehitcounter);
-				//printf("Number of Hash Table misses = [%d]\n", board->hashtablemisscounter);
+				printf("Number of Hash Table hits = [%d]\n", board->hashtablehitcounter);
+				printf("Number of Hash Table misses = [%d]\n", board->hashtablemisscounter);
 				makeMove(board, prunes.pruneMove, movehistory, move);
-				
+				board->turnCount++;
 				Addr_Conversion(prunes.pruneMove.startLocation, startLocation);
 				Addr_Conversion(prunes.pruneMove.endLocation, endLocation);
 				// cannot send move if pruneMove has not been iterated at least once
@@ -174,6 +176,7 @@ int main()
 			xboard(board, move, tempMove);
 			if (xboard_flag) {
 				makeMove(board, *tempMove, movehistory, move);
+				board->turnCount++;
 				clearMoveList(tempMove);
 			}
 		}

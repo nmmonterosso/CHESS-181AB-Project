@@ -6,6 +6,7 @@ void Addr_Conversion(char boardposition, int Board_Coordinates[2]);
 
 int checkKingSafety(Board *board, int i, int j);
 int checkKingDiagonal(Board *board, int row, int col);
+int checkKingKing(Board *board, int row, int col);
 int checkKingKnight(Board *board, int row, int col);
 int checkKingHorizontal(Board *board, int row, int col);
 int checkKingVertical(Board *board, int row, int col);
@@ -24,11 +25,13 @@ void MoveGenQueen(Board *board, Move *move, MoveGen *movegen, int count);
 void MoveGenKing(Board *board, Move *move, MoveGen *movegen, int count);
 void checkWhiteCastle(Board *board, MoveGen *movegen);
 void checkBlackCastle(Board *board, MoveGen *movegen);
-void undoBadNode(Board *board, MoveGen *movehistory, MoveList *move);
+void undoBadNode(Board *board, MoveGen *movehistory, Move *move);
 
 //Move Ordering
-void quickSortMoveGen(MoveGen *movegen, int frontPivot, int backPivot);
+void quickSortMoveGen(MoveGen *movegen, int frontPivot, int backPivot); // don't use this
 void swapMoves(MoveGen *movegen, int leftPivot, int rightPivot);
+void mergeSortMoveGen(MoveGen *movegen, int l, int r);
+void merge(MoveGen *movegen, int l, int m, int r);
 int getSortValue(MoveList *move);
 int partition(MoveGen *movegen, int frontPivot, int backPivot);
 int isIndexHigher(MoveList *move1, MoveList *move2);

@@ -9,6 +9,7 @@ This function will be multiple times in a serach tree funciton
 #include "board.h"
 #include "space.h"
 #include "eval.h"
+#include "movegen.h"
 
 // Placement Table Declarations and Initialization
 // These tables are from white's perspective, flip the indexing (8-i, 8-j) and the values (-value) for black's perspecitve
@@ -39,7 +40,7 @@ char knightPlaceTable[8][8] = {
 
 // Bishops are also encoruaged to control the center and stay away from corners and edges
 char bishopPlaceTable[8][8] = {
-	{ -20,-10,-10,-10,-10,-10,-10,-20 },
+{ -20,-10,-10,-10,-10,-10,-10,-20 },
 { -10,  0,  0,  0,  0,  0,  0,-10 },
 { -10,  0,  5, 10, 10,  5,  0,-10 },
 { -10,  5,  5, 10, 10,  5,  5,-10 },
@@ -51,50 +52,51 @@ char bishopPlaceTable[8][8] = {
 
 // Rooks should stay put if it is still possible to castlize, and should remain on the center files
 char rookPlaceTable[8][8] = {
-	{ 0,  0,  0,  0,  0,  0,  0,  0 },
+{ 0,  0,  0,  0,  0,  0,  0,  0 },
 { 5, 10, 10, 10, 10, 10, 10,  5 }, // Congrats on advancing, +5 (except on the edges. Edges are bad)
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 { -5,  0,  0,  0,  0,  0,  0, -5 },
-{ 0,  0,  0,  5,  5,  0,  0,  0 }  // Starting corners are good. Castling moves the rook to an equally favorable spot
+{  0,  0,  0,  5,  5,  0,  0,  0 }  // Starting corners are good. Castling moves the rook to an equally favorable spot
 };
 
+/*
 // Queens act similarly to rooks, with a litle bonus here and there thanks to their extra mobility
 char queenPlaceTable[8][8] = {
 { -20, -10, -10, -5, -5, -10, -10, -20 }, // Corners aren't as bad for Queens, but are still bad
 { -10,   0,   0,  0,  0,   0,   0, -10 }, // Congrats on advancing, you get nothing
 { -10,   0,   5,  5,  5,   5,   0, -10 }, // Edges aren't as bad either. In fact they may be good in some cases
-{ -5,   0,   5,  5,  5,   5,   0,  -5 },
-{ 0,   0,   5,  5,  5,   5,   0,  -5 }, // That sweet sweet center control
+{  -5,   0,   5,  5,  5,   5,   0,  -5 },
+{   0,   0,   5,  5,  5,   5,   0,  -5 }, // That sweet sweet center control
 { -10,   5,   5,  5,  5,   5,   0, -10 },
 { -10,   0,   5,  0,  0,   0,   0, -10 },
 { -20, -10, -10, -5, -5, -10, -10, -20 }
-};
+};*/
 
 // Kings should hide in their corners until the endgame, then they should head toward the center
 char kingPlaceTable[8][8] = {
-	{ -30,-40,-40,-50,-50,-40,-40,-30 }, // How would you even get this far?
-{ -30,-40,-40,-50,-50,-40,-40,-30 }, // Please stop
+{ -30,-40,-40,-50,-50,-40,-40,-30  }, // How would you even get this far?
+{ -30,-40,-40,-50,-50,-40,-40,-30  }, // Please stop
 { -30,-40,-40,-50,-50,-40,-40,-30, }, // WHY?
 { -30,-40,-40,-50,-50,-40,-40,-30, }, // No
 { -20,-30,-30,-40,-40,-30,-30,-20, }, // No
 { -10,-20,-20,-20,-20,-20,-20,-10, }, // Don't you dare
 { 20, 20,  0,  0,  0,  0, 20, 20, }, // Could be better
-{ 20, 30, 10,  0,  0, 10, 30, 20 }  // Safe
+{ 20, 30, 10,  0,  0, 10, 30, 20  }  // Safe
 };
 
 // For the endgame, kings should move towards the center
 char kingPlaceTableEnd[8][8] = {
-	{ -50,-40,-30,-20,-20,-30,-40,-50, }, // Bad
-{ -30,-20,-10,  0,  0,-10,-20,-30, }, // Wait
-{ -30,-10, 20, 30, 30, 20,-10,-30, }, // Okay
-{ -30,-10, 30, 40, 40, 30,-10,-30, }, // Nice
-{ -30,-10, 30, 40, 40, 30,-10,-30, }, // Nice
-{ -30,-10, 20, 30, 30, 20,-10,-30, }, // Getting warmer
-{ -30,-30,  0,  0,  0,  0,-30,-30, }, // No
-{ -50,-30,-30,-30,-30,-30,-30,-50 }  // No
+{ -50,-40,-30,-20,-20,-30,-40,-50, }, // 0
+{ -30,-20,-10,  0,  0,-10,-20,-30, }, // 1
+{ -30,-10, 20, 30, 30, 20,-10,-30, }, // 2
+{ -30,-10, 30, 40, 40, 30,-10,-30, }, // 3
+{ -30,-10, 30, 40, 40, 30,-10,-30, }, // 4
+{ -30,-10, 20, 30, 30, 20,-10,-30, }, // 5
+{ -30,-30,  0,  0,  0,  0,-30,-30, }, // 6
+{ -50,-30,-30,-30,-30,-30,-30,-50  }   // 7
 };
 
 
@@ -121,8 +123,9 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
  // Material Consideration. Loop through the pieces still on the board via whiteSpaces/blackSpaces, and assign values based on each piece and its position.
  // General Variable Declarations
 	short int boardVal = 0; // Value of current board state
-	char i, j, x, y; // Indexers: x = file, y = rank, j = whiteSPaces/blackSpaces index
-					 // char cal, car; // Values in the corners of the rook placement table. Depends on castling rights. We'll use these later
+	char j, x, y; // Indexers: x = file, y = rank, j = whiteSPaces/blackSpaces index
+	int bishopCount = 0;				 // char cal, car; // Values in the corners of the rook placement table. Depends on castling rights. We'll use these later
+	int connectedPawnCount = 0;
 	int end = 0; //initialize flag for end of whiteSpaces/blackSpaces
 	for (j = 0; j < 16; j++)
 	{
@@ -136,19 +139,34 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 										 // Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->whiteSpaces[j][1])
 		{
-		case(WHITE_KING):	boardVal = boardVal + 20000 + kingPlaceTable[7 - y][x];			break;
-		case(WHITE_QUEEN):	boardVal = boardVal + 900 + queenPlaceTable[7 - y][x];	break;
-		case(WHITE_ROOK):	boardVal = boardVal + 500 + rookPlaceTable[7 - y][x];	break;
-		case(WHITE_BISHOP):	boardVal = boardVal + 350 + bishopPlaceTable[7 - y][x];	break;
-		case(WHITE_KNIGHT):	boardVal = boardVal + 325 + knightPlaceTable[7 - y][x];	break;
-		case(WHITE_PAWN):	boardVal = boardVal + 100 + pawnPlaceTable[7 - y][x];	break;
+		case(WHITE_KING):	boardVal = boardVal + 5000 + kingPlaceTable[7 - y][x];
+							break;
+		case(WHITE_QUEEN):	boardVal = boardVal + 900;// +queenPlaceTable[7 - y][x]; NO QUEEN MOBILITY
+							if (!checkKingSafety(board, y, x)) //Check if queen is under attack, if queen under attack, take massive penalty
+								boardVal -= 900;								
+							break;
+		case(WHITE_ROOK):	boardVal = boardVal + 600 + rookPlaceTable[7 - y][x];
+							break;
+		case(WHITE_BISHOP):	boardVal = boardVal + 350 + bishopPlaceTable[7 - y][x];
+							bishopCount++; 
+							break;
+		case(WHITE_KNIGHT):	boardVal = boardVal + 325 + knightPlaceTable[7 - y][x];	
+							break;
+
+		case(WHITE_PAWN):	boardVal = boardVal + 100 + pawnPlaceTable[7 - y][x];
+							connectedPawnCount = checkConnectedPawns(board, y, x);
+							if (connectedPawnCount)
+								boardVal += 15 * checkConnectedPawns(board, y, x);
+							
+							break;
 		default:			end = 1;  break;
 		}
-
 		//printf("%d\n", boardVal);
 		if (end == 1)
 			break;
 	}
+	if (bishopCount >= 2)
+		boardVal += 50;
 
 	end = 0; //reset flag
 
@@ -164,12 +182,25 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 										 // Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->blackSpaces[j][1])
 		{
-		case(BLACK_PAWN):	boardVal = boardVal - 100 - pawnPlaceTable[y][7 - x];	break;
-		case(BLACK_KNIGHT):	boardVal = boardVal - 325 - knightPlaceTable[y][7 - x];	break;
-		case(BLACK_BISHOP):	boardVal = boardVal - 350 - bishopPlaceTable[y][7 - x];	break;
-		case(BLACK_ROOK):	boardVal = boardVal - 500 - rookPlaceTable[y][7 - x];	break;
-		case(BLACK_QUEEN):	boardVal = boardVal - 900 - queenPlaceTable[y][7 - x];	break;
-		case(BLACK_KING):	boardVal = boardVal - 20000 - kingPlaceTable[y][7 - x];			break;
+		case(BLACK_PAWN):	boardVal = boardVal - 100 - pawnPlaceTable[y][x];
+							connectedPawnCount = checkConnectedPawns(board, y, x);
+							if (connectedPawnCount)
+								boardVal -= 15 * connectedPawnCount;
+							
+							break;
+		case(BLACK_KNIGHT):	boardVal = boardVal - 325 - knightPlaceTable[y][x];	
+							break;
+		case(BLACK_BISHOP):	boardVal = boardVal - 350 - bishopPlaceTable[y][x];	
+							bishopCount++;
+							break;
+		case(BLACK_ROOK):	boardVal = boardVal - 600 - rookPlaceTable[y][x];
+							break;
+		case(BLACK_QUEEN):	boardVal = boardVal - 900;
+							if (!checkKingSafety(board, y, x))
+								boardVal += 900;
+							break; //- queenPlaceTable[y][7 - x];	NO QUEEN MOBILITY BONUS
+		case(BLACK_KING):	boardVal = boardVal - 5000 - kingPlaceTable[y][x];
+							break;
 		default:			end = 1; break;
 		}
 
@@ -177,8 +208,55 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		if (end == 1)
 			break;
 	}
+	if (bishopCount >= 2)
+			boardVal -= 50;
 	//printf("%d\n", boardVal);
 
 	//All done! Return the board value
 	return(boardVal);
+}
+
+int checkConnectedPawns(Board * board, int y, int x)
+{
+	int count = 0;
+	
+	if (board->boardSpaces[y][x].pieceType == WHITE_PAWN) {
+		if (x < 7 && y < 7) {
+			if (board->boardSpaces[y + 1][x + 1].pieceType == WHITE_PAWN)
+				count++;
+		}
+		if (x < 7 && y > 0) {
+			if (board->boardSpaces[y - 1][x + 1].pieceType == WHITE_PAWN)
+				count++;
+		}
+		if (x > 0 && y > 0) {
+			if (board->boardSpaces[y - 1][x - 1].pieceType == WHITE_PAWN)
+				count++;
+		}
+		if (x < 7 && y > 0) {
+			if (board->boardSpaces[y - 1][x + 1].pieceType == WHITE_PAWN)
+				count++;
+		}
+	}
+
+	else if (board->boardSpaces[y][x].pieceType == BLACK_PAWN) {
+		if (y < 7 && x < 7) {
+			if (board->boardSpaces[y + 1][x + 1].pieceType == BLACK_PAWN)
+				count++;
+		}
+		if (y > 0 && x < 7) {
+			if (board->boardSpaces[y - 1][x + 1].pieceType == BLACK_PAWN)
+				count++;
+		}
+		if (y > 0 && x > 0) {
+			if (board->boardSpaces[y - 1][x - 1].pieceType == BLACK_PAWN)
+				count++;
+		}
+		if (y > 0 && x < 7) {
+			if (board->boardSpaces[y - 1][x + 1].pieceType == BLACK_PAWN)
+				count++;
+		}
+	}
+	
+	return count;
 }

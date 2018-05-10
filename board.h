@@ -10,7 +10,7 @@ typedef struct {
 	char  castlingRights;	//KQkq
 	char  epSquare;			//en passant square:
 	char  halfMoveClock;	// 50 move counter for draws
-	char  moveNumber;		//Full number of moves in the game
+	char  turnCount;		//Full number of moves in the game
 	int   PerftNodeCounter; // used for debugging nodes
 	int   PerftCaptureCounter; //used for perft debugging
 	int   PerftCastleCounter; //used to figure out # of castling:
@@ -102,7 +102,7 @@ void ht_del_hash_table(ht_hash_table* ht);
 void setMove(MoveList *dest, MoveList source);
 
 //Hash Table Functions:
-Prunes ht_read(ht_hash_table * ht, volatile unsigned long long *zobrist, int depth);
+void ht_read(Prunes *prunes, ht_hash_table * ht, volatile unsigned long long *zobrist, int depth);
 void ht_write(ht_hash_table *ht, volatile unsigned long long *zobrist, int depth, int flag, int eval, MoveList move);
 ht_item* get_ht_item(ht_hash_table* ht, volatile unsigned long long *zobrist);
 int isInTable(ht_item *item, volatile unsigned long long *zobrist, int depth);

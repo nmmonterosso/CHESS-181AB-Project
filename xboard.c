@@ -111,7 +111,7 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 
 		if (strcmp(xboard_string, "quit") == 0) // xboard is exiting
 		{
-			exit(); //exit program
+			exit(0); //exit program
 		}
 		
 		/*----- Checking for User Moves -----*/
@@ -163,33 +163,7 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 					move->capturedPiece = NO_CAPTURE;
 				//CASTLING START:
 				if (board->castlingRights > 0x0) {
-					if ((strncmp(xboard_string, "e1c1", 4) == 0) && ((board->castlingRights & CHECK_WHITE_CASTLE_QUEENSIDE) == 0x4)) {
-						move->piece = WHITE_KING;
-						move->startLocation = 4;
-						move->endLocation = 2;
-						move->capturedPiece = WHITE_CASTLE_QUEENSIDE;
-					}
-					else if ((strncmp(xboard_string, "e8c8", 4) == 0) && ((board->castlingRights & CHECK_BLACK_CASTLE_QUEENSIDE) == 0x1)) {
-						move->piece = BLACK_KING;
-						move->startLocation = 60;
-						move->endLocation = 58;
-						move->capturedPiece = BLACK_CASTLE_QUEENSIDE;
-					}
-
-					else if ((strncmp(xboard_string, "e1g1", 4) == 0) && ((board->castlingRights & CHECK_WHITE_CASTLE_KINGSIDE) == 0x8)) {
-						move->piece = WHITE_KING;
-						move->startLocation = 4;
-						move->endLocation = 6;
-						move->capturedPiece = WHITE_CASTLE_KINGSIDE;
-
-					}
-
-					else if ((strncmp(xboard_string, "e8g8", 4) == 0) && ((board->castlingRights & CHECK_BLACK_CASTLE_KINGSIDE) == 0x2)) {
-						move->piece = BLACK_KING;
-						move->startLocation = 60;
-						move->endLocation = 62;
-						move->capturedPiece = BLACK_CASTLE_KINGSIDE;
-					}
+					checkCastling(xboard_string, board, move);					
 				}// end castling
 			} // normal move
 
@@ -261,3 +235,34 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 
 	xboard_flag = 1; // xboard is done
 } //xboard
+
+void checkCastling(char * xboard_string, Board * board, MoveList * move)
+{
+	if ((strncmp(xboard_string, "e1c1", 4) == 0) && ((board->castlingRights & CHECK_WHITE_CASTLE_QUEENSIDE) == 0x4)) {
+		move->piece = WHITE_KING;
+		move->startLocation = 4;
+		move->endLocation = 2;
+		move->capturedPiece = WHITE_CASTLE_QUEENSIDE;
+	}
+	else if ((strncmp(xboard_string, "e8c8", 4) == 0) && ((board->castlingRights & CHECK_BLACK_CASTLE_QUEENSIDE) == 0x1)) {
+		move->piece = BLACK_KING;
+		move->startLocation = 60;
+		move->endLocation = 58;
+		move->capturedPiece = BLACK_CASTLE_QUEENSIDE;
+	}
+
+	else if ((strncmp(xboard_string, "e1g1", 4) == 0) && ((board->castlingRights & CHECK_WHITE_CASTLE_KINGSIDE) == 0x8)) {
+		move->piece = WHITE_KING;
+		move->startLocation = 4;
+		move->endLocation = 6;
+		move->capturedPiece = WHITE_CASTLE_KINGSIDE;
+
+	}
+
+	else if ((strncmp(xboard_string, "e8g8", 4) == 0) && ((board->castlingRights & CHECK_BLACK_CASTLE_KINGSIDE) == 0x2)) {
+		move->piece = BLACK_KING;
+		move->startLocation = 60;
+		move->endLocation = 62;
+		move->capturedPiece = BLACK_CASTLE_KINGSIDE;
+	}
+} //checkCastling

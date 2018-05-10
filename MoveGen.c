@@ -42,7 +42,7 @@ void initializeMoveGen(MoveGen *movegen) {
 //SUMMARY returns 0 if king square is under attack: (unsafe), returns 1 if safe:
 int checkKingSafety(Board * board, int i, int j)
 {
-	if ((checkKingHorizontal(board, i, j) == 0) || (checkKingVertical == 0))
+	if ((checkKingHorizontal(board, i, j) == 0) || (checkKingVertical(board, i, j) == 0))
 		return 0;
 
 	if (checkKingDiagonal(board, i, j) == 0)
@@ -52,6 +52,9 @@ int checkKingSafety(Board * board, int i, int j)
 		return 0;
 
 	if (checkKingKnight(board, i, j) == 0)
+		return 0;
+
+	if (checkKingKing(board, i, j) == 0)
 		return 0;
 
 	return 1;
@@ -186,7 +189,96 @@ int checkKingDiagonal(Board * board, int row, int col)
 	}//end if WHITE_TURN
 
 	return 1;
-}//checkKingDiagonal
+}
+
+
+
+int checkKingKing(Board * board, int row, int col)
+{
+	
+	if (board->turn == BLACK_TURN) {
+		for (int count = 0; count < 8; count++) {
+			switch (count) {
+			case (0): if ((board->boardSpaces[row][col + 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (1): if ((board->boardSpaces[row + 1][col + 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+			case (2): if ((board->boardSpaces[row + 1][col].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (3): if ((board->boardSpaces[row - 1][col + 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (4): if ((board->boardSpaces[row - 1][col].pieceType == BLACK_KING))
+						return 1;
+					  break;
+
+			case (5): if ((board->boardSpaces[row - 1][col - 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (6): if ((board->boardSpaces[row][col - 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (7): if ((board->boardSpaces[row - 1][col + 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			default: break;
+			} // end switch
+		}// end for
+
+	} // end if
+
+	else if (board->turn == WHITE_TURN) {
+		for (int count = 0; count < 8; count++) {
+			switch (count) {
+			case (0): if ((board->boardSpaces[row][col + 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (1): if ((board->boardSpaces[row + 1][col + 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (2): if ((board->boardSpaces[row + 1][col].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (3): if ((board->boardSpaces[row - 1][col + 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (4): if ((board->boardSpaces[row - 1][col].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (5): if ((board->boardSpaces[row - 1][col - 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (6): if ((board->boardSpaces[row][col - 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (7): if ((board->boardSpaces[row - 1][col + 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			default: break;
+			} // end switch
+		}// end for
+	} // end else if 
+
+	return 1;
+}
+//checkKingDiagonal
 
 
 
@@ -471,7 +563,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 
 	hitflag = 0;
 	pruneflag = DEFAULT_FLAG;
-	prunes = ht_read(ht, zobrist, MAXDEPTH - depth);
+	ht_read(&prunes, ht, zobrist, MAXDEPTH - depth);
 	/*//TEMP DELETE BELOW:
 	prunes.boardVal = 0;
 	prunes.pruneMove.piece = -1;
@@ -481,7 +573,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 
 	if (hitflag) {
 		board->hashtablehitcounter++;
-		//return prunes;
+		return prunes;
 	}
 	else
 		board->hashtablemisscounter++;
@@ -547,7 +639,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					}// end if hard-alpha cutoff
 					if (prunes.boardVal < betaVal) { //Found a better alternative, update beta
 						betaVal = prunes.boardVal; //Remember better alternate value
-						pruneChoice = movehistory->Moves[0];; //Remember the current move
+						pruneChoice = movehistory->Moves[0]; //Remember the current move
 					}// end if beta update
 					prunes.boardVal = betaVal;
 					prunes.pruneMove = pruneChoice;
@@ -584,9 +676,9 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				undoBadNode(board, movehistory, move);
 			}
 		}//end for 
-		 // Pruning is done, kick back up one level
-		return prunes;
+		 // Pruning is done, kick back up one level		
 	}// end if not maxdepth
+	return prunes;
 }//makeMoveTree
 
 
@@ -627,7 +719,8 @@ void MoveGenFunction(Board *board, Move *move, MoveGen *movegen) {
 			}
 		}//end for
 	}//end else (BLACK TURN)
-	 //quickSortMoveGen(movegen, 0, movegen->count - 1); //POSSIBLY TAKING A LONG TIME HERE:
+	//quickSortMoveGen(movegen, 0, movegen->count - 1); //POSSIBLY TAKING A LONG TIME HERE:
+	mergeSortMoveGen(movegen, 0, movegen->count - 1);
 }//MoveGenFunction
 
 void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
@@ -1379,6 +1472,101 @@ void undoBadNode(Board * board, MoveGen * movehistory, Move * move)
 }//undoBadNode
 
 
+void mergeSortMoveGen(MoveGen *movegen, int l, int r) {
+
+	if (l < r) {
+		int m = l + (r - l) / 2;
+		mergeSortMoveGen(movegen, l, m);
+		mergeSortMoveGen(movegen, m + 1, r);
+		merge(movegen, l, m, r);
+
+	}
+
+}//mergeSortMoveGen:
+
+void merge(MoveGen *movegen, int l, int m, int r) {
+	int i, j, k;
+	const int n1 = m - l + 1;
+	const int n2 = r - m;
+	
+			//Temp arrays of movegen:
+	MoveList Left[100];
+	MoveList Right[100];
+			//repeat
+		
+		
+			//MoveList Left[n1];
+			//MoveList Right[n2];
+		
+	for (i = 0; i < n1; i++) {
+		Left[i].piece = movegen->Moves[l + i].piece;
+		Left[i].startLocation = movegen->Moves[l + i].startLocation;
+		Left[i].endLocation = movegen->Moves[l + i].endLocation;
+		Left[i].capturedPiece = movegen->Moves[l + i].capturedPiece;
+
+	}
+	
+	for (j = 0; j < n2; j++) {
+		Right[j].piece = movegen->Moves[m + 1 + j].piece;
+		Right[j].startLocation = movegen->Moves[m + 1 + j].startLocation;
+		Right[j].endLocation = movegen->Moves[m + 1 + j].endLocation;
+		Right[j].capturedPiece = movegen->Moves[m + 1 + j].capturedPiece;
+
+	}
+	
+	i = 0;
+	j = 0;
+	k = l;
+	while ((i < n1) && (j < n2)) {
+
+		if (getSortValue(&Left[i]) < getSortValue(&Right[j])) {
+			movegen->Moves[k].piece = Left[i].piece;
+			movegen->Moves[k].startLocation = Left[i].startLocation;
+			movegen->Moves[k].endLocation = Left[i].endLocation;
+			movegen->Moves[k].capturedPiece = Left[i].capturedPiece;
+			i++;
+
+		}//end if 
+		else {
+			movegen->Moves[k].piece = Right[j].piece;
+			movegen->Moves[k].startLocation = Right[j].startLocation;
+			movegen->Moves[k].endLocation = Right[j].endLocation;
+			movegen->Moves[k].capturedPiece = Right[j].capturedPiece;
+			j++;
+
+		}//end else
+		k++;
+
+	} // end while:
+	
+	while (i < n1) {
+		movegen->Moves[k].piece = Left[i].piece;
+		movegen->Moves[k].startLocation = Left[i].startLocation;
+		movegen->Moves[k].endLocation = Left[i].endLocation;
+		movegen->Moves[k].capturedPiece = Left[i].capturedPiece;
+		i++;
+		k++;
+
+	} // end while
+	
+	while (j < n2) {
+		movegen->Moves[k].piece = Right[j].piece;
+		movegen->Moves[k].startLocation = Right[j].startLocation;
+		movegen->Moves[k].endLocation = Right[j].endLocation;
+		movegen->Moves[k].capturedPiece = Right[j].capturedPiece;
+		j++;
+		k++;
+
+	} // end while	
+	
+}//merge
+
+
+
+
+
+
+
  //MoveGen Move Ordering:
  //Summary: Sorts current movegen by least valuable victim, most valuable attacker:
 void quickSortMoveGen(MoveGen *movegen, int frontPivot, int backPivot) {
@@ -1502,8 +1690,8 @@ int getSortValue(MoveList *move) {
 		case(KING):		value = 1;	break;
 		case(QUEEN):	value = 1;	break;
 		case(ROOK):		value = 2;	break;
-		case(BISHOP):	value = 5;	break;
-		case(KNIGHT):	value = 5;	break;
+		case(BISHOP):	value = 3;	break;
+		case(KNIGHT):	value = 3;	break;
 		case(PAWN):		value = 6; break;
 		default:		value = 50; break;
 		}//end switch			
@@ -1513,43 +1701,43 @@ int getSortValue(MoveList *move) {
 		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
 		case(KING):		value = 1;	break;
 		case(QUEEN):	value = 1;	break;
-		case(ROOK):		value = 2;	break;
+		case(ROOK):		value = 1;	break;
 		case(BISHOP):	value = 5;	break;
-		case(KNIGHT):	value = 6;	break;
-		case(PAWN):		value = 7;	break;
+		case(KNIGHT):	value = 5;	break;
+		case(PAWN):		value = 51;	break;
 		default:		value = 50; break;
 		}//end switch			
 	}// end if bishop
 	else if ((move->piece & GET_PIECE_NO_COLOR) == ROOK) {
 		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
 		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 2;	break;
+		case(QUEEN):	value = 1;	break;
 		case(ROOK):		value = 5;	break;
-		case(BISHOP):	value = 6;	break;
-		case(KNIGHT):	value = 7;	break;
-		case(PAWN):		value = 8;  break;
+		case(BISHOP):	value = 51;	break;
+		case(KNIGHT):	value = 51;	break;
+		case(PAWN):		value = 51;  break;
 		default:		value = 50; break;
 		}//end switch
 	}// end if rook
 	else if ((move->piece & GET_PIECE_NO_COLOR) == QUEEN) {
 		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
 		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 3;	break;
-		case(ROOK):		value = 8;	break;
-		case(BISHOP):	value = 9;	break;
-		case(KNIGHT):	value = 10;	break;
-		case(PAWN):		value = 11; break;
+		case(QUEEN):	value = 50;	break;
+		case(ROOK):		value = 50;	break;
+		case(BISHOP):	value = 51;	break;
+		case(KNIGHT):	value = 51;	break;
+		case(PAWN):		value = 51; break;
 		default:		value = 50; break;
 		}//end switch			
 	}// end if queen
 	else if ((move->piece & GET_PIECE_NO_COLOR) == KING) {
 		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
 		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 22;	break;
-		case(ROOK):		value = 23;	break;
-		case(BISHOP):	value = 24;	break;
-		case(KNIGHT):	value = 25;	break;
-		case(PAWN):		value = 26; break;
+		case(QUEEN):	value = 30;	break;
+		case(ROOK):		value = 30;	break;
+		case(BISHOP):	value = 30;	break;
+		case(KNIGHT):	value = 30;	break;
+		case(PAWN):		value = 30; break;
 		default:		value = 60; break;
 		}//end switch			
 	}// end if king

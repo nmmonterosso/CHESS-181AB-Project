@@ -214,8 +214,9 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 					else
 						moveSpace->blackSpaces[i][PIECE_TYPE] = -1;
 					//moveSpace->blackSpaces[i][BOARD_POSITION] = -1;
-				}//endif				
-			}//endif 
+				}//endif						
+
+			}//endif white turn:
 			else { //Black Turn capturing white piece
 				if (move.endLocation == moveSpace->whiteSpaces[i][BOARD_POSITION]) {
 					if (undo == 1) {
@@ -229,9 +230,138 @@ void updateColorSpaces(Board *board, MoveList  move, Move *moveSpace, int undo)
 					//moveSpace->whiteSpaces[i][BOARD_POSITION] = -1;
 				}//end if
 			}//end else
+			if (move.capturedPiece >= 82 && move.capturedPiece <= 85)
+				updateCastleColor(board, move, moveSpace, undo);
+
 		}//end if no capture		
 	}//end for 			
 }//updateColorSpaces
+
+void updateCastleColor(Board * board, MoveList move, Move * moveSpace, int undo)
+{
+	int kingflag, rookflag;
+	kingflag = 0;
+	rookflag = 0;
+	switch (move.capturedPiece) {
+	case(WHITE_CASTLE_KINGSIDE): 
+			 
+			for (int i = 0; i < 16; i++) {
+				if (kingflag && rookflag)
+					break;
+				if (undo == 1) {
+					if ((moveSpace->whiteSpaces[i][BOARD_POSITION] == 5) && moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_ROOK) {
+						moveSpace->whiteSpaces[i][BOARD_POSITION] = 7;
+						rookflag = 1;
+					} // end if 
+					else if ((moveSpace->whiteSpaces[i][BOARD_POSITION] == 6) && (moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_KING)) {
+						moveSpace->whiteSpaces[i][BOARD_POSITION] = 4;
+						kingflag = 1;
+					}// end else if 
+				}// end if undo
+				
+				else {
+					if ((moveSpace->whiteSpaces[i][BOARD_POSITION] == 7) && moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_ROOK) {
+						moveSpace->whiteSpaces[i][BOARD_POSITION] = 5;
+						rookflag = 1;
+					}// end if 
+					else if ((moveSpace->whiteSpaces[i][BOARD_POSITION] == 4) && (moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_KING)) {
+						moveSpace->whiteSpaces[i][BOARD_POSITION] = 6;
+						kingflag = 1;
+					}// end else
+				} // end else not undo
+			}// end for loop
+			
+			break;
+	case(WHITE_CASTLE_QUEENSIDE):
+
+			for (int i = 0; i < 16; i++) {
+				if (kingflag && rookflag)
+					break;
+				if (undo == 1) {
+					if ((moveSpace->whiteSpaces[i][BOARD_POSITION] == 3) && moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_ROOK) {
+						moveSpace->whiteSpaces[i][BOARD_POSITION] = 0;
+						rookflag = 1;
+					} // end if 
+					else if ((moveSpace->whiteSpaces[i][BOARD_POSITION] == 2) && (moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_KING)) {
+						moveSpace->whiteSpaces[i][BOARD_POSITION] = 4;
+						kingflag = 1;
+					}// end else if 
+				}// end if undo
+
+				else {
+					if ((moveSpace->whiteSpaces[i][BOARD_POSITION] == 0) && moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_ROOK) {
+						moveSpace->whiteSpaces[i][BOARD_POSITION] = 3;
+						rookflag = 1;
+					}// end if 
+					else if ((moveSpace->whiteSpaces[i][BOARD_POSITION] == 4) && (moveSpace->whiteSpaces[i][PIECE_TYPE] == WHITE_KING)) {
+						moveSpace->whiteSpaces[i][BOARD_POSITION] = 2;
+						kingflag = 1;
+					}// end else
+				} // end else not undo
+			}// end for loop
+			break;
+
+	case(BLACK_CASTLE_KINGSIDE):
+			for (int i = 0; i < 16; i++) {
+				if (kingflag && rookflag)
+					break;
+				if (undo == 1) {
+					if ((moveSpace->blackSpaces[i][BOARD_POSITION] == 61) && moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_ROOK) {
+						moveSpace->blackSpaces[i][BOARD_POSITION] = 63;
+						rookflag = 1;
+					} // end if 
+					else if ((moveSpace->blackSpaces[i][BOARD_POSITION] == 62) && (moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_KING)) {
+						moveSpace->blackSpaces[i][BOARD_POSITION] = 60;
+						kingflag = 1;
+					}// end else if 
+				}// end if undo
+
+				else {
+					if ((moveSpace->blackSpaces[i][BOARD_POSITION] == 63) && moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_ROOK) {
+						moveSpace->blackSpaces[i][BOARD_POSITION] = 61;
+						rookflag = 1;
+					}// end if 
+					else if ((moveSpace->blackSpaces[i][BOARD_POSITION] == 60) && (moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_KING)) {
+						moveSpace->blackSpaces[i][BOARD_POSITION] = 62;
+						kingflag = 1;
+					}// end else
+				} // end else not undo
+			}// end for loop
+			break;
+
+	case(BLACK_CASTLE_QUEENSIDE):
+			for (int i = 0; i < 16; i++) {
+				if (kingflag && rookflag)
+					break;
+				if (undo == 1) {
+					if ((moveSpace->blackSpaces[i][BOARD_POSITION] == 59) && moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_ROOK) {
+						moveSpace->blackSpaces[i][BOARD_POSITION] = 56;
+						rookflag = 1;
+					} // end if 
+					else if ((moveSpace->blackSpaces[i][BOARD_POSITION] == 58) && (moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_KING)) {
+						moveSpace->blackSpaces[i][BOARD_POSITION] = 60;
+						kingflag = 1;
+					}// end else if 
+				}// end if undo
+
+				else {
+					if ((moveSpace->blackSpaces[i][BOARD_POSITION] == 56) && moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_ROOK) {
+						moveSpace->blackSpaces[i][BOARD_POSITION] = 59;
+						rookflag = 1;
+					}// end if 
+					else if ((moveSpace->blackSpaces[i][BOARD_POSITION] == 60) && (moveSpace->blackSpaces[i][PIECE_TYPE] == BLACK_KING)) {
+						moveSpace->blackSpaces[i][BOARD_POSITION] = 58;
+						kingflag = 1;
+					}// end else
+				} // end else not undo
+			}// end for loop
+			break;
+
+	default: break;
+	}
+
+} // update Castle Color
+
  //MakeMove
 
  //Summary: Updates the whitespace piece type during pawn promotion: Updates the piecetype value to the proper promotion.

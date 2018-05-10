@@ -80,6 +80,7 @@ void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory)
 
 	board->turn = WHITE_TURN;	 //Initialize WHITE TURN
 	board->castlingRights = 0xF; //KQkq
+	board->turnCount = 0;
 	board->PerftCaptureCounter = 0;
 	board->PerftNodeCounter = 0;
 	board->PerftCastleCounter = 0;
@@ -340,7 +341,7 @@ static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int fla
 ht_hash_table* ht_new() {
 	ht_hash_table* ht = (ht_hash_table *)malloc(sizeof(ht_hash_table));
 
-	ht->size = 2097152; //2^21 ~2 million 
+	ht->size = 16777216; //2^24 ~16.8 million 
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
 	for (int i = 0; i < ht->size; i++)
@@ -350,12 +351,7 @@ ht_hash_table* ht_new() {
 }//ht_new
 
  //Summary: Deletes item from hash table:
-static void ht_del_item(ht_item* i) {
-	free(i->zobrist);
-	free(i->depth);
-	free(i->flag);
-	free(i->eval);
-	free(i->move);
+static void ht_del_item(ht_item* i) {	
 	free(i);
 }//ht_del_item
 
@@ -381,44 +377,28 @@ void setMove(MoveList *dest, MoveList source) {
 
  //Summary: Checks if the item is inside the hash table and returns the prune value
  //associated with it
-Prunes ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth)
-{
-	Prunes prunes;
+void ht_read(Prunes *prunes, ht_hash_table * ht, volatile unsigned long long * zobrist, int depth)
+{	
 	ht_item *item = get_ht_item(ht, zobrist);
-	if (item) {
-		if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
-			prunes.boardVal = item->eval;
-			prunes.pruneMove = item->move;
-			hitflag = 1;
-		} // if hit
-		else {
-			prunes.boardVal = 0;
-			prunes.pruneMove.piece = -1;
-			prunes.pruneMove.startLocation = -1;
-			prunes.pruneMove.endLocation = -1;
-			prunes.pruneMove.capturedPiece = -1;
-			hitflag = 0;
-		}
-	}//end if:
-	return prunes;
+	if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
+		prunes->boardVal = item->eval;
+		prunes->pruneMove = item->move;
+		hitflag = 1;
+	} // if hit
+	
 } // ht_read()
 
   //Summary: Replace when Hash Table Collisions or Misses:
 void ht_write(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth, int flag, int eval, MoveList move)
 {
-	ht_item * item = get_ht_item(ht, zobrist);
-	if (item) {
-		if ((item->zobrist != *zobrist) || (item->depth < depth)) {
-			item->zobrist = *zobrist;
-			item->depth = depth;
-			item->flag = flag;
-			item->eval = eval;
-			item->move = move;
-		}//end if 
-	}
-	else {
-		item = ht_new_item(*zobrist, depth, flag, eval, move); //should not hit this line
-	}
+	ht_item * item = get_ht_item(ht, zobrist);	
+	if ((item->zobrist != *zobrist) || (item->depth < depth)) {
+		item->zobrist = *zobrist;
+		item->depth = depth;
+		item->flag = flag;
+		item->eval = eval;
+		item->move = move;
+	}//end if 	
 }//ht_replace_item
 
 
