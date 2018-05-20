@@ -155,7 +155,7 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 			{
 				//MoveList temp;
 				move->startLocation = 8 * startPosition[1] + startPosition[0];
-				move->endLocation   = 8 * endPosition[1]   + endPosition[0];
+				move->endLocation = 8 * endPosition[1] + endPosition[0];
 				move->piece = board->boardSpaces[startPosition[1]][startPosition[0]].pieceType;
 				if (board->boardSpaces[endPosition[1]][endPosition[0]].isOccupied)
 					move->capturedPiece = board->boardSpaces[endPosition[1]][endPosition[0]].pieceType; // check this
@@ -183,7 +183,11 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_QUEEN_NO_CAPTURE : BLACK_PROMOTE_QUEEN_NO_CAPTURE);
 							  }
 							  else {} //TODO: ugly shit for captured pieces here:
-							  break;								
+							  break;
+								
+
+
+
 						
 					case 'r': if (startPosition[0] == endPosition[0]) {
 								move->startLocation = board->boardSpaces[startPosition[1]][startPosition[0]].boardposition;
@@ -228,6 +232,7 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 		//updateColorSpaces(board, temp, move, 0);
 		//update_zobrist(temp, zobrist);
 	} // if (read == OK)
+
 	xboard_flag = 1; // xboard is done
 } //xboard
 

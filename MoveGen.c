@@ -7,7 +7,6 @@
 #include <limits.h>
 
 //SHARED VARIABLES:
-extern volatile Prunes *prunes;
 extern volatile unsigned long long *zobrist;
 extern volatile ht_hash_table *ht;
 int hitflag = 0;
@@ -196,81 +195,87 @@ int checkKingDiagonal(Board * board, int row, int col)
 
 int checkKingKing(Board * board, int row, int col)
 {
-	if (board->turn == BLACK_TURN) {
-		if (row < 7) {
-			if (board->boardSpaces[row + 1][col].isOccupied == IS_OCCUPIED && board->boardSpaces[row + 1][col].pieceType == BLACK_KING)
-				return 0;
-			if (col < 7) {
-				if (board->boardSpaces[row + 1][col + 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row + 1][col + 1].pieceType == BLACK_KING)
-					return 0;
-			}
-			else if (col >= 0) {
-				if (board->boardSpaces[row + 1][col - 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row + 1][col - 1].pieceType == BLACK_KING)
-					return 0;
-			}
-		}
-		if (row >= 0) {
-			if (board->boardSpaces[row - 1][col].isOccupied == IS_OCCUPIED && board->boardSpaces[row - 1][col].pieceType == BLACK_KING)
-				return 0;
-
-			if (col < 7) {
-				if (board->boardSpaces[row - 1][col + 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row - 1][col + 1].pieceType == BLACK_KING)
-					return 0;
-			}
-			else if (col >= 0) {
-				if (board->boardSpaces[row + 1][col].isOccupied == IS_OCCUPIED && board->boardSpaces[row - 1][col - 1].pieceType == BLACK_KING)
-					return 0;
-			}
-		}
-
-		if (col < 7) {
-			if (board->boardSpaces[row][col + 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row][col + 1].pieceType == BLACK_KING)
-				return 0;
-		}
-		if (col >= 0) {
-			if (board->boardSpaces[row][col - 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row][col - 1].pieceType == BLACK_KING)
-				return 0;
-		}
-	}
-
 	
+	if (board->turn == BLACK_TURN) {
+		for (int count = 0; count < 8; count++) {
+			switch (count) {
+			case (0): if ((board->boardSpaces[row][col + 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (1): if ((board->boardSpaces[row + 1][col + 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+			case (2): if ((board->boardSpaces[row + 1][col].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (3): if ((board->boardSpaces[row - 1][col + 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (4): if ((board->boardSpaces[row - 1][col].pieceType == BLACK_KING))
+						return 1;
+					  break;
+
+			case (5): if ((board->boardSpaces[row - 1][col - 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (6): if ((board->boardSpaces[row][col - 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			case (7): if ((board->boardSpaces[row - 1][col + 1].pieceType == BLACK_KING))
+						return 0;
+					  break;
+
+			default: break;
+			} // end switch
+		}// end for
+
+	} // end if
 
 	else if (board->turn == WHITE_TURN) {
-		if (row < 7) {
-			if (board->boardSpaces[row + 1][col].isOccupied == IS_OCCUPIED && board->boardSpaces[row + 1][col].pieceType == WHITE_KING)
+		for (int count = 0; count < 8; count++) {
+			switch (count) {
+			case (0): if ((board->boardSpaces[row][col + 1].pieceType == WHITE_KING))
 				return 0;
-			if (col < 7) {
-				if (board->boardSpaces[row + 1][col + 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row + 1][col + 1].pieceType == WHITE_KING)
-					return 0;
-			}
-			else if (col >= 0) {
-				if (board->boardSpaces[row + 1][col - 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row + 1][col - 1].pieceType == WHITE_KING)
-					return 0;
-			}
-		}
-		if (row >= 0) {
-			if (board->boardSpaces[row - 1][col].isOccupied == IS_OCCUPIED && board->boardSpaces[row - 1][col].pieceType == WHITE_KING)
-				return 0;
+				break;
 
-			if (col < 7) {
-				if (board->boardSpaces[row - 1][col + 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row - 1][col + 1].pieceType == WHITE_KING)
-					return 0;
-			}
-			else if (col >= 0) {
-				if (board->boardSpaces[row + 1][col].isOccupied == IS_OCCUPIED && board->boardSpaces[row - 1][col - 1].pieceType == WHITE_KING)
-					return 0;
-			}
-		}
+			case (1): if ((board->boardSpaces[row + 1][col + 1].pieceType == WHITE_KING))
+				return 0;
+				break;
 
-		if (col < 7) {
-			if (board->boardSpaces[row][col + 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row][col + 1].pieceType == BLACK_KING)
+			case (2): if ((board->boardSpaces[row + 1][col].pieceType == WHITE_KING))
 				return 0;
-		}
-		if (col >= 0) {
-			if (board->boardSpaces[row][col - 1].isOccupied == IS_OCCUPIED && board->boardSpaces[row][col - 1].pieceType == BLACK_KING)
+				break;
+
+			case (3): if ((board->boardSpaces[row - 1][col + 1].pieceType == WHITE_KING))
 				return 0;
-		}
-	}
+				break;
+
+			case (4): if ((board->boardSpaces[row - 1][col].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (5): if ((board->boardSpaces[row - 1][col - 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (6): if ((board->boardSpaces[row][col - 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			case (7): if ((board->boardSpaces[row - 1][col + 1].pieceType == WHITE_KING))
+				return 0;
+				break;
+
+			default: break;
+			} // end switch
+		}// end for
+	} // end else if 
+
 	return 1;
 }
 //checkKingDiagonal
@@ -551,41 +556,60 @@ int checkCastle(Board *board, char castle) {
 }//checkCastle
 
 
-void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth)//, MoveList pruneChoice)
-{	
+Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth, short int alphaVal, short int betaVal, MoveList pruneChoice)
+{
+	Prunes prunes; //keeps track of alpha beta values and the final move path
+				   //Transposition HASH TABLE READ:
+
 	hitflag = 0;
 	pruneflag = DEFAULT_FLAG;
-	//int checkmateFlag = 1;
-	/*
-	if (ht_read(ht, zobrist, MAXDEPTH - depth)) 
+	ht_read(&prunes, ht, zobrist, MAXDEPTH - depth);
+	/*//TEMP DELETE BELOW:
+	prunes.boardVal = 0;
+	prunes.pruneMove.piece = -1;
+	prunes.pruneMove.startLocation = -1;
+	prunes.pruneMove.endLocation = -1;
+	prunes.pruneMove.capturedPiece = -1;*/
+
+	if (hitflag) {
 		board->hashtablehitcounter++;
-	else	
+		return prunes;
+	}
+	else
 		board->hashtablemisscounter++;
-	*/
+	//ELSE:
 
 	//check if position in hash table: if in table, return best move/alpha/beta values:if not continue with function:
 	// Defining Base Case
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
 		//printBoard(board);
-		prunes->currentBoardVal = eval(board, board->turnCount, move); //TODO: keep track of turn count
-		prunes->currentMove = movehistory->Moves[0];
-		prunes->currentPath = *movehistory;
+		prunes.boardVal = eval(board, board->turnCount, move); //TODO: keep track of turn count
+		prunes.pruneMove = movehistory->Moves[0];
 		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.		
-		return;
+		return prunes;
 	}//end if 
 
 	 // after iteration 1 --> depth = depth + 1
-	else {			
+	else {
+
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
-			makeMove(board, movegen->Moves[i], movehistory, move);		
-			// check legality of castling:			
+			makeMove(board, movegen->Moves[i], movehistory, move);
+
+			//Transposition Table:
+			/*prunes = Transposition(ht, zobrist, depth, DEFAULT_FLAG, NO_EVALUATION, movehistory->Moves[0]);
+			if (prunes != NULL) {
+			return prunes;
+			}*/
+			//printBoard(board);
+
+			//TODO CHECK LEGALITY OF CASTLING:
 			if ((movegen->Moves[i].capturedPiece >= 82) && (movegen->Moves[i].capturedPiece <= 85)) {
 				if (checkCastle(board, movegen->Moves[i].capturedPiece) == 0) {
-					unMakeMove(board, movehistory, move);					
-					board->PerftCastleCounter--;
+					unMakeMove(board, movehistory, move);
 					//	printBoard(board);
+					board->PerftCastleCounter--;
 					continue;
 				}//end if checkCastle
 			}//end 
@@ -593,34 +617,68 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 			if (checkKingSafety(board, ((board->turn == WHITE_TURN) ? board->blackKingCoordinates[0] : board->whiteKingCoordinates[0]),
 				((board->turn == WHITE_TURN) ? board->blackKingCoordinates[1] : board->whiteKingCoordinates[1]))) {
 
-				//checkmateFlag = 0;
 				movetree->MoveTreeNode[depth + 1].count = 0;
 				MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
 
-				//Go one more depth lower:																						
-				makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1);					
-				/*if (PruningFunction(board, depth) == -1) {
-					unMakeMove(board, movehistory, move);
-					return;
-				}*/
-				//ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, prunes->pruneBoardVal, prunes->pruneMove); // HASH TABLE
-
-
-
-
-
+																										//Alpha-beta pruning algorithm
+				prunes = makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, alphaVal, betaVal, pruneChoice); //Go one more depth lower:
+																																						  //add to hash table index for prune value:
+																																						  /*printf("ALPHA_VAL = %d\n", alphaVal);
+																																						  printf("BETA_VAL = %d\n", betaVal);
+																																						  printf("RETURNED VAL = %d\n", prunes.boardVal);
+																																						  printf("\n");*/
 				unMakeMove(board, movehistory, move); // We examined one depth lower, unmake the move we did
-				//	printBoard(board);
+
+				if (board->turn == BLACK_TURN) { //Minimizing player's turn to evaluate
+												 //printf("Minimizer\n");
+					if (prunes.boardVal <= alphaVal) { // If we fail the hard-alpha cutoff, we prune
+						prunes.boardVal = alphaVal; //Pruning: take better alternative beta
+						prunes.pruneMove = pruneChoice; //Pruning: take move path associated with better alternative
+						pruneflag = ALPHA_FLAG; //for transposition						
+						return prunes;
+					}// end if hard-alpha cutoff
+					if (prunes.boardVal < betaVal) { //Found a better alternative, update beta
+						betaVal = prunes.boardVal; //Remember better alternate value
+						pruneChoice = movehistory->Moves[0]; //Remember the current move
+					}// end if beta update
+					prunes.boardVal = betaVal;
+					prunes.pruneMove = pruneChoice;
+					/*printf("ALPHA_VAL = %d\n", alphaVal);
+					printf("BETA_VAL = %d\n", betaVal);
+					printf("\n");*/
+
+				}//end if minimizer pruning
+				else if (board->turn == WHITE_TURN) { //Maximizing player's turn to evaluate
+													  //printf("Maximizer\n");
+					if (prunes.boardVal >= betaVal) { // If we fail the hard-alpha cutoff, we prune
+						prunes.boardVal = betaVal; //Pruning: take better alternative beta
+						prunes.pruneMove = pruneChoice; //Pruning: take move path associated with better alternative
+						pruneflag = BETA_FLAG; // for transposition:						
+						return prunes;
+					}// end if hard-alpha cutoff
+					if (prunes.boardVal > alphaVal) { //Found a better alternative, update beta
+						alphaVal = prunes.boardVal; //Remember better alternate value
+						pruneChoice = movehistory->Moves[0]; //Remember the current move
+					}// end if beta update
+					prunes.boardVal = alphaVal;
+					prunes.pruneMove = pruneChoice;
+
+					/*printf("ALPHA_VAL = %d\n", alphaVal);
+					printf("BETA_VAL = %d\n", betaVal);
+					printf("\n");*/
+
+				} // end if maximizer pruning
+				  // Pruning is done, return statement outside of the for loop						
+				ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, prunes.boardVal, movehistory->Moves[0]); // HASH TABLE
+																											//	printBoard(board);
 			}//end if 
 			else { // ILLEGAL MOVE HERE:
 				undoBadNode(board, movehistory, move);
 			}
-		}//end for 				 	
-	}// end if not maxdepth	
-	/*if (checkmateFlag) {
-		printBoard(board);
-		prunes->currentBoardVal = ((board->turn == BLACK_TURN) ? SHRT_MAX : SHRT_MAX);
-	} //only reach this if no legal move exists:*/
+		}//end for 
+		 // Pruning is done, kick back up one level		
+	}// end if not maxdepth
+	return prunes;
 }//makeMoveTree
 
 
@@ -1398,8 +1456,8 @@ void checkBlackCastle(Board *board, MoveGen *movegen) {
 
 void undoBadNode(Board * board, MoveGen * movehistory, Move * move)
 {
-		//printf("BAD:\n");
-		//printBoard(board);
+	//	printf("BAD:\n");
+	//	printBoard(board);
 	if (movehistory->Moves[movehistory->count - 1].capturedPiece != NO_CAPTURE)
 		board->PerftCaptureCounter--;
 	if (movehistory->Moves[movehistory->count - 1].capturedPiece == EN_PASSANT) {
@@ -1712,48 +1770,15 @@ int isIndexLower(MoveList *move1, MoveList *move2) {
 
 void resetPrunes(Prunes *prunes)
 {
-	/*prunes->boardVal = 0;
+	prunes->boardVal = 0;
 	prunes->pruneMove.startLocation = -1;
 	prunes->pruneMove.endLocation = -1;
 	prunes->pruneMove.piece = -1;
-	prunes->pruneMove.capturedPiece = -1;*/
+	prunes->pruneMove.capturedPiece = -1;
 } //resetPrunes
-
-// Summary: Returns -1 when pruning occurs, 0 otherwise
-int PruningFunction(Board *board, int depth)
-{
-	//alphabeta max
-	if (board->turn == WHITE_TURN) {
-		
-		if (prunes->currentBoardVal > prunes->alphaVal) {			
-			prunes->pruneMove = prunes->currentMove;
-			prunes->prunePath = prunes->currentPath;
-			prunes->alphaVal = prunes->currentBoardVal;
-		}
-		if (prunes->alphaVal >= prunes->betaVal)
-			return -1;
-		else 
-			prunes->pruneBoardVal = prunes->alphaVal;
-	}
-	//alphabeta min
-	else if (board->turn == BLACK_TURN) {
-		
-		if (prunes->currentBoardVal < prunes->betaVal) {
-			prunes->pruneMove = prunes->currentMove;
-			prunes->prunePath = prunes->currentPath;
-			prunes->betaVal = prunes->currentBoardVal;
-		}
-		if (prunes->betaVal <= prunes->alphaVal)
-			return -1;
-		else 
-			prunes->pruneBoardVal = prunes->betaVal;
-	}
-	return 0;
-}//Pruning Funciton
 
 void resetPruneChoice(MoveList * prunechoice)
 {
-	//TODO: Don't reset prunes:
 	prunechoice->startLocation = -1;
 	prunechoice->endLocation = -1;
 	prunechoice->piece = -1;

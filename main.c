@@ -22,7 +22,7 @@ unsigned long long randTable[64][13];
 unsigned long long randTurn;
 volatile unsigned long long *zobrist;
 volatile ht_hash_table *ht;
-volatile Prunes *prunes;
+MoveGen PrunePath;
 
 
 
@@ -36,17 +36,20 @@ int main()
 	MoveGen *movehistory = (MoveGen*)malloc(sizeof(MoveGen));
 	MoveTree *movetree = (MoveTree*)malloc(sizeof(MoveTree));
 	MoveList blankMove; // Blank movelist that gets passed up and down during pruning
+	Prunes prunes;
 	MoveList *tempMove = (MoveList *)malloc(sizeof(MoveList));
 
 	ht = (ht_hash_table*)malloc(sizeof(ht_hash_table));
 	ht = ht_new();
-	prunes = (Prunes *)malloc(sizeof(Prunes)); //change prunes to a pointer:
+
 	zobrist = (unsigned long long *)malloc(sizeof(unsigned long long));
 	*zobrist = 0;
 	blankMove.capturedPiece = -1;
 	blankMove.endLocation = -1;
 	blankMove.piece = -1;
 	blankMove.startLocation = -1;
+	//int *MoveCounter = (int *)malloc(sizeof(int));
+	//*MoveCounter = 0;
 
 	//xboard variables
 	char start; // convert board position to 'a,b,c,...'
@@ -69,8 +72,10 @@ int main()
 	
 	//END DEBUGGING POSITIONS//
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
-	MoveGenFunction(board, move, movegen);			//Initial Movegen:		
-	// Set bpard to desired board state:
+	MoveGenFunction(board, move, movegen);			//Initial Movegen:
+													//movetree->MoveTreeNode[0] = *movegen;			//Root Movegen:
+
+
 	setBoard(board, move, startingPosition);
 	init_zobrist();
 	set_zobrist_value(board, zobrist);
@@ -79,8 +84,6 @@ int main()
 	movegen->count = 0;
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;
-	prunes->alphaVal = SHRT_MIN;
-	prunes->betaVal = SHRT_MAX;
 	
 	printBoard(board);
 
@@ -97,26 +100,26 @@ int main()
 			printBoard(board);
 			*/
 
+
 			//if board's turn: make the move, else wait for xboard
 			if (xMove_flag == 1) // xboard done sending a move, now engine needs to send move
 			{
 				printf("MOVE SENT BY XBOARD->ENGINE\n");
-				printBoard(board);				
+				printBoard(board);
+				//board->turn = !(board->turn); // no longer xBoard turn
 				evaluation = eval(board, board->turnCount, move);
-				// TODO: printf("Eval from XBOARD->Engine = : [%d]\n", prunes.boardVal);
+				printf("Eval from XBOARD->Engine = : [%d]\n", prunes.boardVal);
 				clearMoveGen(movegen);
 				clearMoveGen(movehistory);
-				MoveGenFunction(board, move, movegen);				
-				makeMoveTree(board, move, movetree, movegen, movehistory, 0); //creates move tree based on all possible moves, calls board evaluation function, and makes move
+				MoveGenFunction(board, move, movegen);
+
+				prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX, blankMove); //creates move tree based on all possible moves, calls board evaluation function, and makes move
 				printf("Number of Hash Table hits = [%d]\n", board->hashtablehitcounter);
 				printf("Number of Hash Table misses = [%d]\n", board->hashtablemisscounter);
-				printBoard(board);
-				makeMove(board, prunes->pruneMove, movehistory, move);
-				printBoard(board);
-				//prunes->pruneMove = prunes->prunePath.Moves[2];//TODO: check if this stores the right move:
+				makeMove(board, prunes.pruneMove, movehistory, move);
 				board->turnCount++;
-				Addr_Conversion(prunes->pruneMove.startLocation, startLocation);
-				Addr_Conversion(prunes->pruneMove.endLocation, endLocation);
+				Addr_Conversion(prunes.pruneMove.startLocation, startLocation);
+				Addr_Conversion(prunes.pruneMove.endLocation, endLocation);
 				// cannot send move if pruneMove has not been iterated at least once
 				if (startLocation[0] >= 0 && startLocation[1] >= 0 && endLocation >= 0 && endLocation[1] >= 0)
 				{
@@ -154,10 +157,10 @@ int main()
 					printf("MOVE SENT BY ENGINE->XBOARD\n");
 					printBoard(board);
 					evaluation = eval(board, board->turnCount, move);
-					printf("Eval from engine->XBOARD = [%d]\n", prunes->pruneBoardVal);
+					printf("Eval from engine->XBOARD = [%d]\n", prunes.boardVal);
 					resetDebugCounters(board);
-					//resetPrunes(&prunes);	
-					//resetPruneChoice(&blankMove);
+					resetPrunes(&prunes);	
+					resetPruneChoice(&blankMove);
 					clearMoveGen(movegen);
 					clearMoveGen(movehistory);
 					MoveGenFunction(board, move, movegen);

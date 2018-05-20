@@ -13,7 +13,7 @@ int checkKingVertical(Board *board, int row, int col);
 int checkKingPawn(Board *board, int row, int col);
 int checkCastle(Board * board, char castle);
 
-void makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth);//Makes tree for moves
+Prunes makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth, short int alphaVal, short int betaVal, MoveList pruneChoice);//Makes tree for moves
 void initializeMoveGen(MoveGen *movegen);
 
 void MoveGenFunction(Board *board, Move *move, MoveGen *movegen);
@@ -37,9 +37,7 @@ int partition(MoveGen *movegen, int frontPivot, int backPivot);
 int isIndexHigher(MoveList *move1, MoveList *move2);
 int isIndexLower(MoveList *move1, MoveList *move2);
 
-
-//Pruning Functions:
-int PruningFunction(Board *board, int depth);
+//RESET PRUNES:
 void resetPruneChoice(MoveList *prunechoice);
 void resetPrunes(Prunes *prunes);
 #endif // !MOVEGEN_H_

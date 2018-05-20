@@ -61,16 +61,8 @@ typedef struct {
 
 
 typedef struct {
-	short int pruneBoardVal;
-	short int currentBoardVal;
+	short int boardVal;
 	MoveList pruneMove;
-	MoveGen prunePath;
-	MoveList currentMove;
-	MoveGen currentPath;
-	short int tempAlpha;
-	short int tempBeta;
-	short int alphaVal;
-	short int betaVal;
 } Prunes;
 
 //Transposition Hash Table;
@@ -110,7 +102,7 @@ void ht_del_hash_table(ht_hash_table* ht);
 void setMove(MoveList *dest, MoveList source);
 
 //Hash Table Functions:
-int ht_read(ht_hash_table * ht, volatile unsigned long long *zobrist, int depth);
+void ht_read(Prunes *prunes, ht_hash_table * ht, volatile unsigned long long *zobrist, int depth);
 void ht_write(ht_hash_table *ht, volatile unsigned long long *zobrist, int depth, int flag, int eval, MoveList move);
 ht_item* get_ht_item(ht_hash_table* ht, volatile unsigned long long *zobrist);
 int isInTable(ht_item *item, volatile unsigned long long *zobrist, int depth);
