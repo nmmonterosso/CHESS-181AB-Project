@@ -458,7 +458,7 @@ int checkKingVertical(Board * board, int row, int col)
 			}//end if occupied		
 		}//end for right check
 
-		for (int i = board->whiteKingCoordinates[1] - 1; i >= 0; i--) {
+		for (int i = board->whiteKingCoordinates[0] - 1; i >= 0; i--) {
 			if (board->boardSpaces[i][col].isOccupied) {
 				if ((board->boardSpaces[i][col].pieceType == BLACK_ROOK) ||
 					(board->boardSpaces[i][col].pieceType == BLACK_QUEEN))
