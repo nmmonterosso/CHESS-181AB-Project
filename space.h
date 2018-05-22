@@ -1,7 +1,7 @@
 #ifndef SPACE_H_
 #define SPACE_H_
 
-#define MAXDEPTH 7
+#define MAXDEPTH 5
 
 #define WHITE 0xF
 #define BLACK 0x7
@@ -40,6 +40,9 @@
 #define NO_EN_PASSANT -16
 #define EN_PASSANT 16
 
+// TODO: Check to swap this
+#define MAX_NODE 1
+#define MIN_NODE 0
 //PROMOTION CODES FOR PAWN PROMOTION
 //WHITE PAWN PROMOTION
 

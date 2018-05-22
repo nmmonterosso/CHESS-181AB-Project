@@ -51,7 +51,7 @@ char bishopPlaceTable[8][8] = {
 };
 
 // Rooks should stay put if it is still possible to castlize, and should remain on the center files
-/*char rookPlaceTable[8][8] = {
+char rookPlaceTable[8][8] = {
 { 0,  0,  0,  0,  0,  0,  0,  0 },
 { 5, 10, 10, 10, 10, 10, 10,  5 }, // Congrats on advancing, +5 (except on the edges. Edges are bad)
 { -5,  0,  0,  0,  0,  0,  0, -5 },
@@ -61,7 +61,7 @@ char bishopPlaceTable[8][8] = {
 { -5,  0,  0,  0,  0,  0,  0, -5 },
 {  0,  0,  0,  5,  5,  0,  0,  0 }  // Starting corners are good. Castling moves the rook to an equally favorable spot
 };
-*/
+
 /*
 // Queens act similarly to rooks, with a litle bonus here and there thanks to their extra mobility
 char queenPlaceTable[8][8] = {
@@ -84,7 +84,7 @@ char kingPlaceTable[8][8] = {
 { -20,-30,-30,-40,-40,-30,-30,-20, }, // No
 { -10,-20,-20,-20,-20,-20,-20,-10, }, // Don't you dare
 { 20, 20,  0,  0,  0,  0, 20, 20, }, // Could be better
-{ 20, 30, 10,  0,  0, 10, 30, 20  }  // Safe
+{ 20, 30, 60,  0,  0, 10, 60, 20  }  // Safe
 };
 
 // For the endgame, kings should move towards the center
@@ -149,10 +149,9 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 							break;
 		case(WHITE_QUEEN):	materialVal = 900;
 							boardVal = boardVal + materialVal;
-							//if (checkKingSafety(board, y, x) == 0)
-							//	boardVal = boardVal - 1800; //queen penalty
+							
 							break; //+queenPlaceTable[7 - y][x];	boardVal = boardVal + materialVal;	break;
-		case(WHITE_ROOK):	materialVal = 500;// +rookPlaceTable[7 - y][x];
+		case(WHITE_ROOK):	materialVal = 500  + rookPlaceTable[7 - y][x];
 							boardVal = boardVal + materialVal;
 							break;
 		case(WHITE_BISHOP):	materialVal = 350 + bishopPlaceTable[7 - y][x];
@@ -214,7 +213,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 							boardVal = boardVal - materialVal;
 							bishopCount++;
 							break;
-		case(BLACK_ROOK):	materialVal = 500;// +rookPlaceTable[y][7 - x];
+		case(BLACK_ROOK):	materialVal = 500 + rookPlaceTable[y][7 - x];
 							boardVal = boardVal - materialVal;
 							break;
 		case(BLACK_QUEEN):	materialVal = 900;

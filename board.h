@@ -61,16 +61,9 @@ typedef struct {
 
 
 typedef struct {
-	short int pruneBoardVal;
-	short int currentBoardVal;
-	MoveList pruneMove;
-	MoveGen prunePath;
-	MoveList currentMove;
-	MoveGen currentPath;
-	short int tempAlpha;
-	short int tempBeta;
-	short int alphaVal;
-	short int betaVal;
+	short int value;
+	MoveList move;
+	MoveGen  path;
 } Prunes;
 
 //Transposition Hash Table;

@@ -377,12 +377,12 @@ void setMove(MoveList *dest, MoveList source) {
 
  //Summary: Checks if the item is inside the hash table and returns the prune value
  //associated with it
-int ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth)
+int ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth, Prunes *prunes)
 {	
 	ht_item *item = get_ht_item(ht, zobrist);
 	if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
-		prunes->pruneBoardVal = item->eval;
-		prunes->pruneMove = item->move;
+		prunes->value = item->eval;
+		prunes->move = item->move;
 		return 1;
 	} // if hit
 	else return 0;

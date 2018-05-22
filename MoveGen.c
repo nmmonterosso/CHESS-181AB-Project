@@ -7,7 +7,6 @@
 #include <limits.h>
 
 //SHARED VARIABLES:
-extern volatile Prunes *prunes;
 extern volatile unsigned long long *zobrist;
 extern volatile ht_hash_table *ht;
 int hitflag = 0;
@@ -38,6 +37,16 @@ void initializeMoveGen(MoveGen *movegen) {
 	}//endfor	
 	movegen->count = 0;
 }
+
+void initalizePrunes(Board *board, Prunes * prunes, short int alpha, short int beta)
+{
+	prunes->value = ((board->turn == WHITE_TURN) ? alpha : beta);	
+	prunes->move.piece = -1;
+	prunes->move.startLocation = -1;
+	prunes->move.endLocation = -1;
+	prunes->move.capturedPiece = -1;
+	
+}// initializePrunes
 
 
 //SUMMARY returns 0 if king square is under attack: (unsafe), returns 1 if safe:
@@ -551,11 +560,14 @@ int checkCastle(Board *board, char castle) {
 }//checkCastle
 
 
-void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth)//, MoveList pruneChoice)
+Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * movegen, MoveGen * movehistory, int depth, int alpha, int beta)//, MoveList pruneChoice)
 {	
+	Prunes bestPrunes, node;
 	hitflag = 0;
 	pruneflag = DEFAULT_FLAG;
-	//int checkmateFlag = 1;
+	int bestvalue = SHRT_MIN;	
+	initalizePrunes(board, &bestPrunes, alpha, beta);
+	int checkmateFlag = 1;
 	/*
 	if (ht_read(ht, zobrist, MAXDEPTH - depth)) 
 		board->hashtablehitcounter++;
@@ -568,11 +580,11 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 	if (depth == MAXDEPTH) {
 		//BOARD EVALUATE RETURN BOARD EVALUATION:
 		//printBoard(board);
-		prunes->currentBoardVal = eval(board, board->turnCount, move); //TODO: keep track of turn count
-		prunes->currentMove = movehistory->Moves[0];
-		prunes->currentPath = *movehistory;
+		node.value = eval(board, board->turnCount, move); //TODO: keep track of turn count
+		node.move = movehistory->Moves[0];
+		node.path = *movehistory;
 		board->PerftNodeCounter = board->PerftNodeCounter + 1; //Increment # of legal moves counter for debugging purposes.		
-		return;
+		return node;
 	}//end if 
 
 	 // after iteration 1 --> depth = depth + 1
@@ -593,34 +605,34 @@ void makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * move
 			if (checkKingSafety(board, ((board->turn == WHITE_TURN) ? board->blackKingCoordinates[0] : board->whiteKingCoordinates[0]),
 				((board->turn == WHITE_TURN) ? board->blackKingCoordinates[1] : board->whiteKingCoordinates[1]))) {
 
-				//checkmateFlag = 0;
+				checkmateFlag = 0;
 				movetree->MoveTreeNode[depth + 1].count = 0;
 				MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
 
 				//Go one more depth lower:																						
-				makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1);					
-				/*if (PruningFunction(board, depth) == -1) {
-					unMakeMove(board, movehistory, move);
-					return;
-				}*/
-				//ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, prunes->pruneBoardVal, prunes->pruneMove); // HASH TABLE
-
-
-
-
-
-				unMakeMove(board, movehistory, move); // We examined one depth lower, unmake the move we did
+				node = makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, -beta, -alpha);
+				node.value = -node.value; // negamax
+				unMakeMove(board, movehistory, move);
+				//Alpha Beta Pruning: //TODO:
+				if (node.value > bestvalue) {
+					bestvalue = node.value;
+					bestPrunes = node;
+				}
+				if (bestvalue > alpha) {
+					alpha = bestvalue;					
+				}
+				if (bestvalue >= beta)
+					break;
+				//ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, prunes->pruneBoardVal, prunes->pruneMove); // HASH TABLE				
+				
 				//	printBoard(board);
 			}//end if 
 			else { // ILLEGAL MOVE HERE:
 				undoBadNode(board, movehistory, move);
 			}
-		}//end for 				 	
-	}// end if not maxdepth	
-	/*if (checkmateFlag) {
-		printBoard(board);
-		prunes->currentBoardVal = ((board->turn == BLACK_TURN) ? SHRT_MAX : SHRT_MAX);
-	} //only reach this if no legal move exists:*/
+		}//end for 				
+	}// end if not maxdepth
+	return bestPrunes;
 }//makeMoveTree
 
 
@@ -1720,33 +1732,15 @@ void resetPrunes(Prunes *prunes)
 } //resetPrunes
 
 // Summary: Returns -1 when pruning occurs, 0 otherwise
-int PruningFunction(Board *board, int depth)
+int AlphaBetaFunction(int alpha, int beta, int depth, char nodeType)
 {
 	//alphabeta max
-	if (board->turn == WHITE_TURN) {
-		
-		if (prunes->currentBoardVal > prunes->alphaVal) {			
-			prunes->pruneMove = prunes->currentMove;
-			prunes->prunePath = prunes->currentPath;
-			prunes->alphaVal = prunes->currentBoardVal;
-		}
-		if (prunes->alphaVal >= prunes->betaVal)
-			return -1;
-		else 
-			prunes->pruneBoardVal = prunes->alphaVal;
+	if (nodeType == MAX_NODE) {
+				
 	}
 	//alphabeta min
-	else if (board->turn == BLACK_TURN) {
+	else if (nodeType == MIN_NODE) {
 		
-		if (prunes->currentBoardVal < prunes->betaVal) {
-			prunes->pruneMove = prunes->currentMove;
-			prunes->prunePath = prunes->currentPath;
-			prunes->betaVal = prunes->currentBoardVal;
-		}
-		if (prunes->betaVal <= prunes->alphaVal)
-			return -1;
-		else 
-			prunes->pruneBoardVal = prunes->betaVal;
 	}
 	return 0;
 }//Pruning Funciton

@@ -13,8 +13,9 @@ int checkKingVertical(Board *board, int row, int col);
 int checkKingPawn(Board *board, int row, int col);
 int checkCastle(Board * board, char castle);
 
-void makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth);//Makes tree for moves
+Prunes makeMoveTree(Board *board, Move *move, MoveTree *movetree, MoveGen *movegen, MoveGen *movehistory, int depth, int alpha, int beta);//Makes tree for moves
 void initializeMoveGen(MoveGen *movegen);
+void initalizePrunes(Board *board, Prunes *prunes, short int alpha, short int beta);
 
 void MoveGenFunction(Board *board, Move *move, MoveGen *movegen);
 void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count);
