@@ -257,6 +257,14 @@ void setBoard(Board * board, Move *move, char command[])
 	while (token != NULL) {
 		//printf("Token [%d] = [%s]\n", i, token);
 		if (i > 7) { //BOARD RIGHTS
+			if (i == 8) {
+				if (token[0] == 'w') {
+					board->turn = WHITE_TURN;
+				}
+				else
+					board->turn = BLACK_TURN;
+			}
+
 			if (i == 9) {
 				if (token[0] == '-')
 					board->castlingRights = 0x0;
@@ -283,7 +291,7 @@ void setBoard(Board * board, Move *move, char command[])
 			else
 				token = strtok(NULL, "/");
 		}//end else
-
+		
 		i++;
 	}//endwhile	
 	 //TODO SET CASTLING RIGHTS, EP RIGHTS, TURNCOUNTER;
@@ -327,13 +335,13 @@ void printBoard(Board *board) {
  //HASH TABLE FUNCTIONS:
 
  //Summary: Creates new hash table item index:
-static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, MoveList move) {
+static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, Prunes prunes) {
 	ht_item* i = malloc(sizeof(ht_item));
 	i->zobrist = zobrist;
 	i->depth = depth;
 	i->flag = flag;
-	i->eval = eval;
-	setMove(&i->move, move);
+	i->prunes = prunes;
+	//setMove(&i->move, move);
 	return i;
 } //ht_new_item
 
@@ -341,7 +349,7 @@ static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int fla
 ht_hash_table* ht_new() {
 	ht_hash_table* ht = (ht_hash_table *)malloc(sizeof(ht_hash_table));
 
-	ht->size = 16777216; //2^24 ~16.8 million 
+	ht->size = 4194304; //2^22 ~4.2 million 
 	ht->count = 0;
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
 	for (int i = 0; i < ht->size; i++)
@@ -381,8 +389,7 @@ int ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth
 {	
 	ht_item *item = get_ht_item(ht, zobrist);
 	if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
-		prunes->value = item->eval;
-		prunes->move = item->move;
+		*prunes = item->prunes;
 		return 1;
 	} // if hit
 	else return 0;
@@ -390,15 +397,16 @@ int ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth
 } // ht_read()
 
   //Summary: Replace when Hash Table Collisions or Misses:
-void ht_write(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth, int flag, int eval, MoveList move)
+void ht_write(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth, int flag, Prunes prunes)
 {
 	ht_item * item = get_ht_item(ht, zobrist);	
 	if ((item->zobrist != *zobrist) || (item->depth < depth)) {
 		item->zobrist = *zobrist;
 		item->depth = depth;
 		item->flag = flag;
-		item->eval = eval;
-		item->move = move;
+		item->prunes = prunes;
+	//	item->eval = eval;
+//		item->move = move;
 	}//end if 	
 }//ht_replace_item
 

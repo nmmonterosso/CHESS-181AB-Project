@@ -568,12 +568,14 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 	int bestvalue = SHRT_MIN;	
 	initalizePrunes(board, &bestPrunes, alpha, beta);
 	int checkmateFlag = 1;
-	/*
-	if (ht_read(ht, zobrist, MAXDEPTH - depth)) 
+	
+	if (ht_read(ht, zobrist, MAXDEPTH - depth, &node)) {
 		board->hashtablehitcounter++;
+		return node;
+	}
 	else	
 		board->hashtablemisscounter++;
-	*/
+	
 
 	//check if position in hash table: if in table, return best move/alpha/beta values:if not continue with function:
 	// Defining Base Case
@@ -623,7 +625,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				}
 				if (bestvalue >= beta)
 					break;
-				//ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, prunes->pruneBoardVal, prunes->pruneMove); // HASH TABLE				
+				ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, bestPrunes); // HASH TABLE				
 				
 				//	printBoard(board);
 			}//end if 
@@ -1099,30 +1101,62 @@ void MoveGenQueen(Board * board, Move * move, MoveGen * movegen, int count)
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, WHITE_QUEEN, NO_CAPTURE);
 		}//endfor WHITE ROOK PORTION
 
-		 //WHITE BISHOP PORTION HERE:
-		for (int x = 0; x < 13; x++) {
-			if (move->bishopMoves[i][j][x] == NO_MOVE)
+		 //WHITE BISHOP PORTION HERE:		
+		a = i;
+		b = j;
+		// TOP RIGHT
+		while (a + 1 < 8 && b + 1 < 8) {			
+			if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_QUEEN, board->boardSpaces[a + 1][b + 1].pieceType);
 				break;
-			else {
-				Addr_Conversion(move->bishopMoves[i][j][x], Board_Coordinates);
-				a = Board_Coordinates[0];
-				b = Board_Coordinates[1];
-				if (board->boardSpaces[a][b].isOccupied == IS_OCCUPIED) {
-					if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE) <= BLACK)
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, WHITE_QUEEN, board->boardSpaces[a][b].pieceType);
-					if ((a > i) && (b > j))				  //TOP RIGHT DIRECTION
-						x = x + (7 - ((a > b) ? a : b));  //if a > b, then x = x + (7 - a), else x = x + (7 - b)
-					else if ((a < i) && (b > j))		  //BOTTOM RIGHT DIRECTION			
-						x = x + (7 - ((a > b) ? a : b));  //if a > b, x = x + (7-b), else x = x + (7-a) 	
-					else if ((a < i) && (b < j))		  //BOTTOM LEFT DIRECTION
-						x = x + ((a > b) ? b : a);		  //if a > b, x = x + b, else x = x + a: 	
-					else if ((a > i) && (b < j))		  //TOP LEFT DIRECTION
-						x = 13;							  //terminating condition
-				}// end if occupied
-				else
-					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, WHITE_QUEEN, NO_CAPTURE);
-			}//end else		
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_QUEEN, NO_CAPTURE);
+			a++;
+			b++;
 		}//endFor WHITE BISHOP
+		//bottom right
+		a = i;
+		b = j;
+		while (a - 1 >= 0  && b + 1 < 8) {
+			if (board->boardSpaces[a - 1][b + 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a - 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, WHITE_QUEEN, board->boardSpaces[a - 1][b + 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, WHITE_QUEEN, NO_CAPTURE);
+			a--;
+			b++;
+		}//endFor WHITE BISHOP
+		a = i;
+		b = j;
+		while (a - 1 >= 0 && b - 1 >= 0) {
+			if (board->boardSpaces[a - 1][b - 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a - 1][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, WHITE_QUEEN, board->boardSpaces[a - 1][b - 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, WHITE_QUEEN, NO_CAPTURE);
+			a--;
+			b--;
+		}//endFor WHITE BISHOP
+		a = i;
+		b = j;
+		while (a + 1 < 8 && b - 1 >= 0) {
+			if (board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_QUEEN, board->boardSpaces[a + 1][b - 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_QUEEN, NO_CAPTURE);
+			a++;
+			b--;
+		}//endFor WHITE BISHOP
+		
 	}// end if
 
 	else { //BLACK TURN
@@ -1151,29 +1185,60 @@ void MoveGenQueen(Board * board, Move * move, MoveGen * movegen, int count)
 		}//end forBLACK ROOK
 
 		 //BLACK_BISHOP PORTION HERE
-		for (int x = 0; x < 13; x++) {
-			if (move->bishopMoves[i][j][x] == NO_MOVE)
+		a = i;
+		b = j;
+		// TOP RIGHT
+		while (a + 1 < 8 && b + 1 < 8) {
+			if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, BLACK_QUEEN, board->boardSpaces[a + 1][b + 1].pieceType);
 				break;
-			else {
-				Addr_Conversion(move->bishopMoves[i][j][x], Board_Coordinates);
-				a = Board_Coordinates[0];
-				b = Board_Coordinates[1];
-				if (board->boardSpaces[a][b].isOccupied == IS_OCCUPIED) {
-					if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, BLACK_QUEEN, board->boardSpaces[a][b].pieceType);
-					if ((a > i) && (b > j))				  //TOP RIGHT DIRECTION
-						x = x + (7 - ((a > b) ? a : b));  //if a > b, then x = x + (7 - a), else x = x + (7 - b)
-					else if ((a < i) && (b > j))		  //BOTTOM RIGHT DIRECTION			
-						x = x + (7 - ((a > b) ? b : a));  //if a > b, x = x + (7-b), else x = x + (7-a) 	
-					else if ((a < i) && (b < j))		  //BOTTOM LEFT DIRECTION
-						x = x + ((a > b) ? b : a);		  //if a > b, x = x + b, else x = x + a: 	
-					else if ((a > i) && (b < j))		  //TOP LEFT DIRECTION
-						x = 13;							  //terminating condition
-				}// end if occupied
-				else
-					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, BLACK_QUEEN, NO_CAPTURE);
-			}//end else		
-		}//endForBLACK BISHOP
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, BLACK_QUEEN, NO_CAPTURE);
+			a++;
+			b++;
+		}//endFor BLACK BISHOP
+		 //bottom right
+		a = i;
+		b = j;
+		while (a - 1 >= 0 && b + 1 < 8) {
+			if (board->boardSpaces[a - 1][b + 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a - 1][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_QUEEN, board->boardSpaces[a - 1][b + 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_QUEEN, NO_CAPTURE);
+			a--;
+			b++;
+		}//endFor WHITE BISHOP
+		a = i;
+		b = j;
+		while (a - 1 >= 0 && b - 1 >= 0) {
+			if (board->boardSpaces[a - 1][b - 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a - 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_QUEEN, board->boardSpaces[a - 1][b - 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_QUEEN, NO_CAPTURE);
+			a--;
+			b--;
+		}//endFor WHITE BISHOP
+		a = i;
+		b = j;
+		while (a + 1 < 8 && b - 1 >= 0) {
+			if (board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, BLACK_QUEEN, board->boardSpaces[a + 1][b - 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, BLACK_QUEEN, NO_CAPTURE);
+			a++;
+			b--;
+		}//endFor BISHOP
 	}//end else
 }//MoveGenQueen
 

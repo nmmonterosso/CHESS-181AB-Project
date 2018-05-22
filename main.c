@@ -66,7 +66,7 @@ int main()
 	char position8[] = "k7/8/8/8/8/1n6/P7/7K w - - 0 10";
 	*/
 	char startingPosition[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
-	char debugPosition1[] = "rnb1Nb2/p2p1p1r/1pk3p1/3Bp1Bp/4P3/3P1N1P/PPP2PP1/R2QR1K1/ b - - 0 0";
+	char debugPosition1[] = "rnb1k1nr/pp1p1ppp/2pppq2/8/1b1PP2P/2N5/PPP2PP1/R1BQKBNR/ b KQkq - 0 0"; //MOVE C1 to g5
 	
 	//END DEBUGGING POSITIONS//
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
@@ -78,11 +78,11 @@ int main()
 	int evaluation = eval(board, board->turnCount, move);
 	printf("starting Eval = [%d]\n", evaluation);
 	movegen->count = 0;
+	printBoard(board);
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;
 	
-	
-	printBoard(board);
+		
 
 	while (1) {
 		if (xboard_flag == 1) // if xboard is done continue
@@ -157,9 +157,7 @@ int main()
 					printBoard(board);
 					evaluation = eval(board, board->turnCount, move);
 					printf("Eval from engine->XBOARD = [%d]\n", prunes.value);
-					resetDebugCounters(board);
-					//resetPrunes(&prunes);	
-					//resetPruneChoice(&blankMove);
+					resetDebugCounters(board);					
 					clearMoveGen(movegen);
 					clearMoveGen(movehistory);
 					MoveGenFunction(board, move, movegen);

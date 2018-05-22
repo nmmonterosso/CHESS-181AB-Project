@@ -51,7 +51,7 @@ char bishopPlaceTable[8][8] = {
 };
 
 // Rooks should stay put if it is still possible to castlize, and should remain on the center files
-char rookPlaceTable[8][8] = {
+/*char rookPlaceTable[8][8] = {
 { 0,  0,  0,  0,  0,  0,  0,  0 },
 { 5, 10, 10, 10, 10, 10, 10,  5 }, // Congrats on advancing, +5 (except on the edges. Edges are bad)
 { -5,  0,  0,  0,  0,  0,  0, -5 },
@@ -84,7 +84,7 @@ char kingPlaceTable[8][8] = {
 { -20,-30,-30,-40,-40,-30,-30,-20, }, // No
 { -10,-20,-20,-20,-20,-20,-20,-10, }, // Don't you dare
 { 20, 20,  0,  0,  0,  0, 20, 20, }, // Could be better
-{ 20, 30, 60,  0,  0, 10, 60, 20  }  // Safe
+{ 20, 30, 10,  0,  0, 10, 30, 20  }  // Safe
 };
 
 // For the endgame, kings should move towards the center
@@ -148,10 +148,9 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 							boardVal = boardVal + materialVal;
 							break;
 		case(WHITE_QUEEN):	materialVal = 900;
-							boardVal = boardVal + materialVal;
-							
-							break; //+queenPlaceTable[7 - y][x];	boardVal = boardVal + materialVal;	break;
-		case(WHITE_ROOK):	materialVal = 500  + rookPlaceTable[7 - y][x];
+							boardVal = boardVal + materialVal;							
+							break;
+		case(WHITE_ROOK):	materialVal = 500;//  +rookPlaceTable[7 - y][x];
 							boardVal = boardVal + materialVal;
 							break;
 		case(WHITE_BISHOP):	materialVal = 350 + bishopPlaceTable[7 - y][x];
@@ -213,26 +212,17 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 							boardVal = boardVal - materialVal;
 							bishopCount++;
 							break;
-		case(BLACK_ROOK):	materialVal = 500 + rookPlaceTable[y][7 - x];
+		case(BLACK_ROOK):	materialVal = 500;// + rookPlaceTable[y][7 - x];
 							boardVal = boardVal - materialVal;
 							break;
 		case(BLACK_QUEEN):	materialVal = 900;
-							boardVal = boardVal - materialVal;
-							//DANGEROUS CODE
-							//board->turn = !board->turn;
-							//if (checkKingSafety(board, y, x) == 0)
-							//	boardVal = boardVal + 1800; //unsafe queen penalty
-							//board->turn = !board->turn;
-							break;// +queenPlaceTable[y][7 - x];	boardVal = boardVal - materialVal;	break;
+							boardVal = boardVal - materialVal;							
+							break;
 		case(BLACK_KING):	materialVal = kingPlaceTable[y][7 - x];
 							boardVal = boardVal - materialVal;
 							break;
 		default:	break;// end = 1; break;
-		}
-
-		//printf("%d\n", boardVal);
-		//if (end == 1)
-		//	break;
+		}		
 	}
 	//printf("%d\n", boardVal);
 	if (bishopCount >= 2)

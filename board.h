@@ -71,8 +71,9 @@ typedef struct {
 	unsigned long long zobrist;
 	int depth;
 	int flag; //ALPHA PRUNING / BETA PRUNING:
-	int eval;
-	MoveList move; //BEST MOVE: 
+	Prunes prunes;
+	//int eval;
+	//MoveList move; //BEST MOVE: 
 }ht_item;
 
 typedef struct {
@@ -96,15 +97,15 @@ void setWhiteSpaces(Board *board, int number, int row, int col);
 void setColorSpaces(Board *board, Move *move);
 //Hash table functions:
 
-static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, int eval, MoveList move);
+static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int flag, Prunes prunes);
 ht_hash_table* ht_new();
 static void ht_del_item(ht_item *i);
 void ht_del_hash_table(ht_hash_table* ht);
 void setMove(MoveList *dest, MoveList source);
 
 //Hash Table Functions:
-int ht_read(ht_hash_table * ht, volatile unsigned long long *zobrist, int depth);
-void ht_write(ht_hash_table *ht, volatile unsigned long long *zobrist, int depth, int flag, int eval, MoveList move);
+int ht_read(ht_hash_table * ht, volatile unsigned long long *zobrist, int depth, Prunes *prunes);
+void ht_write(ht_hash_table *ht, volatile unsigned long long *zobrist, int depth, int flag, Prunes prunes);
 ht_item* get_ht_item(ht_hash_table* ht, volatile unsigned long long *zobrist);
 int isInTable(ht_item *item, volatile unsigned long long *zobrist, int depth);
 //Hash Table Zobrist Functions:
