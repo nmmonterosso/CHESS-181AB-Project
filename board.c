@@ -331,6 +331,38 @@ void printBoard(Board *board) {
 
 }//printBoard();
 
+void printBoardToFile(FILE *log, Board *board) {
+	// Prints Current Board State to Console:	
+	fprintf(log, "**************************\n");
+	for (int i = 7; i >= 0; i--) {
+		for (int j = 0; j < 8; j++) {
+			if (board->boardSpaces[i][j].isOccupied == 0x01) {
+				switch (board->boardSpaces[i][j].pieceType & GET_PIECE_TYPE) {
+				case(WHITE_KING):	fprintf(log, "|K "); break;
+				case(BLACK_KING):	fprintf(log, "|K*"); break;
+				case(WHITE_QUEEN):	fprintf(log, "|Q "); break;
+				case(BLACK_QUEEN):	fprintf(log, "|Q*"); break;
+				case(WHITE_ROOK):	fprintf(log, "|R "); break;
+				case(BLACK_ROOK):	fprintf(log, "|R*"); break;
+				case(WHITE_BISHOP):	fprintf(log, "|B "); break;
+				case(BLACK_BISHOP):	fprintf(log, "|B*"); break;
+				case(WHITE_KNIGHT):	fprintf(log, "|N "); break;
+				case(BLACK_KNIGHT):	fprintf(log, "|N*"); break;
+				case(WHITE_PAWN):	fprintf(log, "|P "); break;
+				case(BLACK_PAWN):	fprintf(log, "|P*"); break;
+				default:printf("|E "); break; //E = Error, you should not reach this case
+				}// endSwitch				
+			}//if space is occupied
+			else {
+				fprintf(log, "|  ");
+			}//endElse
+		}//endForJ
+		fprintf(log, "|\n");
+	}//endFor I
+	fprintf(log, "**************************\n\n\n");
+
+}//printBoard();
+
 
  //HASH TABLE FUNCTIONS:
 

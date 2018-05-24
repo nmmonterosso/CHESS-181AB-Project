@@ -38,7 +38,8 @@ int main()
 	MoveList blankMove; // Blank movelist that gets passed up and down during pruning
 	MoveList *tempMove = (MoveList *)malloc(sizeof(MoveList));
 	Prunes prunes;
-
+	// Log File:
+	FILE *log;
 	ht = (ht_hash_table*)malloc(sizeof(ht_hash_table));
 	ht = ht_new();
 	
@@ -112,10 +113,20 @@ int main()
 				
 				printf("Number of Hash Table hits = [%d]\n", board->hashtablehitcounter);
 				printf("Number of Hash Table misses = [%d]\n", board->hashtablemisscounter);
+				//fprintf(log, "board turn = [%d]\n", board->turnCount);
+				//log = fopen("log.txt", "w");
+				//fprintf(log, "Before Move\n\n");
+				//printBoardToFile(log, board);
 				printBoard(board);
 				makeMove(board, prunes.move, movehistory, move);
 				printBoard(board);
-				//prunes->pruneMove = prunes->prunePath.Moves[2];//TODO: check if this stores the right move:
+				//fprintf(log, "After Move\n\n");
+				//printBoardToFile(log, board);
+				//fclose(log);
+				//fprintf("Number of Hash Table hits = [%d]\n", log, board->hashtablehitcounter);
+				//fprintf("Number of Hash Table misses = [%d]\n", log, board->hashtablemisscounter);
+
+
 				board->turnCount++;
 				Addr_Conversion(prunes.move.startLocation, startLocation);
 				Addr_Conversion(prunes.move.endLocation, endLocation);
@@ -152,11 +163,18 @@ int main()
 
 					fprintf(stdout, "move %c%d%c%d\n", start, startLocation[0] + 1, end, endLocation[0] + 1);
 					fflush(stdout);
+					//log = fopen("log.txt", "w");
+					//fprintf(log, "move %c%d%c%d\n", start, startLocation[0] + 1, end, endLocation[0] + 1);
 
+					//fprintf(log, "MOVE SENT BY ENGINE->XBOARD\n");
 					printf("MOVE SENT BY ENGINE->XBOARD\n");
 					printBoard(board);
+					//printBoardToFile(log, board);
 					evaluation = eval(board, board->turnCount, move);
+					//fprintf(log, "Eval from engine->XBOARD = [%d]\n", prunes.value);
 					printf("Eval from engine->XBOARD = [%d]\n", prunes.value);
+
+					//fclose(log);
 					resetDebugCounters(board);					
 					clearMoveGen(movegen);
 					clearMoveGen(movehistory);

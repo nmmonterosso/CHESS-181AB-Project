@@ -569,13 +569,13 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 	initalizePrunes(board, &bestPrunes, alpha, beta);
 	int checkmateFlag = 1;
 	
-	if (ht_read(ht, zobrist, MAXDEPTH - depth, &node)) {
+	/*if (ht_read(ht, zobrist, MAXDEPTH - depth, &node)) {
 		board->hashtablehitcounter++;
 		return node;
 	}
 	else	
 		board->hashtablemisscounter++;
-	
+	*/
 
 	//check if position in hash table: if in table, return best move/alpha/beta values:if not continue with function:
 	// Defining Base Case
@@ -625,14 +625,21 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				}
 				if (bestvalue >= beta)
 					break;
-				ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, bestPrunes); // HASH TABLE				
+				//ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, bestPrunes); // HASH TABLE				
 				
 				//	printBoard(board);
 			}//end if 
 			else { // ILLEGAL MOVE HERE:
 				undoBadNode(board, movehistory, move);
 			}
-		}//end for 				
+		}//end for
+
+		if (checkmateFlag) {
+			node.value = ((board->turn == WHITE_TURN) ? SHRT_MIN : SHRT_MAX);
+			node.move = movehistory->Moves[0];
+			node.path = *movehistory;
+			return node;
+		}
 	}// end if not maxdepth
 	return bestPrunes;
 }//makeMoveTree
