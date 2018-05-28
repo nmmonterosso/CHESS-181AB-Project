@@ -7,6 +7,9 @@
 //GLOBAL Variable for flag
 int xboard_flag = 0;
 int xMove_flag = 0;
+// engine side stored in xSide
+int xSide = BLACK_TURN;
+int xGo = 0;
 
 extern volatile unsigned long long *zobrist;
 
@@ -41,80 +44,75 @@ void rmSubstr(char *str, const char *toRemove)
 void xboard(Board *board, Move *movespace, MoveList *move)
 {
 	/*xboard() -- this will read info given by xboard and will determine functions being sent to chess engine*/
-	int startPosition[2], endPosition[2]; // store starting location and end location of xboard moves
-	char extra[5]; // stores extra content from xboard move string... used to indicate pawn promotion
-	//MoveList temp; //temporary move to update zobrist/colorspaces
-	int read; // used for value of how many bytes read by getline()
-			  //size_t nbytes = 32; // initial allocation for xboard string
-	char xboard_string[32];// stores line given by xboard/winBoard
 
+	// store starting location and end location of xboard moves
+	int startPosition[2], endPosition[2]; 
+	// stores extra content from xboard move string... used to indicate pawn promotion
+	char extra[5]; 
+	// used for value of how many bytes read by getline()
+	int read; 
+	// stores line given by xboard/winBoard
+	char xboard_string[32];
+	char buff[32];
 	read = getline(xboard_string, sizeof(xboard_string));
-	if (read == NO_INPUT)
-	{
-		//printf("No Input\n");
-	}
 
-	if (read == TOO_LONG) // input is too long for allocation of xboard_string
+	if (read == OK) 
 	{
-		// if string is TOO_LONG then we need to reallocate memory
-
-		//	xboard_string = (char*)realloc(xboard_string, 64 * sizeof(char)); //reallocate memory
-		//printf("Input too long [%s]\n", xboard_string);
-	}
-
-	if (read == OK) //xboard_string fits input
-	{
-		//read messages from xboard
+		// read messages from xboard
 		if (strcmp(xboard_string, "xboard") == 0) //first message sent from xboard
 		{
 			fprintf(stdout, "\n"); //start game
 			fflush(stdout);
 		}
 
+		// send features to xboard
 		if (strcmp(xboard_string, "protover 2") == 0) // when protover 2 is received, present features
 		{
 			fprintf(stdout,
 				"feature myname=\"Super Chess\""	//set chess engine name
+				" debug=1"
 				" name=0"
 				" san=0"					// xboard sends move in coordinate notation g1g3
-				" usermove=1"			// display for xboard sending moves is "usermove MOVE"
-				" sigint=0"				// turn off interruptinf signals sent by xboard
+				" usermove=1"				// display for xboard sending moves is "usermove MOVE"
+				" colors=1"					// xboard will send white/black signals
+				" sigint=0"					// turn off interruptinf signals sent by xboard
 				" sigterm=0"				// turn off termination signal
-				" pause=0"				// not using pause command
+				" pause=0"					// not using pause command
 				" nps=0"					// not using nps command (nodes per second)
-				" variant=normal"		// no variant used, playing normal chess
-				" ping=0"				// turn off ping protocol
-				" setboard=0"			// turn off setboard protocol (***Look Up***)
-				" playother=0"			// turn off playother protocol
-				" time=0"				// stop xbord from sending time to engine MIGHT NEED IN FUTUR
-				" draw=0"				// turn off draw protocol -- user cannot send dra
-				" reuse=0"				// xboard will kill engine process after every game and start fresh process
+				" variant=normal"			// no variant used, playing normal chess
+				" ping=0"					// turn off ping protocol
+				" setboard=0"				// turn off setboard protocol (***Look Up***)
+				" playother=0"				// turn off playother protocol
+				" time=0"					// stop xbord from sending time to engine MIGHT NEED IN FUTUR
+				" draw=0"					// turn off draw protocol -- user cannot send dra
+				" reuse=0"					// xboard will kill engine process after every game and start fresh process
 				" analyze=0"				// turn off analysis mode protocol
-				" debug=0"				// turn off debug protocol
-				" highlight=0"			// turn off highlight protocol
+				" debug=0"					// turn off debug protocol
+				" highlight=0"				// turn off highlight protocol
 				" ics=0"					// turn off ics command
-				" done=1\n"						// done with setting features... no more feature commands
+				" done=1\n"					// done with setting features... no more feature commands
 			); 
 			fflush(stdout);
 		}
 
-		if (strcmp(xboard_string, "new") == 0) // resetting board
-		{
-			//reset board
-			//set white on move
-			//leave force mode
-			//set engine to play black
-
-		}
-
-		//variant VARNAME --> most likely won't need
-
+		// xboard sends quit signal
 		if (strcmp(xboard_string, "quit") == 0) // xboard is exiting
 		{
 			exit(0); //exit program
 		}
 		
-		/*----- Checking for User Moves -----*/
+		// set engine side
+		if (strcmp(xboard_string, "white") == 0) {
+			// if signal is thrown, engine plays white
+			// go will be sent immediately after this signal
+			xSide = WHITE_TURN;
+		}
+
+		if (strcmp(xboard_string, "go") == 0){
+			xGo = 1;
+		}
+
+		// read xboard moves
 		if (strncmp(xboard_string, "usermove", 8) == 0)
 		{
 			/* removing 'usermove ' from xboard_string */
@@ -224,11 +222,12 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 			xMove_flag = 1; // done receiving move
 
 		} // usermove check
-		  // update color spaces
-		//updateColorSpaces(board, temp, move, 0);
-		//update_zobrist(temp, zobrist);
+		  
 	} // if (read == OK)
-	xboard_flag = 1; // xboard is done
+
+	// xboard is done talking
+	xboard_flag = 1; 
+
 } //xboard
 
 void checkCastling(char * xboard_string, Board * board, MoveList * move)

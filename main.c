@@ -23,10 +23,6 @@ unsigned long long randTurn;
 volatile unsigned long long *zobrist;
 volatile ht_hash_table *ht;
 
-
-
-
-
 int main()
 {
 	//Initialize board		
@@ -76,30 +72,75 @@ int main()
 	init_zobrist();
 	set_zobrist_value(board, zobrist);
 	int evaluation = eval(board, board->turnCount, move);
-	printf("starting Eval = [%d]\n", evaluation);
+	// printf("starting Eval = [%d]\n", evaluation);
 	movegen->count = 0;
 	printBoard(board);
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;
 	
 		
-
+	// fprintf(stdout, "-debug");
 	while (1) {
-		if (xboard_flag == 1) // if xboard is done continue
-		{
+		if (xboard_flag == 1) {// if xboard is done continue
+			// if xboard sets engine as white, engine returns move
+			if (xSide == WHITE_TURN) {
+				// possibly just return Queen's Pawn or reference Opening book
+				while (xGo == 0) {
+					xboard(board, move, tempMove);
+				}
 
-			//creates move tree based on all possible moves, calls board evaluation function, and makes move
-			/*printf("total # of nodes: = [%d]\n", board->PerftNodeCounter);
-			printf("total # of captures: = [%d]\n", board->PerftCaptureCounter);
-			printf("total # of EP Captures: = [%d]\n", board->PerftEPCapture);
-			printf("total # of castling: = [%d]\n", board->PerftCastleCounter);
-			printf("total # of pawn Promotions = [%d]\n", board->PerftPromotionCounter);
-			printBoard(board);
-			*/
+				if (xGo) {
+					printBoard(board);
+					// MoveGen() was done for initial state before entering loop
+					prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX);
+					makeMove(board, prunes.move, movehistory, move);
+					board->turnCount++;
+
+					Addr_Conversion(prunes.move.startLocation, startLocation);
+					Addr_Conversion(prunes.move.endLocation, endLocation);
+					if (startLocation[0] >= 0 && startLocation[1] >= 0 && endLocation >= 0 && endLocation[1] >= 0) {
+						switch (startLocation[1]) {
+						case 0: start = 'a'; break;
+						case 1: start = 'b'; break;
+						case 2: start = 'c'; break;
+						case 3: start = 'd'; break;
+						case 4: start = 'e'; break;
+						case 5: start = 'f'; break;
+						case 6: start = 'g'; break;
+						case 7: start = 'h'; break;
+						default: break;
+						}
+						switch (endLocation[1]) {
+						case 0: end = 'a'; break;
+						case 1: end = 'b'; break;
+						case 2: end = 'c'; break;
+						case 3: end = 'd'; break;
+						case 4: end = 'e'; break;
+						case 5: end = 'f'; break;
+						case 6: end = 'g'; break;
+						case 7: end = 'h'; break;
+						default: break;
+						}
+
+						fprintf(stdout, "move %c%d%c%d\n", start, startLocation[0] + 1, end, endLocation[0] + 1);
+						fflush(stdout);
+
+						printBoard(board);
+						evaluation = eval(board, board->turnCount, move);
+						resetDebugCounters(board);
+						clearMoveGen(movegen);
+						clearMoveGen(movehistory);
+						MoveGenFunction(board, move, movegen);
+						movetree->MoveTreeNode[0] = *movegen;
+					}
+
+					xboard_flag = 0;	// reset flag
+					xSide = BLACK_TURN; // reset flag
+				}
+			}
 
 			//if board's turn: make the move, else wait for xboard
-			if (xMove_flag == 1) // xboard done sending a move, now engine needs to send move
-			{
+			else if (xMove_flag == 1) { // xboard done sending a move, now engine needs to send move
 				printf("MOVE SENT BY XBOARD->ENGINE\n");
 				printBoard(board);				
 				evaluation = eval(board, board->turnCount, move);
@@ -120,12 +161,8 @@ int main()
 				Addr_Conversion(prunes.move.startLocation, startLocation);
 				Addr_Conversion(prunes.move.endLocation, endLocation);
 				// cannot send move if pruneMove has not been iterated at least once
-				if (startLocation[0] >= 0 && startLocation[1] >= 0 && endLocation >= 0 && endLocation[1] >= 0)
-				{
-					
-					//send to xboard
-					switch (startLocation[1])
-					{
+				if (startLocation[0] >= 0 && startLocation[1] >= 0 && endLocation >= 0 && endLocation[1] >= 0) {
+					switch (startLocation[1]){
 					case 0: start = 'a'; break;
 					case 1: start = 'b'; break;
 					case 2: start = 'c'; break;
@@ -136,9 +173,7 @@ int main()
 					case 7: start = 'h'; break;
 					default: break;
 					}
-
-					switch (endLocation[1])
-					{
+					switch (endLocation[1]){
 					case 0: end = 'a'; break;
 					case 1: end = 'b'; break;
 					case 2: end = 'c'; break;
@@ -163,25 +198,23 @@ int main()
 					MoveGenFunction(board, move, movegen);
 					movetree->MoveTreeNode[0] = *movegen;
 					xMove_flag = 0;
-				}
+				} 
 
 				xboard_flag = 0; // reset flag
 			}
-			else // if xMove_flag has not been triggered, ask xboard for its move
-			{
+			else { // if xMove_flag has not been triggered, ask xboard for its move
 				xboard(board, move, tempMove);
-				
 			}
 		}
 
-		else
-		{
+		else {
 			xboard(board, move, tempMove);
-			if (xboard_flag) {
+			if (xboard_flag && xGo) {
 				makeMove(board, *tempMove, movehistory, move);
 				board->turnCount++;
 				clearMoveList(tempMove);
 			}
+			
 		}
 		
 	}//end while

@@ -9,6 +9,8 @@
 #include "board.h"
 int xboard_flag;
 int xMove_flag;
+int xSide;
+int xGo;
 static int getline(char *buff, size_t size);
 void rmSubstr(char *str, const char *toRemove);
 void xboard(Board *board, Move *move, MoveList *tempMove);
