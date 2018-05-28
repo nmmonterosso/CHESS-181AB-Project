@@ -51,7 +51,8 @@ int main()
 	int startLocation[2];	// get board position of piece being moved
 	int endLocation[2];		// get board position of where xboard wants to move piece
 
-	//DEBUGGING POSITIONS//
+	//************************************************************
+	//******************* DEBUGGING POSITIONS ********************
 	/*
 	char position2[] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 0"; //KiwiPete
 	char position3[] = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - 0 0";
@@ -61,10 +62,11 @@ int main()
 	char position7[] = "2Q5/8/8/K6k/8/8/3p4/2N5 w - - 0 10";
 	char position8[] = "k7/8/8/8/8/1n6/P7/7K w - - 0 10";
 	*/
+	//******************** END DEBUGGING POSITIONS **************
+	//***********************************************************
 	char startingPosition[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
 	char debugPosition1[] = "rnb1k1nr/pp1p1ppp/2pppq2/8/1b1PP2P/2N5/PPP2PP1/R1BQKBNR/ b KQkq - 0 0"; //MOVE C1 to g5
-	
-	//END DEBUGGING POSITIONS//
+
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
 	MoveGenFunction(board, move, movegen);			//Initial Movegen:		
 	// Set bpard to desired board state:
@@ -78,12 +80,11 @@ int main()
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;
 	
-		
-	// fprintf(stdout, "-debug");
+	
 	while (1) {
 		if (xboard_flag == 1) {// if xboard is done continue
 			// if xboard sets engine as white, engine returns move
-			if (xSide == WHITE_TURN) {
+			if (xSide == WHITE_TURN) { // <-- this if statement will only be executed once
 				// possibly just return Queen's Pawn or reference Opening book
 				while (xGo == 0) {
 					xboard(board, move, tempMove);
@@ -204,12 +205,17 @@ int main()
 			}
 			else { // if xMove_flag has not been triggered, ask xboard for its move
 				xboard(board, move, tempMove);
+				if (xMove_flag == 1) {
+					makeMove(board, *tempMove, movehistory, move);
+					board->turnCount++;
+					clearMoveList(tempMove);
+				}
 			}
 		}
 
 		else {
 			xboard(board, move, tempMove);
-			if (xboard_flag && xGo) {
+			if (xMove_flag) {
 				makeMove(board, *tempMove, movehistory, move);
 				board->turnCount++;
 				clearMoveList(tempMove);
