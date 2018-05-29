@@ -61,11 +61,11 @@ int main()
 	char position6[] = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
 	char position7[] = "2Q5/8/8/K6k/8/8/3p4/2N5 w - - 0 10";
 	char position8[] = "k7/8/8/8/8/1n6/P7/7K w - - 0 10";
-	*/
-	//******************** END DEBUGGING POSITIONS **************
-	//***********************************************************
-	char startingPosition[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
 	char debugPosition1[] = "rnb1k1nr/pp1p1ppp/2pppq2/8/1b1PP2P/2N5/PPP2PP1/R1BQKBNR/ b KQkq - 0 0"; //MOVE C1 to g5
+	*/
+	//******************** END DEBUGGING POSITIONS ***************
+	//************************************************************
+	char startingPosition[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
 
 	makeBoard(board, move, movegen, movehistory);	// Initializes board state and pieces. Precompiles all moves:
 	MoveGenFunction(board, move, movegen);			//Initial Movegen:		
@@ -74,7 +74,7 @@ int main()
 	init_zobrist();
 	set_zobrist_value(board, zobrist);
 	int evaluation = eval(board, board->turnCount, move);
-	// printf("starting Eval = [%d]\n", evaluation);
+	printf("starting Eval = [%d]\n", evaluation);
 	movegen->count = 0;
 	printBoard(board);
 	MoveGenFunction(board, move, movegen);
@@ -82,70 +82,126 @@ int main()
 	
 	
 	while (1) {
-		if (xboard_flag == 1) {// if xboard is done continue
+		// if xboard is done continue
+		if (xboard_flag == 1) {
 			// if xboard sets engine as white, engine returns move
 			if (xSide == WHITE_TURN) { // <-- this if statement will only be executed once
 				// possibly just return Queen's Pawn or reference Opening book
 				while (xGo == 0) {
 					xboard(board, move, tempMove);
 				}
+				printBoard(board);
+				clearMoveGen(movegen);
+				clearMoveGen(movehistory);
+				MoveGenFunction(board, move, movegen);
+				prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX);
+				makeMove(board, prunes.move, movehistory, move);
+				board->turnCount++;
 
-				if (xGo) {
-					printBoard(board);
-					// MoveGen() was done for initial state before entering loop
-					prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX);
-					makeMove(board, prunes.move, movehistory, move);
-					board->turnCount++;
-
-					Addr_Conversion(prunes.move.startLocation, startLocation);
-					Addr_Conversion(prunes.move.endLocation, endLocation);
-					if (startLocation[0] >= 0 && startLocation[1] >= 0 && endLocation >= 0 && endLocation[1] >= 0) {
-						switch (startLocation[1]) {
-						case 0: start = 'a'; break;
-						case 1: start = 'b'; break;
-						case 2: start = 'c'; break;
-						case 3: start = 'd'; break;
-						case 4: start = 'e'; break;
-						case 5: start = 'f'; break;
-						case 6: start = 'g'; break;
-						case 7: start = 'h'; break;
-						default: break;
-						}
-						switch (endLocation[1]) {
-						case 0: end = 'a'; break;
-						case 1: end = 'b'; break;
-						case 2: end = 'c'; break;
-						case 3: end = 'd'; break;
-						case 4: end = 'e'; break;
-						case 5: end = 'f'; break;
-						case 6: end = 'g'; break;
-						case 7: end = 'h'; break;
-						default: break;
-						}
-
-						fprintf(stdout, "move %c%d%c%d\n", start, startLocation[0] + 1, end, endLocation[0] + 1);
-						fflush(stdout);
-
-						printBoard(board);
-						evaluation = eval(board, board->turnCount, move);
-						resetDebugCounters(board);
-						clearMoveGen(movegen);
-						clearMoveGen(movehistory);
-						MoveGenFunction(board, move, movegen);
-						movetree->MoveTreeNode[0] = *movegen;
+				Addr_Conversion(prunes.move.startLocation, startLocation);
+				Addr_Conversion(prunes.move.endLocation, endLocation);
+				if (startLocation[0] >= 0 && startLocation[1] >= 0 && endLocation >= 0 && endLocation[1] >= 0) {
+					switch (startLocation[1]) {
+					case 0: start = 'a'; break;
+					case 1: start = 'b'; break;
+					case 2: start = 'c'; break;
+					case 3: start = 'd'; break;
+					case 4: start = 'e'; break;
+					case 5: start = 'f'; break;
+					case 6: start = 'g'; break;
+					case 7: start = 'h'; break;
+					default: break;
+					}
+					switch (endLocation[1]) {
+					case 0: end = 'a'; break;
+					case 1: end = 'b'; break;
+					case 2: end = 'c'; break;
+					case 3: end = 'd'; break;
+					case 4: end = 'e'; break;
+					case 5: end = 'f'; break;
+					case 6: end = 'g'; break;
+					case 7: end = 'h'; break;
+					default: break;
 					}
 
-					xboard_flag = 0;	// reset flag
-					xSide = BLACK_TURN; // reset flag
-				}
-			}
+					fprintf(stdout, "move %c%d%c%d\n", start, startLocation[0] + 1, end, endLocation[0] + 1);
+					fflush(stdout);
 
+					printBoard(board);
+					evaluation = eval(board, board->turnCount, move);
+					resetDebugCounters(board);
+					clearMoveGen(movegen);
+					clearMoveGen(movehistory);
+					MoveGenFunction(board, move, movegen);
+					movetree->MoveTreeNode[0] = *movegen;
+				}
+				xboard_flag = 0;	// reset flag
+				xSide = BLACK_TURN; // reset flag
+				xGo = 0;	// reset flag
+			}
+			/*
+			else if (xSide == BLACK_TURN) {
+				// if xboard sets engine as white, engine returns move
+				while (xGo == 0) {
+					xboard(board, move, tempMove);
+				}
+				
+				printBoard(board);
+				clearMoveGen(movegen);
+				clearMoveGen(movehistory);
+				MoveGenFunction(board, move, movegen);
+				prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX);
+				makeMove(board, prunes.move, movehistory, move);
+				board->turnCount++;
+
+				Addr_Conversion(prunes.move.startLocation, startLocation);
+				Addr_Conversion(prunes.move.endLocation, endLocation);
+				if (startLocation[0] >= 0 && startLocation[1] >= 0 && endLocation >= 0 && endLocation[1] >= 0) {
+					switch (startLocation[1]) {
+					case 0: start = 'a'; break;
+					case 1: start = 'b'; break;
+					case 2: start = 'c'; break;
+					case 3: start = 'd'; break;
+					case 4: start = 'e'; break;
+					case 5: start = 'f'; break;
+					case 6: start = 'g'; break;
+					case 7: start = 'h'; break;
+					default: break;
+					}
+					switch (endLocation[1]) {
+					case 0: end = 'a'; break;
+					case 1: end = 'b'; break;
+					case 2: end = 'c'; break;
+					case 3: end = 'd'; break;
+					case 4: end = 'e'; break;
+					case 5: end = 'f'; break;
+					case 6: end = 'g'; break;
+					case 7: end = 'h'; break;
+					default: break;
+					}
+
+					fprintf(stdout, "move %c%d%c%d\n", start, startLocation[0] + 1, end, endLocation[0] + 1);
+					fflush(stdout);
+
+					printBoard(board);
+					evaluation = eval(board, board->turnCount, move);
+					resetDebugCounters(board);
+					clearMoveGen(movegen);
+					clearMoveGen(movehistory);
+					MoveGenFunction(board, move, movegen);
+					movetree->MoveTreeNode[0] = *movegen;
+				}
+				xboard_flag = 0;	// reset flag
+				xSide = BLACK_TURN; // reset flag	
+				xGo = 0;	// reset flag
+			}
+			*/
 			//if board's turn: make the move, else wait for xboard
 			else if (xMove_flag == 1) { // xboard done sending a move, now engine needs to send move
 				printf("MOVE SENT BY XBOARD->ENGINE\n");
 				printBoard(board);				
-				evaluation = eval(board, board->turnCount, move);
-				// TODO: printf("Eval from XBOARD->Engine = : [%d]\n", prunes.boardVal);
+				//evaluation = eval(board, board->turnCount, tempMove);
+				//printf("Eval from XBOARD->Engine = : [%d]\n", evaluation);
 				clearMoveGen(movegen);
 				clearMoveGen(movehistory);
 				MoveGenFunction(board, move, movegen);
@@ -154,9 +210,9 @@ int main()
 				
 				printf("Number of Hash Table hits = [%d]\n", board->hashtablehitcounter);
 				printf("Number of Hash Table misses = [%d]\n", board->hashtablemisscounter);
-				printBoard(board);
+				//printBoard(board);
 				makeMove(board, prunes.move, movehistory, move);
-				printBoard(board);
+				//printBoard(board);
 				//prunes->pruneMove = prunes->prunePath.Moves[2];//TODO: check if this stores the right move:
 				board->turnCount++;
 				Addr_Conversion(prunes.move.startLocation, startLocation);
@@ -193,6 +249,8 @@ int main()
 					printBoard(board);
 					evaluation = eval(board, board->turnCount, move);
 					printf("Eval from engine->XBOARD = [%d]\n", prunes.value);
+
+					// reset everything for prunes
 					resetDebugCounters(board);					
 					clearMoveGen(movegen);
 					clearMoveGen(movehistory);
@@ -200,29 +258,27 @@ int main()
 					movetree->MoveTreeNode[0] = *movegen;
 					xMove_flag = 0;
 				} 
-
 				xboard_flag = 0; // reset flag
 			}
 			else { // if xMove_flag has not been triggered, ask xboard for its move
 				xboard(board, move, tempMove);
-				if (xMove_flag == 1) {
+				if (xMove_flag) {
+					// makeMove() --> let engine know of xBoard moves
 					makeMove(board, *tempMove, movehistory, move);
 					board->turnCount++;
 					clearMoveList(tempMove);
 				}
 			}
 		}
-
 		else {
 			xboard(board, move, tempMove);
 			if (xMove_flag) {
+				// makeMove() --> let engine know of xBoard moves
 				makeMove(board, *tempMove, movehistory, move);
 				board->turnCount++;
 				clearMoveList(tempMove);
 			}
-			
 		}
-		
 	}//end while
 	return 0;
 }

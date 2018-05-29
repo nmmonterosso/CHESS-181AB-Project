@@ -569,13 +569,13 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 	initalizePrunes(board, &bestPrunes, alpha, beta);
 	int checkmateFlag = 1;
 	
-	if (ht_read(ht, zobrist, MAXDEPTH - depth, &node)) {
+	/*if (ht_read(ht, zobrist, MAXDEPTH - depth, &node)) {
 		board->hashtablehitcounter++;
 		return node;
 	}
 	else	
 		board->hashtablemisscounter++;
-	
+	*/
 
 	//check if position in hash table: if in table, return best move/alpha/beta values:if not continue with function:
 	// Defining Base Case
@@ -589,7 +589,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 		return node;
 	}//end if 
 
-	 // after iteration 1 --> depth = depth + 1
+	// after iteration 1 --> depth = depth + 1
 	else {			
 		for (int i = 0; i < movegen->count; i++) {
 			//Make Move, Evaluate possible moves, repeat until at max depth.
@@ -609,7 +609,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 
 				checkmateFlag = 0;
 				movetree->MoveTreeNode[depth + 1].count = 0;
-				MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]);						//Call new movement generation for new boardstate:
+				MoveGenFunction(board, move, &movetree->MoveTreeNode[depth + 1]); //Call new movement generation for new boardstate:
 
 				//Go one more depth lower:																						
 				node = makeMoveTree(board, move, movetree, &movetree->MoveTreeNode[depth + 1], movehistory, depth + 1, -beta, -alpha);
@@ -621,18 +621,33 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 					bestPrunes = node;
 				}
 				if (bestvalue > alpha) {
-					alpha = bestvalue;					
+					alpha = bestvalue;
 				}
-				if (bestvalue >= beta)
+				
+				if (alpha >= beta)
 					break;
-				ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, bestPrunes); // HASH TABLE				
+				//ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, bestPrunes); // HASH TABLE				
 				
 				//	printBoard(board);
 			}//end if 
 			else { // ILLEGAL MOVE HERE:
 				undoBadNode(board, movehistory, move);
 			}
-		}//end for 				
+		}//end for
+		if (checkmateFlag) {
+
+			node.move = movehistory->Moves[0];
+			node.path = *movehistory;
+			if (checkKingSafety(board, ((board->turn == WHITE_TURN) ? board->blackKingCoordinates[0] : board->whiteKingCoordinates[0]),
+				((board->turn == WHITE_TURN) ? board->blackKingCoordinates[1] : board->whiteKingCoordinates[1])) == 0) 
+				node.value = (board->turn == WHITE_TURN) ? SHRT_MIN : SHRT_MAX;				
+			
+			else 
+				node.value = 0;
+			
+			return node;
+		}// end if checkmateFlag:
+
 	}// end if not maxdepth
 	return bestPrunes;
 }//makeMoveTree
