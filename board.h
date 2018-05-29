@@ -86,6 +86,7 @@ typedef struct {
 void initializePositions(Move *move);
 void makeBoard(Board *board, Move *move, MoveGen *movegen, MoveGen *movehistory);
 void printBoard(Board *board);
+void printBoardToFile(FILE *log, Board *board);
 void setSpace(Board *board, unsigned int i, unsigned int j);
 void resetDebugCounters(Board *board);
 void clearMoveTree(MoveTree *movetree);

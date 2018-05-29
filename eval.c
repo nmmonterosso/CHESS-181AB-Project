@@ -197,9 +197,8 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		case(BLACK_PAWN):
 			materialVal = 100 + pawnPlaceTable[y][7 - x];
 			// Check spaces to the left for pawns
-			ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == BLACK_PAWN)) ? 40 : 0;
-			lBonus = ((x > 0) & (board->boardSpaces[y][x - 1].isOccupied) & (board->boardSpaces[y][x - 1].pieceType == BLACK_PAWN)) ? 20 : 0;
-			luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == BLACK_PAWN)) ? 40 : 0;
+			ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == BLACK_PAWN)) ? 10 : 0;			
+			luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == BLACK_PAWN)) ? 10 : 0;
 			// Determine pawn strcuture bonus
 			pawnStructVal = ldBonus + lBonus + luBonus;
 			//printf("Pawn bonus %d\n", pawnStructVal);
