@@ -32,7 +32,7 @@ int main()
 	MoveGen *movehistory = (MoveGen*)malloc(sizeof(MoveGen));
 	MoveTree *movetree = (MoveTree*)malloc(sizeof(MoveTree));
 	MoveList blankMove; // Blank movelist that gets passed up and down during pruning
-	MoveList *tempMove = (MoveList *)malloc(sizeof(MoveList));
+	MoveList tempMove;
 	Prunes prunes;
 	FILE *log = fopen("C:\\Users\\Nico\\source\\repos\\Chess2\\logs\\log.txt", "w");
 	fprintf(log, "START\n");
@@ -56,7 +56,7 @@ int main()
 
 	//************************************************************
 	//******************* DEBUGGING POSITIONS ********************
-	/*
+	
 	char position2[] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 0"; //KiwiPete
 	char position3[] = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - 0 0";
 	char position4[] = "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1";
@@ -65,7 +65,7 @@ int main()
 	char position7[] = "2Q5/8/8/K6k/8/8/3p4/2N5 w - - 0 10";
 	char position8[] = "k7/8/8/8/8/1n6/P7/7K w - - 0 10";
 	char debugPosition1[] = "rnb1k1nr/pp1p1ppp/2pppq2/8/1b1PP2P/2N5/PPP2PP1/R1BQKBNR/ b KQkq - 0 0"; //MOVE C1 to g5
-	*/
+	
 	//******************** END DEBUGGING POSITIONS ***************
 	//************************************************************
 	char startingPosition[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
@@ -94,7 +94,7 @@ int main()
 			if (xSide == WHITE_TURN) { // <-- this if statement will only be executed once
 				// possibly just return Queen's Pawn or reference Opening book
 				while (xGo == 0) {
-					xboard(board, move, tempMove);
+					xboard(board, move, &tempMove);
 				}
 				printBoard(board);
 				clearMoveGen(movegen);
@@ -134,9 +134,13 @@ int main()
 					}
 
 					fprintf(stdout, "move %c%d%c%d\n", start, startLocation[0] + 1, end, endLocation[0] + 1);
+					log = fopen("C:\\Users\\Nico\\source\\repos\\Chess2\\logs\\log.txt", "a+");
+					fprintf(log, "move %c%d%c%d\n", start, startLocation[0] + 1, end, endLocation[0] + 1);
+					fclose(log);
 					fflush(stdout);
 
 					printBoard(board);
+					printBoardToFile(board);
 					evaluation = eval(board, board->turnCount, move);
 					resetDebugCounters(board);
 					clearMoveGen(movegen);
@@ -280,22 +284,22 @@ int main()
 				xboard_flag = 0; // reset flag
 			}
 			else { // if xMove_flag has not been triggered, ask xboard for its move
-				xboard(board, move, tempMove);
+				xboard(board, move, &tempMove);
 				if (xMove_flag) {
 					// makeMove() --> let engine know of xBoard moves
-					makeMove(board, *tempMove, movehistory, move);
+					makeMove(board, tempMove, movehistory, move);
 					board->turnCount++;
-					clearMoveList(tempMove);
+					//clearMoveList(tempMove);
 				}
 			}
 		}
 		else {
-			xboard(board, move, tempMove);
+			xboard(board, move, &tempMove);
 			if (xMove_flag) {
 				// makeMove() --> let engine know of xBoard moves
-				makeMove(board, *tempMove, movehistory, move);
+				makeMove(board, tempMove, movehistory, move);
 				board->turnCount++;
-				clearMoveList(tempMove);
+				//clearMoveList(tempMove);
 			}
 		}
 	}//end while

@@ -1834,7 +1834,11 @@ int getSortValue(MoveList *move) {
 		case(BISHOP):	value = 10;	break;
 		case(KNIGHT):	value = 10;	break;
 		case(PAWN):		value = 10; break;
-		default:		value = 50; break;
+		default:		if ((move->capturedPiece >= 82) && (move->capturedPiece <= 85))
+							value = 0; 
+						else 
+							value = 50;
+						break;
 		}//end switch			
 	}// end if king
 	else {

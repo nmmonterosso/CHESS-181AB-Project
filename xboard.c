@@ -180,7 +180,7 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 								move->piece = ((board->turn == WHITE_TURN) ? WHITE_PAWN : BLACK_PAWN);
 								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_QUEEN_NO_CAPTURE : BLACK_PROMOTE_QUEEN_NO_CAPTURE);
 							  }
-							  else {} //TODO: ugly shit for captured pieces here:
+							  else {} 
 							  break;								
 						
 					case 'r': if (startPosition[0] == endPosition[0]) {
@@ -189,7 +189,7 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 								move->piece = ((board->turn == WHITE_TURN) ? WHITE_PAWN : BLACK_PAWN);
 								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_ROOK_NO_CAPTURE : BLACK_PROMOTE_ROOK_NO_CAPTURE);
 							  }
-							  else {} //ugly shit for captured pieces here:
+							  else {} 
 							  break;
 
 					case 'n': if (startPosition[0] == endPosition[0]) {
@@ -198,7 +198,7 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 								move->piece = ((board->turn == WHITE_TURN) ? WHITE_PAWN : BLACK_PAWN);
 								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_KNIGHT_NO_CAPTURE : BLACK_PROMOTE_KNIGHT_NO_CAPTURE);
 							  } // end if
-							  else {} //ugly shit for captured pieces here:
+							  else {} 
 							  break;
 
 					case 'b': if (startPosition[0] == endPosition[0]) {
@@ -207,7 +207,7 @@ void xboard(Board *board, Move *movespace, MoveList *move)
 								move->piece = ((board->turn == WHITE_TURN) ? WHITE_PAWN : BLACK_PAWN);
 								move->capturedPiece = ((board->turn == WHITE_TURN) ? WHITE_PROMOTE_BISHOP_NO_CAPTURE : BLACK_PROMOTE_BISHOP_NO_CAPTURE);
 							}//end if
-							  else {} //ugly shit for captured pieces here:
+							  else {} 
 							  break;
 					}//end switch
 				} // pawn promotion
