@@ -331,8 +331,15 @@ void printBoard(Board *board) {
 
 }//printBoard();
 
-void printBoardToFile(FILE *log, Board *board) {
+void printBoardToFile(Board *board) {
 	// Prints Current Board State to Console:	
+	FILE *log = fopen("C:\\Users\\Nico\\source\\repos\\Chess2\\logs\\log.txt", "a+");
+	fprintf(log, "**************************\n");
+	fprintf(log, "TURN: [%d]", board->turnCount);
+	if (board->turn == WHITE_TURN)
+		fprintf(log, "WHITE TURN\n");
+	else
+		fprintf(log, "BLACK TURN\n");
 	fprintf(log, "**************************\n");
 	for (int i = 7; i >= 0; i--) {
 		for (int j = 0; j < 8; j++) {
@@ -360,9 +367,31 @@ void printBoardToFile(FILE *log, Board *board) {
 		fprintf(log, "|\n");
 	}//endFor I
 	fprintf(log, "**************************\n\n\n");
-
+	fclose(log);
 }//printBoard();
 
+void printPrunesToFile(Prunes prunes) {
+
+	FILE *log = fopen("C:\\Users\\Nico\\source\\repos\\Chess2\\logs\\log.txt", "a+");
+	fprintf(log, "*****************\n");
+	fprintf(log, "Prune Path:\n");
+	for (int i = 0; i < prunes.path.count; i++) {
+		fprintf(log, "Move[%d]: Piece          = [%d]\n", i, prunes.path.Moves[i].piece);
+		fprintf(log, "Move[%d]: Start Position = [%d]\n", i, prunes.path.Moves[i].startLocation);
+		fprintf(log, "Move[%d]: End Position   = [%d]\n", i, prunes.path.Moves[i].endLocation);
+		fprintf(log, "Move[%d]: Captured Piece = [%d]\n", i, prunes.path.Moves[i].capturedPiece);
+		fprintf(log, "________________\n");
+	}
+	fprintf(log, "*****************\n");
+	fprintf(log, "Best Move:\n");
+	fprintf(log, "Piece          = [%d]\n", prunes.move.piece);
+	fprintf(log, "Start Position = [%d]\n", prunes.move.startLocation);
+	fprintf(log, "End Position   = [%d]\n", prunes.move.endLocation);
+	fprintf(log, "Captured Piece = [%d]\n", prunes.move.capturedPiece);
+	fprintf(log, "END PRUNES\n\n");
+	fprintf(log, "*****************\n\n\n");
+	fclose(log);
+} // printPrunesToFile
 
  //HASH TABLE FUNCTIONS:
 
@@ -372,8 +401,7 @@ static ht_item* ht_new_item(const unsigned long long zobrist, int depth, int fla
 	i->zobrist = zobrist;
 	i->depth = depth;
 	i->flag = flag;
-	i->prunes = prunes;
-	//setMove(&i->move, move);
+	i->prunes = prunes;	
 	return i;
 } //ht_new_item
 
@@ -420,7 +448,7 @@ void setMove(MoveList *dest, MoveList source) {
 int ht_read(ht_hash_table * ht, volatile unsigned long long * zobrist, int depth, Prunes *prunes)
 {	
 	ht_item *item = get_ht_item(ht, zobrist);
-	if ((item->zobrist == *zobrist) && (item->depth >= depth)) {
+	if ((item->zobrist == *zobrist) && (item->depth == depth)) {
 		*prunes = item->prunes;
 		return 1;
 	} // if hit

@@ -26,6 +26,18 @@ char pawnPlaceTable[8][8] = {
 { 0,  0,  0,  0,  0,  0,  0,  0 }  // Panws don't exist down here
 };
 
+char pawnPlaceTableMid[8][8] = {
+{ 0,  0,  0,  0,  0,  0,  0,  0 },
+{ 50, 50, 50, 50, 50, 50, 50, 50 }, // Promoting pawns is good and you should feel good
+{ 15, 20, 30, 30, 30, 30, 20, 15 },
+{ 10, 15, 20, 25, 25, 20, 15, 10 },
+{ 5, 10, 15, 20, 20, 15,  5,  5 },
+{ 5,  5,  0,  0,  0,  0,  5,  5 },
+{ 0,  0,  0,-20,-20,  0,  0,  0 },
+{ 0,  0,  0,  0,  0,  0,  0,  0 }  // Panws don't exist down here
+};
+
+
 // Knights are encouraged to control the center and stay away from corners and edges, but are less harshly penalized for advancing to the other side
 char knightPlaceTable[8][8] = {
 { -50,-40,-30,-30,-30,-30,-40,-50 },
@@ -51,7 +63,7 @@ char bishopPlaceTable[8][8] = {
 };
 
 // Rooks should stay put if it is still possible to castlize, and should remain on the center files
-/*char rookPlaceTable[8][8] = {
+char rookPlaceTable[8][8] = {
 { 0,  0,  0,  0,  0,  0,  0,  0 },
 { 5, 10, 10, 10, 10, 10, 10,  5 }, // Congrats on advancing, +5 (except on the edges. Edges are bad)
 { -5,  0,  0,  0,  0,  0,  0, -5 },
@@ -62,9 +74,9 @@ char bishopPlaceTable[8][8] = {
 {  0,  0,  0,  5,  5,  0,  0,  0 }  // Starting corners are good. Castling moves the rook to an equally favorable spot
 };
 
-/*
+
 // Queens act similarly to rooks, with a litle bonus here and there thanks to their extra mobility
-char queenPlaceTable[8][8] = {
+/*char queenPlaceTable[8][8] = {
 { -20, -10, -10, -5, -5, -10, -10, -20 }, // Corners aren't as bad for Queens, but are still bad
 { -10,   0,   0,  0,  0,   0,   0, -10 }, // Congrats on advancing, you get nothing
 { -10,   0,   5,  5,  5,   5,   0, -10 }, // Edges aren't as bad either. In fact they may be good in some cases
@@ -84,7 +96,7 @@ char kingPlaceTable[8][8] = {
 { -20,-30,-30,-40,-40,-30,-30,-20, }, // No
 { -10,-20,-20,-20,-20,-20,-20,-10, }, // Don't you dare
 { 20, 20,  0,  0,  0,  0, 20, 20, }, // Could be better
-{ 20, 30, 10,  0,  0, 10, 30, 20  }  // Safe
+{ 20, 40, 10,  0,  0, 40, 30, 20  }  // Safe
 };
 
 // For the endgame, kings should move towards the center
@@ -144,7 +156,8 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		// Condition on piece's type, and add its material value and placeTable value to boardVal
 		switch (move->whiteSpaces[j][1])
 		{
-		case(WHITE_KING):	materialVal = kingPlaceTable[7 - y][x];
+		case(WHITE_KING):	
+							materialVal = ((turnCount <= 20) ? kingPlaceTable[7 - y][x] : kingPlaceTableEnd[7 - y][x]);
 							boardVal = boardVal + materialVal;
 							break;
 		case(WHITE_QUEEN):	materialVal = 900;
@@ -160,13 +173,12 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		case(WHITE_KNIGHT):	materialVal = 325 + knightPlaceTable[7 - y][x];
 							boardVal = boardVal + materialVal;
 							break;
-		case(WHITE_PAWN):	materialVal = 100 + pawnPlaceTable[7 - y][x];
+		case(WHITE_PAWN):	materialVal = 100 + ((turnCount <= 25) ? pawnPlaceTable[7 - y][x] : pawnPlaceTableMid[7 - y][x]);
 			// Check spaces to the left for pawns
-							ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == WHITE_PAWN)) ? 40 : 0;
-							lBonus = ((x > 0) & (board->boardSpaces[y][x - 1].isOccupied) & (board->boardSpaces[y][x - 1].pieceType == WHITE_PAWN)) ? 20 : 0;
-							luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == WHITE_PAWN)) ? 40 : 0;
+							ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == WHITE_PAWN)) ? 10 : 0;							
+							luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == WHITE_PAWN)) ? 10 : 0;
 							// Determine pawn strcuture bonus
-							pawnStructVal = ldBonus + lBonus + luBonus;
+							pawnStructVal = ldBonus + luBonus;
 						//	printf("Pawn bonus %d\n", pawnStructVal);
 							boardVal = boardVal + materialVal + pawnStructVal;
 							break;
@@ -195,12 +207,12 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		switch (move->blackSpaces[j][1])
 		{
 		case(BLACK_PAWN):
-			materialVal = 100 + pawnPlaceTable[y][7 - x];
+			materialVal = 100 + ((turnCount <= 25) ? pawnPlaceTable[y][7 - x]: pawnPlaceTableMid[y][7 - y]);
 			// Check spaces to the left for pawns
 			ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == BLACK_PAWN)) ? 10 : 0;			
 			luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == BLACK_PAWN)) ? 10 : 0;
 			// Determine pawn strcuture bonus
-			pawnStructVal = ldBonus + lBonus + luBonus;
+			pawnStructVal = ldBonus + luBonus;
 			//printf("Pawn bonus %d\n", pawnStructVal);
 			boardVal = boardVal - materialVal - pawnStructVal;
 			break;
@@ -217,7 +229,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		case(BLACK_QUEEN):	materialVal = 900;
 							boardVal = boardVal - materialVal;							
 							break;
-		case(BLACK_KING):	materialVal = kingPlaceTable[y][7 - x];
+		case(BLACK_KING):	materialVal = ((turnCount <= 20) ? kingPlaceTable[y][7 - x] : kingPlaceTableEnd[y][7 - x]);
 							boardVal = boardVal - materialVal;
 							break;
 		default:	break;// end = 1; break;

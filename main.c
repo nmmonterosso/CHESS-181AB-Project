@@ -34,6 +34,9 @@ int main()
 	MoveList blankMove; // Blank movelist that gets passed up and down during pruning
 	MoveList *tempMove = (MoveList *)malloc(sizeof(MoveList));
 	Prunes prunes;
+	FILE *log = fopen("C:\\Users\\Nico\\source\\repos\\Chess2\\logs\\log.txt", "w");
+	fprintf(log, "START\n");
+	fclose(log);
 
 	ht = (ht_hash_table*)malloc(sizeof(ht_hash_table));
 	ht = ht_new();
@@ -77,6 +80,9 @@ int main()
 	printf("starting Eval = [%d]\n", evaluation);
 	movegen->count = 0;
 	printBoard(board);
+	/*******LOG*********/
+	printBoardToFile(board);	
+	/*******LOG*********/
 	MoveGenFunction(board, move, movegen);
 	movetree->MoveTreeNode[0] = *movegen;
 	
@@ -94,8 +100,11 @@ int main()
 				clearMoveGen(movegen);
 				clearMoveGen(movehistory);
 				MoveGenFunction(board, move, movegen);
-				prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX);
+				prunes = makeMoveTree(board, move, movetree, movegen, movehistory, 0, SHRT_MIN, SHRT_MAX);				
+				printBoardToFile(board);
+				printPrunesToFile(prunes);
 				makeMove(board, prunes.move, movehistory, move);
+				printBoardToFile(board);
 				board->turnCount++;
 
 				Addr_Conversion(prunes.move.startLocation, startLocation);
@@ -132,6 +141,7 @@ int main()
 					resetDebugCounters(board);
 					clearMoveGen(movegen);
 					clearMoveGen(movehistory);
+					
 					MoveGenFunction(board, move, movegen);
 					movetree->MoveTreeNode[0] = *movegen;
 				}
@@ -211,7 +221,10 @@ int main()
 				printf("Number of Hash Table hits = [%d]\n", board->hashtablehitcounter);
 				printf("Number of Hash Table misses = [%d]\n", board->hashtablemisscounter);
 				//printBoard(board);
+				printBoardToFile(board); //log
+				printPrunesToFile(prunes);
 				makeMove(board, prunes.move, movehistory, move);
+				printBoardToFile(board); //log
 				//printBoard(board);
 				//prunes->pruneMove = prunes->prunePath.Moves[2];//TODO: check if this stores the right move:
 				board->turnCount++;
@@ -247,9 +260,15 @@ int main()
 
 					printf("MOVE SENT BY ENGINE->XBOARD\n");
 					printBoard(board);
+					log = fopen("C:\\Users\\Nico\\source\\repos\\Chess2\\logs\\log.txt", "a+");
+					fprintf(log, "MOVE SENT BY ENGINE->XBOARD\n");
+					fclose(log);
+					printBoardToFile(board); //log
 					evaluation = eval(board, board->turnCount, move);
 					printf("Eval from engine->XBOARD = [%d]\n", prunes.value);
-
+					log = fopen("C:\\Users\\Nico\\source\\repos\\Chess2\\logs\\log.txt", "a+");
+					fprintf(log, "Eval from engine->XBOARD = [%d]\n", prunes.value);
+					fclose(log);
 					// reset everything for prunes
 					resetDebugCounters(board);					
 					clearMoveGen(movegen);

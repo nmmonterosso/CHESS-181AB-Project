@@ -568,8 +568,8 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 	int bestvalue = SHRT_MIN;	
 	initalizePrunes(board, &bestPrunes, alpha, beta);
 	int checkmateFlag = 1;
-	
-	/*if (ht_read(ht, zobrist, MAXDEPTH - depth, &node)) {
+	/*
+	if (ht_read(ht, zobrist, MAXDEPTH - depth, &node)) {
 		board->hashtablehitcounter++;
 		return node;
 	}
@@ -626,7 +626,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 				
 				if (alpha >= beta)
 					break;
-				//ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, bestPrunes); // HASH TABLE				
+				ht_write(ht, zobrist, MAXDEPTH - depth, pruneflag, bestPrunes); // HASH TABLE				
 				
 				//	printBoard(board);
 			}//end if 
@@ -640,8 +640,7 @@ Prunes makeMoveTree(Board * board, Move * move, MoveTree *movetree, MoveGen * mo
 			node.path = *movehistory;
 			if (checkKingSafety(board, ((board->turn == WHITE_TURN) ? board->blackKingCoordinates[0] : board->whiteKingCoordinates[0]),
 				((board->turn == WHITE_TURN) ? board->blackKingCoordinates[1] : board->whiteKingCoordinates[1])) == 0) 
-				node.value = (board->turn == WHITE_TURN) ? SHRT_MIN : SHRT_MAX;				
-			
+				node.value = (board->turn == WHITE_TURN) ? SHRT_MIN : SHRT_MAX;	
 			else 
 				node.value = 0;
 			
@@ -731,9 +730,9 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 		else if (a == 6) {
 			if (board->boardSpaces[7][b].isOccupied == NOT_OCCUPIED) {
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_NO_CAPTURE);
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_NO_CAPTURE);
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_NO_CAPTURE);
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_NO_CAPTURE);
+				//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_NO_CAPTURE);
+				//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_NO_CAPTURE);
+				//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_NO_CAPTURE);
 			}//end if space in front unoccuppied:
 
 			 //CAPTURE LEFT/RIGHT AND PROMOTE:
@@ -741,28 +740,28 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 				if ((board->boardSpaces[7][b + 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[7][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK))
 					if (board->boardSpaces[7][b + 1].pieceType == BLACK_QUEEN) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_QUEEN);
 					}//if capturing black queen and promotion:
 					else if (board->boardSpaces[7][b + 1].pieceType == BLACK_ROOK) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_ROOK);
 					}// else if capturing lack rook
 
 					else if (board->boardSpaces[7][b + 1].pieceType == BLACK_BISHOP) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_BISHOP);
 					}
 					else if (board->boardSpaces[7][b + 1].pieceType == BLACK_KNIGHT) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b + 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_KNIGHT);
 					}
 			}//end check right side:
 
@@ -771,28 +770,28 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 				if ((board->boardSpaces[7][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[7][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK))
 					if (board->boardSpaces[7][b - 1].pieceType == BLACK_QUEEN) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_QUEEN);
 					}//if capturing black queen and promotion:
 					else if (board->boardSpaces[7][b - 1].pieceType == BLACK_ROOK) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_ROOK);
 					}// else if capturing lack rook
 
 					else if (board->boardSpaces[7][b - 1].pieceType == BLACK_BISHOP) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_BISHOP);
 					}//end if capturing bishop + promote
 					else if (board->boardSpaces[7][b - 1].pieceType == BLACK_KNIGHT) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_QUEEN_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_ROOK_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_BISHOP_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[7][b - 1].boardposition, WHITE_PAWN, WHITE_PROMOTE_KNIGHT_CAPTURE_KNIGHT);
 					}//end if capturing knight
 			}//end check left side
 		}// if next pawn move results in promotion: 
@@ -831,37 +830,37 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 		else if (a == 1) {
 			if (board->boardSpaces[0][b].isOccupied == NOT_OCCUPIED) {
 				AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_NO_CAPTURE);
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_NO_CAPTURE);
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_NO_CAPTURE);
-				AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_NO_CAPTURE);
+				//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_NO_CAPTURE);
+				//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_NO_CAPTURE);
+				//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_NO_CAPTURE);
 			}//end if space in front unoccuppied:
 			 //check right side
 			if (b < 7) {
 				if ((board->boardSpaces[0][b + 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[0][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)) {
 					if (board->boardSpaces[0][b + 1].pieceType == WHITE_QUEEN) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_QUEEN);
 					}//if capturing white queen and promotion:
 					else if (board->boardSpaces[0][b + 1].pieceType == BLACK_ROOK) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_ROOK);
 					}// else if capturing white rook
 
 					else if (board->boardSpaces[0][b + 1].pieceType == BLACK_BISHOP) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_BISHOP);
 					}// if capturing white bishop
 					else if (board->boardSpaces[0][b + 1].pieceType == BLACK_KNIGHT) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b + 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_KNIGHT);
 					}// if capturing white knight
 				}//end if capturing piece
 			}//end check right side
@@ -870,28 +869,28 @@ void MoveGenPawn(Board *board, Move *move, MoveGen *movegen, int count)
 				if ((board->boardSpaces[0][b - 1].isOccupied == IS_OCCUPIED) && ((board->boardSpaces[0][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)) {
 					if (board->boardSpaces[0][b - 1].pieceType == WHITE_QUEEN) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_QUEEN);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_QUEEN);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_QUEEN);
 					}//if capturing white queen and promotion:
 					else if (board->boardSpaces[0][b - 1].pieceType == BLACK_ROOK) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_ROOK);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_ROOK);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_ROOK);
 					}// else if capturing white rook
 
 					else if (board->boardSpaces[0][b - 1].pieceType == BLACK_BISHOP) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_BISHOP);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_BISHOP);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_BISHOP);
 					}// if capturing white bishop
 					else if (board->boardSpaces[0][b - 1].pieceType == BLACK_KNIGHT) {
 						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_QUEEN_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_KNIGHT);
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_ROOK_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_BISHOP_CAPTURE_KNIGHT);
+						//AddToMoveList(movegen, Start_Location, board->boardSpaces[0][b - 1].boardposition, BLACK_PAWN, BLACK_PROMOTE_KNIGHT_CAPTURE_KNIGHT);
 					}// if capturing white knight
 				}//end if capturing piece
 			}//end check left side:
@@ -1025,58 +1024,122 @@ void MoveGenBishop(Board *board, Move *move, MoveGen *movegen, int count)
 		Start_Location = move->whiteSpaces[count][BOARD_POSITION];
 		i = Start_Location / 8;
 		j = Start_Location % 8;
-		for (int x = 0; x < 13; x++) {
-			if (move->bishopMoves[i][j][x] == NO_MOVE)
+		//WHITE BISHOP PORTION HERE:		
+		a = i;
+		b = j;
+		// TOP RIGHT
+		while (a + 1 < 8 && b + 1 < 8) {
+			if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_BISHOP, board->boardSpaces[a + 1][b + 1].pieceType);
 				break;
-			else {
-				Addr_Conversion(move->bishopMoves[i][j][x], Board_Coordinates);
-				a = Board_Coordinates[0];
-				b = Board_Coordinates[1];
-				if (board->boardSpaces[a][b].isOccupied == IS_OCCUPIED) {
-					if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE) <= BLACK)
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, WHITE_BISHOP, board->boardSpaces[a][b].pieceType);
-					if ((a > i) && (b > j))				  //TOP RIGHT DIRECTION
-						x = x + (7 - ((a > b) ? a : b));  //if a > b, then x = x + (7 - a), else x = x + (7 - b)
-					else if ((a < i) && (b > j))		  //BOTTOM RIGHT DIRECTION			
-						x = x + (7 - ((a > b) ? a : b));  //if a > b, x = x + (7-b), else x = x + (7-a) 	
-					else if ((a < i) && (b < j))		  //BOTTOM LEFT DIRECTION
-						x = x + ((a > b) ? b : a);		  //if a > b, x = x + b, else x = x + a: 	
-					else if ((a > i) && (b < j))		  //TOP LEFT DIRECTION
-						x = 13;							  //terminating condition
-				}// end if occupied
-				else
-					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, WHITE_BISHOP, NO_CAPTURE);
-			}//end else		
-		}//endFor
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, WHITE_BISHOP, NO_CAPTURE);
+			a++;
+			b++;
+		}//endFor WHITE BISHOP
+		 //bottom right
+		a = i;
+		b = j;
+		while (a - 1 >= 0 && b + 1 < 8) {
+			if (board->boardSpaces[a - 1][b + 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a - 1][b + 1].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, WHITE_BISHOP, board->boardSpaces[a - 1][b + 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, WHITE_BISHOP, NO_CAPTURE);
+			a--;
+			b++;
+		}//endFor WHITE BISHOP
+		a = i;
+		b = j;
+		while (a - 1 >= 0 && b - 1 >= 0) {
+			if (board->boardSpaces[a - 1][b - 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a - 1][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, WHITE_BISHOP, board->boardSpaces[a - 1][b - 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, WHITE_BISHOP, NO_CAPTURE);
+			a--;
+			b--;
+		}//endFor WHITE BISHOP
+		a = i;
+		b = j;
+		while (a + 1 < 8 && b - 1 >= 0) {
+			if (board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) <= BLACK_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_BISHOP, board->boardSpaces[a + 1][b - 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, WHITE_BISHOP, NO_CAPTURE);
+			a++;
+			b--;
+		}//endFor WHITE BISHOP
 
 	}// end if
 	else { //BLACK TURN
 		Start_Location = move->blackSpaces[count][BOARD_POSITION];
 		i = Start_Location / 8;
 		j = Start_Location % 8;
-		for (int x = 0; x < 13; x++) {
-			if (move->bishopMoves[i][j][x] == NO_MOVE)
+		//BLACK_BISHOP PORTION HERE
+		a = i;
+		b = j;
+		// TOP RIGHT
+		while (a + 1 < 8 && b + 1 < 8) {
+			if (board->boardSpaces[a + 1][b + 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a + 1][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, BLACK_BISHOP, board->boardSpaces[a + 1][b + 1].pieceType);
 				break;
-			else {
-				Addr_Conversion(move->bishopMoves[i][j][x], Board_Coordinates);
-				a = Board_Coordinates[0];
-				b = Board_Coordinates[1];
-				if (board->boardSpaces[a][b].isOccupied == IS_OCCUPIED) {
-					if ((board->boardSpaces[a][b].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)//ERROR HERE?
-						AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, BLACK_BISHOP, board->boardSpaces[a][b].pieceType);
-					if ((a > i) && (b > j))				  //TOP RIGHT DIRECTION
-						x = x + (7 - ((a > b) ? a : b));  //if a > b, then x = x + (7 - a), else x = x + (7 - b)
-					else if ((a < i) && (b > j))		  //BOTTOM RIGHT DIRECTION			
-						x = x + (7 - ((a > b) ? b : a));  //if a > b, x = x + (7-b), else x = x + (7-a) 	
-					else if ((a < i) && (b < j))		  //BOTTOM LEFT DIRECTION
-						x = x + ((a > b) ? b : a);		  //if a > b, x = x + b, else x = x + a: 	
-					else if ((a > i) && (b < j))		  //TOP LEFT DIRECTION
-						x = 13;							  //terminating condition
-				}// end if occupied
-				else
-					AddToMoveList(movegen, Start_Location, board->boardSpaces[a][b].boardposition, BLACK_BISHOP, NO_CAPTURE);
-			}//end else		
-		}//endFor
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b + 1].boardposition, BLACK_BISHOP, NO_CAPTURE);
+			a++;
+			b++;
+		}//endFor BLACK BISHOP
+		 //bottom right
+		a = i;
+		b = j;
+		while (a - 1 >= 0 && b + 1 < 8) {
+			if (board->boardSpaces[a - 1][b + 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a - 1][b + 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_BISHOP, board->boardSpaces[a - 1][b + 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b + 1].boardposition, BLACK_BISHOP, NO_CAPTURE);
+			a--;
+			b++;
+		}//endFor WHITE BISHOP
+		a = i;
+		b = j;
+		while (a - 1 >= 0 && b - 1 >= 0) {
+			if (board->boardSpaces[a - 1][b - 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a - 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_BISHOP, board->boardSpaces[a - 1][b - 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a - 1][b - 1].boardposition, BLACK_BISHOP, NO_CAPTURE);
+			a--;
+			b--;
+		}//endFor WHITE BISHOP
+		a = i;
+		b = j;
+		while (a + 1 < 8 && b - 1 >= 0) {
+			if (board->boardSpaces[a + 1][b - 1].isOccupied == IS_OCCUPIED) {
+				if ((board->boardSpaces[a + 1][b - 1].pieceType & GET_PIECE_TYPE) >= WHITE_PIECE)
+					AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, BLACK_BISHOP, board->boardSpaces[a + 1][b - 1].pieceType);
+				break;
+			}// end if occupied				
+			else
+				AddToMoveList(movegen, Start_Location, board->boardSpaces[a + 1][b - 1].boardposition, BLACK_BISHOP, NO_CAPTURE);
+			a++;
+			b--;
+		}//endFor BISHOP
 	}// end else
 }//MoveGenBishop
 
@@ -1513,7 +1576,6 @@ void mergeSortMoveGen(MoveGen *movegen, int l, int r) {
 		mergeSortMoveGen(movegen, l, m);
 		mergeSortMoveGen(movegen, m + 1, r);
 		merge(movegen, l, m, r);
-
 	}
 
 }//mergeSortMoveGen:
@@ -1747,32 +1809,32 @@ int getSortValue(MoveList *move) {
 		case(KING):		value = 1;	break;
 		case(QUEEN):	value = 1;	break;
 		case(ROOK):		value = 5;	break;
-		case(BISHOP):	value = 51;	break;
-		case(KNIGHT):	value = 51;	break;
-		case(PAWN):		value = 51;  break;
+		case(BISHOP):	value = 6;	break;
+		case(KNIGHT):	value = 7;	break;
+		case(PAWN):		value = 10;  break;
 		default:		value = 50; break;
 		}//end switch
 	}// end if rook
 	else if ((move->piece & GET_PIECE_NO_COLOR) == QUEEN) {
 		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
 		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 50;	break;
-		case(ROOK):		value = 50;	break;
-		case(BISHOP):	value = 51;	break;
-		case(KNIGHT):	value = 51;	break;
-		case(PAWN):		value = 51; break;
+		case(QUEEN):	value = 1;	break;
+		case(ROOK):		value = 10;	break;
+		case(BISHOP):	value = 10;	break;
+		case(KNIGHT):	value = 10;	break;
+		case(PAWN):		value = 10; break;
 		default:		value = 50; break;
 		}//end switch			
 	}// end if queen
 	else if ((move->piece & GET_PIECE_NO_COLOR) == KING) {
 		switch ((move->capturedPiece) & GET_PIECE_NO_COLOR) {
 		case(KING):		value = 1;	break;
-		case(QUEEN):	value = 30;	break;
-		case(ROOK):		value = 30;	break;
-		case(BISHOP):	value = 30;	break;
-		case(KNIGHT):	value = 30;	break;
-		case(PAWN):		value = 30; break;
-		default:		value = 60; break;
+		case(QUEEN):	value = 10;	break;
+		case(ROOK):		value = 10;	break;
+		case(BISHOP):	value = 10;	break;
+		case(KNIGHT):	value = 10;	break;
+		case(PAWN):		value = 10; break;
+		default:		value = 50; break;
 		}//end switch			
 	}// end if king
 	else {
