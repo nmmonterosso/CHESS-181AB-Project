@@ -157,7 +157,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		switch (move->whiteSpaces[j][1])
 		{
 		case(WHITE_KING):	
-							materialVal = ((turnCount <= 20) ? kingPlaceTable[7 - y][x] : kingPlaceTableEnd[7 - y][x]);
+							materialVal = ((turnCount <= 50) ? kingPlaceTable[7 - y][x] : kingPlaceTableEnd[7 - y][x]);
 							boardVal = boardVal + materialVal;
 							break;
 		case(WHITE_QUEEN):	materialVal = 900;
@@ -173,7 +173,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		case(WHITE_KNIGHT):	materialVal = 325 + knightPlaceTable[7 - y][x];
 							boardVal = boardVal + materialVal;
 							break;
-		case(WHITE_PAWN):	materialVal = 100 + ((turnCount <= 25) ? pawnPlaceTable[7 - y][x] : pawnPlaceTableMid[7 - y][x]);
+		case(WHITE_PAWN):	materialVal = 100 + ((turnCount <= 30) ? pawnPlaceTable[7 - y][x] : pawnPlaceTableMid[7 - y][x]);
 			// Check spaces to the left for pawns
 							ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == WHITE_PAWN)) ? 10 : 0;							
 							luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == WHITE_PAWN)) ? 10 : 0;
@@ -207,7 +207,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		switch (move->blackSpaces[j][1])
 		{
 		case(BLACK_PAWN):
-			materialVal = 100 + ((turnCount <= 25) ? pawnPlaceTable[y][7 - x]: pawnPlaceTableMid[y][7 - y]);
+			materialVal = 100 + ((turnCount <= 30) ? pawnPlaceTable[y][7 - x]: pawnPlaceTableMid[y][7 - y]);
 			// Check spaces to the left for pawns
 			ldBonus = ((x > 0) & (board->boardSpaces[y - 1][x - 1].isOccupied) & (board->boardSpaces[y - 1][x - 1].pieceType == BLACK_PAWN)) ? 10 : 0;			
 			luBonus = ((x > 0) & (board->boardSpaces[y + 1][x - 1].isOccupied) & (board->boardSpaces[y + 1][x - 1].pieceType == BLACK_PAWN)) ? 10 : 0;
@@ -229,7 +229,7 @@ short int eval(Board *board, unsigned char turnCount, Move *move)
 		case(BLACK_QUEEN):	materialVal = 900;
 							boardVal = boardVal - materialVal;							
 							break;
-		case(BLACK_KING):	materialVal = ((turnCount <= 20) ? kingPlaceTable[y][7 - x] : kingPlaceTableEnd[y][7 - x]);
+		case(BLACK_KING):	materialVal = ((turnCount <= 50) ? kingPlaceTable[y][7 - x] : kingPlaceTableEnd[y][7 - x]);
 							boardVal = boardVal - materialVal;
 							break;
 		default:	break;// end = 1; break;
