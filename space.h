@@ -1,7 +1,7 @@
 #ifndef SPACE_H_
 #define SPACE_H_
 
-#define MAXDEPTH 2
+#define MAXDEPTH 5
 
 #define WHITE 0xF
 #define BLACK 0x7
@@ -40,6 +40,9 @@
 #define NO_EN_PASSANT -16
 #define EN_PASSANT 16
 
+// TODO: Check to swap this
+#define MAX_NODE 1
+#define MIN_NODE 0
 //PROMOTION CODES FOR PAWN PROMOTION
 //WHITE PAWN PROMOTION
 
@@ -126,7 +129,29 @@
 #define WHITE_PIECE 0x8 
 #define BLACK_PIECE 0x7
 #define GET_PIECE_TYPE 0xF
+#define GET_PIECE_NO_COLOR 0x7
 
+//Hash Macros:
+#define RAND() (rand() & 0x7fff)
+//Zobrist
+#define HASH_WHITE_PAWN		0
+#define HASH_WHITE_KNIGHT	1
+#define HASH_WHITE_BISHOP	2
+#define HASH_WHITE_ROOK		3
+#define HASH_WHITE_QUEEN	4
+#define HASH_WHITE_KING		5
+#define HASH_BLACK_PAWN		6
+#define HASH_BLACK_KNIGHT	7
+#define HASH_BLACK_BISHOP	8
+#define HASH_BLACK_ROOK		9
+#define HASH_BLACK_QUEEN	10
+#define HASH_BLACK_KING		11
+#define EMPTY_HASH			12
+//HT
+#define ALPHA_FLAG			2
+#define BETA_FLAG			4
+#define DEFAULT_FLAG		0
+#define NO_EVALUATION		-1
 
 typedef struct {
 	//type includes: color, and the type of piece: 1 = white 0 = black

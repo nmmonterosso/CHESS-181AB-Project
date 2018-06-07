@@ -7,9 +7,11 @@
 void makeMove(Board *board, MoveList move, MoveGen *moveHistory, Move *moveSpace);
 void unMakeMove(Board *board, MoveGen *moveHistory, Move *moveSpace);
 void updateColorSpaces(Board *board, MoveList move, Move *movespace, int undo);
+void updateCastleColor(Board *board, MoveList move, Move *moveSpace, int undo);
 void updateEPSquare(Board *board, MoveList move);
 void updatePrevEPSquare(Board *board, MoveList prevmove);
 void updateKingCoordinates(Board *board, char piece, int i, int j);
+void clearMoveList(MoveList *movelist);
 
 void demoteWhitePiece(Board *board, MoveList move);
 void demoteBlackPiece(Board *board, MoveList move);
